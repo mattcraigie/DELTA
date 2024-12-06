@@ -10,7 +10,7 @@ def load_raw_data(root_dir, alignment_strength):
     # For the 'real' data
     raw_data = np.load(os.path.join(root_dir, 'raw_alignment_tables', f"realignments_mu_{alignment_strength}.npz"), allow_pickle=True)
     galaxy_data = raw_data["galaxy_table"]
-    orient_data = raw_data["orient_table"]
+    orient_data = raw_data["orientation_tables"]
 
     positions = np.stack([galaxy_data['x'],
                           galaxy_data['y'],
