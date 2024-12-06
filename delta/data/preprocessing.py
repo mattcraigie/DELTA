@@ -61,32 +61,31 @@ def preprocess_data(config):
     """
 
     root_dir = config["data"]["data_root"]
-    os.makedirs(root_dir, exist_ok=True)  # Ensure the data root directory exists
+    preprocessed_dir = os.path.join(root_dir, 'preprocessed')
+    os.makedirs(preprocessed_dir, exist_ok=True)  # Ensure the data root directory exists
 
     alignment_strength = config["data"]["alignment_strength"]
     alignment_strength = str(alignment_strength)
 
     # check if the files already exist, if so, skip
-    if os.path.exists(os.path.join(root_dir, 'preprocessed', 'positions_{}.npy'.format(alignment_strength))):
-        return
+    if not os.path.exists(os.path.join(preprocessed_dir, 'positions_{}.npy'.format(alignment_strength))):
 
-    positions, orientations, properties = load_raw_data(root_dir, alignment_strength)
-    positions, orientations, properties = preprocessing(positions, orientations, properties)
+        positions, orientations, properties = load_raw_data(root_dir, alignment_strength)
+        positions, orientations, properties = preprocessing(positions, orientations, properties)
 
-    # write to files
-    np.save(os.path.join(root_dir, 'preprocessed', 'positions_{}.npy'.format(alignment_strength)), positions)
-    np.save(os.path.join(root_dir, 'preprocessed', 'orientations_{}.npy'.format(alignment_strength)), orientations)
-    np.save(os.path.join(root_dir, 'preprocessed', 'properties_{}.npy'.format(alignment_strength)), properties)
+        # write to files
+        np.save(os.path.join(preprocessed_dir, 'positions_{}.npy'.format(alignment_strength)), positions)
+        np.save(os.path.join(preprocessed_dir, 'orientations_{}.npy'.format(alignment_strength)), orientations)
+        np.save(os.path.join(preprocessed_dir, 'properties_{}.npy'.format(alignment_strength)), properties)
 
     # Also preprocess 1.0 alignment strength 1.0 if it doesn't exist. This is used for 'truth' comparisons.
-    if os.path.exists(os.path.join(root_dir, 'preprocessed', 'positions_1.0.npy')):
-        return
+    if not os.path.exists(os.path.join(root_dir, 'preprocessed', 'positions_1.0.npy')):
 
-    positions, orientations, properties = load_raw_data(root_dir, "1.0")
-    positions, orientations, properties = preprocessing(positions, orientations, properties)
+        positions, orientations, properties = load_raw_data(root_dir, alignment_strength="1.0")
+        positions, orientations, properties = preprocessing(positions, orientations, properties)
 
-    np.save(os.path.join(root_dir, 'preprocessed', 'positions_1.0.npy'), positions)
-    np.save(os.path.join(root_dir, 'preprocessed', 'orientations_1.0.npy'), orientations)
-    np.save(os.path.join(root_dir, 'preprocessed', 'properties_1.0.npy'), properties)
+        np.save(os.path.join(preprocessed_dir, 'positions_1.0.npy'), positions)
+        np.save(os.path.join(preprocessed_dir, 'orientations_1.0.npy'), orientations)
+        np.save(os.path.join(preprocessed_dir, 'properties_1.0.npy'), properties)
 
     return
