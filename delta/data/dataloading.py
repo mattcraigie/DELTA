@@ -10,11 +10,15 @@ def load_dataset(root_dir, alignment_strength):
     Load the dataset from the given root directory.
     """
 
-    data = {
-        'positions': os.path.join(root_dir, 'preprocessed', 'positions_{}.npy'.format(alignment_strength)),
-        'orientations': os.path.join(root_dir, 'preprocessed', 'orientations_{}.npy'.format(alignment_strength)),
-        'properties': os.path.join(root_dir, 'preprocessed', 'properties_{}.npy'.format(alignment_strength)),
-    }
+    data_components = ['positions', 'orientations', 'properties']
+    data = {}
+
+    for component in data_components:
+        path = os.path.join(root_dir, 'preprocessed', '{}_{}.npy'.format(component, alignment_strength))
+        if not os.path.exists(path):
+            raise FileNotFoundError("The file {} does not exist.".format(path))
+
+        data[component] = np.load(path)
 
     return data
 
