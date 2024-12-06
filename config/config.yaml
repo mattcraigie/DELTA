@@ -15,6 +15,7 @@ training:
 
 analysis:
   name: "basic_experiment"           # Name of the analysis/experiment
+  output_dir: "./output"             # Output directory for the analysis
 
 experiments:
   run_basic_experiment: true

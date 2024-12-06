@@ -1,4 +1,5 @@
 import torch
+from torch.utils.data import DataLoader
 import numpy as np
 from delta.data.dataloading import load_dataset, split_dataset, GraphDataset, collate_fn, create_dataloaders
 from delta.models.egnn import EGNN
@@ -81,8 +82,9 @@ def run_observables_experiment(config):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     analysis_name = config["analysis"]["name"]
+    output_dir = config["analysis"]["output_dir"]
 
-    root_dir = config["data"]["data_root"]
+    data_dir = config["data"]["data_root"]
     alignment_strength = config["data"]["alignment_strength"]
     num_neighbors = config["data"]["num_neighbors"]
 
@@ -94,7 +96,7 @@ def run_observables_experiment(config):
     learning_rate = config["training"]["learning_rate"]
     loss_function = config["training"]["loss_function"]
 
-    datasets, dataloaders = create_dataloaders_observables(root_dir, alignment_strength, num_neighbors)
+    datasets, dataloaders = create_dataloaders_observables(data_dir, alignment_strength, num_neighbors)
     model = EGNN(num_properties, num_layers, hidden_dim)
     model, losses = train_egnn_model(model, dataloaders['train'], dataloaders['val'], num_epochs, learning_rate,
                                      device,
@@ -103,12 +105,12 @@ def run_observables_experiment(config):
     predictions, targets = get_model_predictions(model, dataloaders['val'], device)
 
     # plot the results
+    analysis_dir = os.path.join(output_dir, analysis_name)
     plot_results(losses, predictions, targets, analysis_dir, analysis_name)
 
     # Repeat with the fully aligned data
-    _, dataloaders_full = create_dataloaders(root_dir, alignment_strength="1.0", num_neighbors=num_neighbors)
+    _, dataloaders_full = create_dataloaders(data_dir, alignment_strength="1.0", num_neighbors=num_neighbors)
     _, targets_full = get_model_predictions(model, dataloaders_full['val'], device)
-    torch.save(targets_full, os.path.join(analysis_dir, "targets_full.pth"))
 
     plot_results(losses, predictions, targets_full, analysis_dir, analysis_name + "_full")
 
@@ -163,11 +165,6 @@ def run_observables_experiment(config):
                      file_name_prefix=f"{analysis_name}_ablated_{i}")
         plot_results(losses, predictions_ablated, targets_full, analysis_dir,
                      file_name_prefix=f"{analysis_name}_ablated_{i}_full")
-
-        # reset the observable to its original un-permuted state
-        datasets['train'].h = np.column_stack((datasets['train'].h, observable_train))
-        datasets['val'].h = np.column_stack((datasets['val'].h, observable_val))
-
 
 
 

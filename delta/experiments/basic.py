@@ -17,10 +17,10 @@ def run_basic_experiment(config):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     # Load the data
-    root_dir = config["data"]["data_root"]
+    data_dir = config["data"]["data_root"]
     alignment_strength = config["data"]["alignment_strength"]
     num_neighbors = config["data"]["num_neighbors"]
-    datasets, dataloaders = create_dataloaders(root_dir, alignment_strength, num_neighbors)
+    datasets, dataloaders = create_dataloaders(data_dir, alignment_strength, num_neighbors)
 
     # Initialize the model
     num_properties = config["model"]["num_properties"]
@@ -38,10 +38,11 @@ def run_basic_experiment(config):
     predictions, targets = get_model_predictions(model, dataloaders['val'], device)
 
     analysis_name = config["analysis"]["name"]
+    output_dir = config["analysis"]["output_dir"]
 
     # create folder for the analysis
-    analysis_dir = os.path.join(root_dir, analysis_name)
-    os.makedirs(root_dir, exist_ok=True)
+    analysis_dir = os.path.join(output_dir, analysis_name)
+    os.makedirs(analysis_dir, exist_ok=True)
 
     # save the model, losses, predictions and targets into the folder
     torch.save(model.state_dict(), os.path.join(analysis_dir, "model.pth"))
@@ -55,7 +56,7 @@ def run_basic_experiment(config):
 
     # Repeat with the fully aligned data
     alignment_strength = 1.0
-    _, dataloaders_full = create_dataloaders(root_dir, alignment_strength, num_neighbors)
+    _, dataloaders_full = create_dataloaders(data_dir, alignment_strength, num_neighbors)
     _, targets_full = get_model_predictions(model, dataloaders_full['val'], device)
     torch.save(targets_full, os.path.join(analysis_dir, "targets_full.pth"))
 
