@@ -33,7 +33,7 @@ def main(config):
         print("Running distances experiment...")
         run_distances_experiment(config)
 
-    else:
+    if config["experiments"]["run_basic_experiment"]:
         print("Running basic experiment...")
         run_basic_experiment(config)
 

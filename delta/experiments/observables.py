@@ -27,7 +27,7 @@ def make_informative_observable(properties):
     Create an informative observable based on the properties. It is standard normal noise + properties.
     """
     informative_property = properties[:, 0] * 2 - 1 # scale to [-1, 1]
-    informative_observable = informative_property + np.random.normal(0, 1, len(informative_property))
+    informative_observable = informative_property + np.random.normal(0, 0.01, len(informative_property))
 
     return informative_observable
 
