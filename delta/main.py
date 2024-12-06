@@ -2,12 +2,12 @@ import argparse
 import os
 import yaml
 
-from .data.preprocessing import preprocess_data
+from delta.data.preprocessing import preprocess_data
 
-from .experiments.datascaling import run_datascaling_experiment
-from .experiments.observables import run_observables_experiment
-from .experiments.distances import run_distances_experiment
-from .experiments.basic import run_basic_experiment
+from delta.experiments.datascaling import run_datascaling_experiment
+from delta.experiments.observables import run_observables_experiment
+from delta.experiments.distances import run_distances_experiment
+from delta.experiments.basic import run_basic_experiment
 
 
 def load_config(config_path):

@@ -63,7 +63,7 @@ def train_egnn_model(model,
     The main training loop.
     """
 
-    if loss_function is 'mse_loss':
+    if loss_function == 'mse_loss':
         loss_function = torch.nn.MSELoss()
     else:
         raise ValueError('Unsupported loss function.')
