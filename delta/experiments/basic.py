@@ -1,9 +1,9 @@
 import torch
-from delta.data.dataloading import create_dataloaders
-from delta.models.egnn import EGNN
-from delta.utils.plotting import plot_results
-from delta.training.train_egnn import train_egnn_model
-from delta.utils.utils import get_model_predictions
+from ..data.dataloading import create_dataloaders
+from ..models.egnn import EGNN
+from ..utils.plotting import plot_results
+from ..training.train_egnn import train_egnn_model
+from ..utils.utils import get_model_predictions
 import os
 
 

@@ -1,5 +1,5 @@
 from torch.distributions import VonMises
-from delta.models.core_models import MLP
+from .core_models import MLP
 import numpy as np
 import torch
 
