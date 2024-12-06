@@ -27,6 +27,7 @@ def run_basic_experiment(config):
     num_layers = config["model"]["num_layers"]
     hidden_dim = config["model"]["hidden_dim"]
     model = EGNN(num_properties, num_layers, hidden_dim)
+    model.to(device)
 
     # Train the model
     num_epochs = config["training"]["num_epochs"]
