@@ -98,10 +98,10 @@ def run_observables_experiment(config):
 
     datasets, dataloaders = create_dataloaders_observables(data_dir, alignment_strength, num_neighbors)
     model = EGNN(num_properties, num_layers, hidden_dim)
+    model.to(device)
     model, losses = train_egnn_model(model, dataloaders['train'], dataloaders['val'], num_epochs, learning_rate,
                                      device,
                                      loss_function)
-    model.to(device)
 
     predictions, targets = get_model_predictions(model, dataloaders['val'], device)
 
@@ -154,10 +154,11 @@ def run_observables_experiment(config):
 
         # Re-train the model
         model = EGNN(num_properties - 1, num_layers, hidden_dim)
+        model.to(device)
         model, losses = train_egnn_model(model, dataloaders['train'], dataloaders['val'], num_epochs, learning_rate,
                                          device,
                                          loss_function)
-        model.to(device)
+
 
         # Get the predictions
         predictions_ablated, _ = get_model_predictions(model, dataloaders['val'], device)
