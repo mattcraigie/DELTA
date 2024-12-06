@@ -11,7 +11,6 @@ def run_basic_experiment(config):
     """
     Run a basic test of the model.
     """
-    print("Running basic experiment...")
 
     # Set the device
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -62,5 +61,3 @@ def run_basic_experiment(config):
     torch.save(targets_full, os.path.join(analysis_dir, "targets_full.pth"))
 
     plot_results(losses, predictions, targets_full, analysis_dir, analysis_name + "_full")
-
-    print("Basic experiment completed.")

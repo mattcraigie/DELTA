@@ -4,9 +4,9 @@ data:
   num_neighbors: 10                  # Number of neighbors in data preprocessing
 
 model:
-  num_properties: 5                  # Number of input properties for the model
+  num_properties: 1                  # Number of input properties for the model
   num_layers: 3                      # Number of layers in the model
-  hidden_dim: 128                    # Hidden dimension of the model layers
+  hidden_dim: 16                    # Hidden dimension of the model layers
 
 training:
   num_epochs: 100                     # Number of training epochs

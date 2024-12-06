@@ -101,6 +101,7 @@ def run_observables_experiment(config):
     model, losses = train_egnn_model(model, dataloaders['train'], dataloaders['val'], num_epochs, learning_rate,
                                      device,
                                      loss_function)
+    model.to(device)
 
     predictions, targets = get_model_predictions(model, dataloaders['val'], device)
 
@@ -125,9 +126,9 @@ def run_observables_experiment(config):
         predictions_permuted, _ = get_model_predictions(model, dataloaders['val'], device)
 
         # Plot the results
-        plot_results(losses, predictions_permuted, targets, analysis_dir,
+        plot_results(None, predictions_permuted, targets, analysis_dir,
                      file_name_prefix=f"{analysis_name}_permuted_{i}")
-        plot_results(losses, predictions_permuted, targets_full, analysis_dir,
+        plot_results(None, predictions_permuted, targets_full, analysis_dir,
                      file_name_prefix=f"{analysis_name}_permuted_{i}_full")
 
         # reset the observable to its original un-permuted state
@@ -156,6 +157,7 @@ def run_observables_experiment(config):
         model, losses = train_egnn_model(model, dataloaders['train'], dataloaders['val'], num_epochs, learning_rate,
                                          device,
                                          loss_function)
+        model.to(device)
 
         # Get the predictions
         predictions_ablated, _ = get_model_predictions(model, dataloaders['val'], device)

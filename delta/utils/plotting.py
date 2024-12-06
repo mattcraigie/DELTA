@@ -179,8 +179,9 @@ def plot_angular_differences(prediction, target, root_dir=None, file_name=None):
 def plot_results(losses, predictions, targets, analysis_dir, file_name_prefix):
 
     # Plot losses
-    file_name_losses = file_name_prefix + '_losses.png'
-    plot_losses(losses['train'], losses['val'], root_dir=analysis_dir, file_name=file_name_losses)
+    if losses is not None:
+        file_name_losses = file_name_prefix + '_losses.png'
+        plot_losses(losses['train'], losses['val'], root_dir=analysis_dir, file_name=file_name_losses)
 
     # Compute angular predictions and targets
     predictions_angle = angle_from_trig(predictions[:, 0], predictions[:, 1])
