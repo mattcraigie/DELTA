@@ -110,7 +110,8 @@ def run_observables_experiment(config):
     plot_results(losses, predictions, targets, analysis_dir, analysis_name)
 
     # Repeat with the fully aligned data
-    _, dataloaders_full = create_dataloaders(data_dir, alignment_strength="1.0", num_neighbors=num_neighbors)
+    _, dataloaders_full = create_dataloaders_observables(data_dir, alignment_strength="1.0",
+                                                         num_neighbors=num_neighbors)
     _, targets_full = get_model_predictions(model, dataloaders_full['val'], device)
 
     plot_results(losses, predictions, targets_full, analysis_dir, analysis_name + "_full")
