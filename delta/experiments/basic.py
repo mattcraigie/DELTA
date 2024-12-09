@@ -27,10 +27,10 @@ def run_basic_experiment(config):
     model = init_vmdn(config["model"])
     model.to(device)
 
-    if config["model"]["pretrain"]:
+    if config["training"]["pretrain"]:
         # Pre-Train the EGNN model
-        pretrain_epochs = config["model"]["pretrain_epochs"]
-        pretrain_learning_rate = config["model"]["pretrain_learning_rate"]
+        pretrain_epochs = config["training"]["pretrain_epochs"]
+        pretrain_learning_rate = config["training"]["pretrain_learning_rate"]
         train_model(model.compression_network.egnn, dataloaders['train'], dataloaders['val'], pretrain_epochs,
                     pretrain_learning_rate, device)
 
