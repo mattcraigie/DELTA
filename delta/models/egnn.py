@@ -14,6 +14,7 @@ class EGNN(nn.Module):
         assert num_layers > 0, 'Number of layers must be greater than 0.'
 
         self.num_layers = num_layers
+        self.hidden_dim = hidden_dim
 
         self.node_embedding = nn.Linear(num_properties, hidden_dim)
         self.edge_mlp = MLP(hidden_dim * 2 + 1, hidden_dim, hidden_layers=[hidden_dim,])

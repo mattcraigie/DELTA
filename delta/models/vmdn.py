@@ -33,8 +33,8 @@ class VMDN(nn.Module):
         if hidden_layers is None:
             hidden_layers = [32, 32]
 
-        self.angle_network = MLP(input_dim=dim_in, output_dim=1, hidden_layers=hidden_layers)
-        self.kappa_network = MLP(input_dim=dim_in, output_dim=1, hidden_layers=hidden_layers)
+        self.angle_network = MLP(input_dim=compression_network.out_size, output_dim=1, hidden_layers=hidden_layers)
+        self.kappa_network = MLP(input_dim=compression_network.out_size, output_dim=1, hidden_layers=hidden_layers)
 
 
     def forward(self, *args):

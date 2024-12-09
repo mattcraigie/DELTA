@@ -21,9 +21,10 @@ class MLP(nn.Module):
 
 
 class CompressionNetwork(nn.Module):
-    def __init__(self, model):
+    def __init__(self, egnn):
         super(CompressionNetwork, self).__init__()
-        self.model = model
+        self.egnn = egnn
+        self.out_size = egnn.hidden_dim + 1
 
     def forward(self, *args):
         h, _, v = self.model(*args)
