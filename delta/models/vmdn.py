@@ -26,7 +26,7 @@ class VMDN(nn.Module):
     The model predicts the mean (mu) and concentration (kappa).
     """
 
-    def __init__(self, dim_in, compression_network, hidden_layers=None):
+    def __init__(self, compression_network, hidden_layers=None):
         super().__init__()
         self.compression_network = compression_network
 
