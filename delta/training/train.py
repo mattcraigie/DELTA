@@ -1,6 +1,7 @@
 import torch
 import numpy as np
 import copy
+from .loss_functions import egnn_loss, vmdn_loss
 
 
 def train_epoch(model, optimizer, loss_function, train_loader, device):
@@ -15,12 +16,10 @@ def train_epoch(model, optimizer, loss_function, train_loader, device):
         x = x.to(device)
         edge_index = edge_index.to(device)
         v_target = v_target.to(device)
+        model_input = (h, x, edge_index)
 
         optimizer.zero_grad()
-
-        _, _, v_pred = model(h, x, edge_index)
-        loss = loss_function(v_pred, v_target)
-
+        loss = loss_function(model, model_input, v_target)
         loss.backward()
         optimizer.step()
 
@@ -42,31 +41,31 @@ def validate(model, loss_function, val_loader, device):
             x = x.to(device)
             edge_index = edge_index.to(device)
             v_target = v_target.to(device)
-
-            _, _, v_pred = model(h, x, edge_index)
-            val_loss = loss_function(v_pred, v_target)
-
+            model_input = (h, x, edge_index)
+            val_loss = loss_function(model, model_input, v_target)
             val_losses.append(val_loss.item())
 
     return np.mean(val_losses)
 
 
-def train_egnn_model(model,
-                     train_loader,
-                     val_loader,
-                     num_epochs,
-                     learning_rate,
-                     device,
-                     loss_function=None,
-                     print_every=10):
+def train_model(model,
+                train_loader,
+                val_loader,
+                num_epochs,
+                learning_rate,
+                device,
+                print_every=10):
     """
     The main training loop.
     """
 
-    if loss_function == 'mse_loss':
-        loss_function = torch.nn.MSELoss()
+    if type(model).__name__ == 'EGNN':  # pretraining / compression model only
+        loss_function = egnn_loss
+    elif type(model).__name__ == 'VMDN':
+        loss_function = vmdn_loss
     else:
-        raise ValueError('Unsupported loss function.')
+        raise ValueError(f'Unknown model type: {type(model).__name__}')
+
 
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 

@@ -1,8 +1,7 @@
 import torch
 import torch.nn as nn
-from .core_models import MLP
+from .basic_models import MLP
 from torch_scatter import scatter
-
 import torch.nn.functional as F
 
 # todo: make it so there's a spin2 or non-spin2 option

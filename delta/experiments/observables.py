@@ -4,7 +4,7 @@ import numpy as np
 from ..data.dataloading import load_dataset, split_dataset, GraphDataset, collate_fn, create_dataloaders
 from ..models.egnn import EGNN
 from ..utils.plotting import plot_results
-from ..training.train_egnn import train_egnn_model
+from ..training.train import train_model
 from ..utils.utils import get_model_predictions
 import os
 
@@ -99,9 +99,7 @@ def run_observables_experiment(config):
     datasets, dataloaders = create_dataloaders_observables(data_dir, alignment_strength, num_neighbors)
     model = EGNN(num_properties, num_layers, hidden_dim)
     model.to(device)
-    model, losses = train_egnn_model(model, dataloaders['train'], dataloaders['val'], num_epochs, learning_rate,
-                                     device,
-                                     loss_function)
+    model, losses = train_model(model, dataloaders['train'], dataloaders['val'], num_epochs, learning_rate, device)
 
     predictions, targets = get_model_predictions(model, dataloaders['val'], device)
 
@@ -156,9 +154,7 @@ def run_observables_experiment(config):
         # Re-train the model
         model = EGNN(num_properties - 1, num_layers, hidden_dim)
         model.to(device)
-        model, losses = train_egnn_model(model, dataloaders['train'], dataloaders['val'], num_epochs, learning_rate,
-                                         device,
-                                         loss_function)
+        model, losses = train_model(model, dataloaders['train'], dataloaders['val'], num_epochs, learning_rate, device)
 
 
         # Get the predictions

@@ -1,17 +1,20 @@
 data:
-  data_root: "./data"                 # Root directory for data
+  data_root: "./data"                # Root directory for data
   alignment_strength: 0.5            # Initial alignment strength
   num_neighbors: 10                  # Number of neighbors in data preprocessing
 
 model:
-  num_properties: 1                  # Number of input properties for the model
-  num_layers: 3                      # Number of layers in the model
-  hidden_dim: 16                    # Hidden dimension of the model layers
+  num_properties: 1                       # Number of input properties for the model
+  egnn_num_layers: 3                      # Number of layers in the model
+  egnn_hidden_dim: 16                     # Hidden dimension of the model layers
+  vmdn_hidden_layers: [32, 32]            # Hidden layers of the VMDN model
 
 training:
-  num_epochs: 100                     # Number of training epochs
-  learning_rate: 0.001               # Learning rate for the optimizer
-  loss_function: "mse_loss"           # Loss function to use (e.g., Mean Squared Error)
+  pretrain: true
+  pretrain_epochs: 10
+  pretrain_learning_rate: 0.001
+  train_epochs: 10
+  train_learning_rate: 0.001
 
 analysis:
   name: "basic_experiment"           # Name of the analysis/experiment

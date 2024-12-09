@@ -1,8 +1,10 @@
 import torch
 from ..data.dataloading import create_dataloaders
 from ..models.egnn import EGNN
+from ..models.vmdn import VMDN, init_vmdn
+from ..models.basic_models import CompressionNetwork
 from ..utils.plotting import plot_results
-from ..training.train_egnn import train_egnn_model
+from ..training.train import train_model
 from ..utils.utils import get_model_predictions
 import os
 
@@ -22,18 +24,22 @@ def run_basic_experiment(config):
     datasets, dataloaders = create_dataloaders(data_dir, alignment_strength, num_neighbors)
 
     # Initialize the model
-    num_properties = config["model"]["num_properties"]
-    num_layers = config["model"]["num_layers"]
-    hidden_dim = config["model"]["hidden_dim"]
-    model = EGNN(num_properties, num_layers, hidden_dim)
+    model = init_vmdn(config["model"])
     model.to(device)
 
+    if config["model"]["pretrain"]:
+        # Pre-Train the EGNN model
+        pretrain_epochs = config["model"]["pretrain_epochs"]
+        pretrain_learning_rate = config["model"]["pretrain_learning_rate"]
+        train_model(model.compression_network.egnn, dataloaders['train'], dataloaders['val'], pretrain_epochs,
+                    pretrain_learning_rate, device)
+
     # Train the model
-    num_epochs = config["training"]["num_epochs"]
-    learning_rate = config["training"]["learning_rate"]
-    loss_function = config["training"]["loss_function"]
-    model, losses = train_egnn_model(model, dataloaders['train'], dataloaders['val'], num_epochs, learning_rate, device,
-                                loss_function)
+    train_epochs = config["training"]["train_epochs"]
+    train_learning_rate = config["training"]["train_learning_rate"]
+
+    model, losses = train_model(model, dataloaders['train'], dataloaders['val'], train_epochs,
+                                train_learning_rate, device)
 
     predictions, targets = get_model_predictions(model, dataloaders['val'], device)
 
