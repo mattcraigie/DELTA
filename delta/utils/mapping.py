@@ -95,10 +95,9 @@ if __name__ == '__main__':
     positions = datasets['val'].positions
 
     # create prediction map
-    plots_path = os.path.join(args.output_dir, 'plots')
 
     mask_edges = list(map(int, args.mask_edges.split(',')))
 
-    create_prediction_map(positions, predictions, targets, targets_full, plots_path, 'prediction_map',
+    create_prediction_map(positions, predictions, targets, targets_full, args.output_dir, file_name_prefix=None,
                           mask_edges=mask_edges)
 

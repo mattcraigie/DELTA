@@ -51,6 +51,7 @@ def run_basic_experiment(config):
     analysis_dir = os.path.join(output_dir, analysis_name)
     os.makedirs(analysis_dir, exist_ok=True)
 
+    # todo: don't save everything as torch tensors
     # save the model, losses, predictions and targets into the folder
     torch.save(model.state_dict(), os.path.join(analysis_dir, "model.pth"))
     torch.save(losses, os.path.join(analysis_dir, "losses.pth"))
