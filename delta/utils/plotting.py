@@ -100,7 +100,8 @@ def plot_predictions_heatmap(predictions, targets, x_variable='Predictions', y_v
 
 def plot_angular_means(prediction, target, n_bins=20, n_bootstrap=100, root_dir=None, file_name=None):
     """
-    Plot angular means of target binned by prediction with bootstrap error bars.
+    Plot angular means of target binned by prediction with bootstrap error bars,
+    wrapping error bars within the range [-π, π].
 
     Parameters:
         prediction (np.ndarray): Array of predicted angular values.
@@ -108,21 +109,36 @@ def plot_angular_means(prediction, target, n_bins=20, n_bootstrap=100, root_dir=
         n_bins (int): Number of bins for prediction.
         n_bootstrap (int): Number of bootstrap resamples for error estimation.
         root_dir (str): Directory to save the plot.
+        file_name (str): Name of the file to save the plot.
 
     Returns:
         file_path (str): Path to the saved plot.
     """
+
+    def wrap_angle(angle):
+        """Wrap an angle to the range [-π, π]."""
+        return (angle + np.pi) % (2 * np.pi) - np.pi
+
     # Compute angular means and bootstrap error bars
     bin_centers, angular_means, angular_errors = angular_mean_with_error(prediction, target, n_bins, n_bootstrap)
 
-    # Duplicate angular means and errors for looping across boundaries
-    extended_bin_centers = np.concatenate([bin_centers - 2 * np.pi, bin_centers, bin_centers + 2 * np.pi])
-    extended_angular_means = np.concatenate([angular_means - 2 * np.pi, angular_means, angular_means + 2 * np.pi])
-    extended_angular_errors = np.concatenate([angular_errors, angular_errors, angular_errors])
-
     # Setup figure and plot
     fig, ax = plt.subplots(figsize=(6, 4))
-    ax.errorbar(extended_bin_centers, extended_angular_means, yerr=extended_angular_errors, fmt='o', capsize=5, color='b')
+
+    for bin_center, mean, error in zip(bin_centers, angular_means, angular_errors):
+        lower = wrap_angle(mean - error)
+        upper = wrap_angle(mean + error)
+
+        if lower > upper:  # Wrap case
+            ax.plot([bin_center, bin_center], [lower, -np.pi], color='gray', linestyle='--', alpha=0.6)  # Wrap lower
+            ax.plot([bin_center, bin_center], [np.pi, upper], color='gray', linestyle='--', alpha=0.6)  # Wrap upper
+        else:
+            ax.plot([bin_center, bin_center], [lower, upper], color='gray', linestyle='--',
+                    alpha=0.6)  # Regular error bar
+
+        # Plot the mean
+        ax.plot(bin_center, mean, 'o', color='blue')
+
     ax.plot([-np.pi, np.pi], [-np.pi, np.pi], 'k--', alpha=0.5)
     ax.set_xlim(-np.pi, np.pi)
     ax.set_ylim(-np.pi, np.pi)
@@ -133,8 +149,9 @@ def plot_angular_means(prediction, target, n_bins=20, n_bootstrap=100, root_dir=
     # Save plot
     if file_name is None:
         file_name = "prediction_mean_error.png"
+    file_path = save_plot(fig, root_dir=root_dir, file_name=file_name)
 
-    return save_plot(fig, root_dir=root_dir, file_name=file_name)
+    return file_path
 
 
 def plot_angular_differences(prediction, target, root_dir=None, file_name=None):
