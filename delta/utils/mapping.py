@@ -15,12 +15,12 @@ def create_prediction_map(model, dataloader, dataloader_full, device, root_dir, 
 
     positions = dataloader.dataset.positions
 
-    # mask = (
-    #     (positions[:, 0] > 0)
-    #     & (positions[:, 0] < 100)
-    #     & (positions[:, 1] > 0)
-    #     & (positions[:, 1] < 100)
-    # )
+    mask = (
+        (positions[:, 0] > 500)
+        & (positions[:, 0] < 600)
+        & (positions[:, 1] > 0)
+        & (positions[:, 1] < 100)
+    )
 
     mask = slice(None)
 
@@ -31,15 +31,15 @@ def create_prediction_map(model, dataloader, dataloader_full, device, root_dir, 
     fig, axes = plt.subplots(1, 3, figsize=(15, 5))
 
     # training targets
-    axes[0].scatter(positions[:, 0], positions[:, 1], c=targets[mask])
+    axes[0].scatter(positions[:, 0], positions[:, 1], s=10, c=targets[mask])
     axes[0].set_title("Training Targets")
 
     # model predictions
-    axes[1].scatter(positions[:, 0], positions[:, 1], c=predictions[mask])
+    axes[1].scatter(positions[:, 0], positions[:, 1], s=10, c=predictions[mask])
     axes[1].set_title("Model Predictions")
 
     # true targets
-    axes[2].scatter(positions[:, 0], positions[:, 1], c=targets_full[mask])
+    axes[2].scatter(positions[:, 0], positions[:, 1], s=10, c=targets_full[mask])
     axes[2].set_title("True Targets")
 
     # Save plot

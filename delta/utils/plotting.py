@@ -117,7 +117,7 @@ def plot_angular_means(prediction, target, n_bins=20, n_bootstrap=100, root_dir=
 
     def wrap_angle(angle):
         """Wrap an angle to the range [-π, π]."""
-        return (angle + 2 * np.pi) % (2 * np.pi) - np.pi
+        return (angle + np.pi) % (2 * np.pi) - np.pi
 
     # Compute angular means and bootstrap error bars
     bin_centers, angular_means, angular_errors = angular_mean_with_error(prediction, target, n_bins, n_bootstrap)
