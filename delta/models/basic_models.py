@@ -32,8 +32,8 @@ class CompressionNetwork(nn.Module):
         print(len(args[1]))
         print(args[0])
         print(args[1])
-        print([i.shape for i in args[0]])
-        print([i.shape for i in args[1]])
+        # print([i.shape for i in args[0]])
+        # print([i.shape for i in args[1]])
         h, _, v = self.egnn(*args)
 
         angle = torch.arctan2(v[:, 1], v[:, 0] + 1e-5)[:, None]
