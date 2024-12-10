@@ -17,7 +17,7 @@ def load_pretrained_model(model_path):
 
 def create_prediction_map(model, dataloader, dataloader_full, device, root_dir, file_name=None, map_type=None,
                           mask_edges=None):
-    predictions, targets = get_model_predictions(model, dataloader, device)
+    predictions, targets = get_model_predictions(model, dataloader, device)  # can avoid running this by loading predictions from file
     _, targets_full = get_model_predictions(model, dataloader_full, device)
 
     positions = dataloader.dataset.positions
@@ -87,9 +87,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     # config
-    config_path = os.path.join(args.output_dir, 'config.yaml')
-    with open(config_path, 'r') as file:
-        config = yaml.safe_load(file)
+    config = torch.load(os.path.join(args.output_dir, 'config.pth'))
 
     # load model
     model_path = os.path.join(args.output_dir, 'model.pth')
