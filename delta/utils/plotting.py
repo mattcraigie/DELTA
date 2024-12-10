@@ -130,8 +130,9 @@ def plot_angular_means(prediction, target, n_bins=20, n_bootstrap=100, root_dir=
         upper = wrap_angle(mean + error)
 
         if lower > upper:  # Wrap case
-            ax.plot([bin_center, bin_center], [lower, -np.pi], color='gray', linestyle='--', alpha=0.6)  # Wrap lower
-            ax.plot([bin_center, bin_center], [np.pi, upper], color='gray', linestyle='--', alpha=0.6)  # Wrap upper
+            print(lower, upper)
+            ax.plot([bin_center, bin_center], [lower, np.pi], color='gray', linestyle='--', alpha=0.6)  # Wrap lower
+            ax.plot([bin_center, bin_center], [-np.pi, upper], color='gray', linestyle='--', alpha=0.6)  # Wrap upper
         else:
             ax.plot([bin_center, bin_center], [lower, upper], color='gray', linestyle='--',
                     alpha=0.6)  # Regular error bar

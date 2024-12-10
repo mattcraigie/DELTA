@@ -26,22 +26,24 @@ def create_prediction_map(model, dataloader, dataloader_full, device, root_dir, 
 
     positions = positions[mask]
 
-    fig, axs = plt.subplots(1, 3, figsize=(15, 5))
+    print(positions.shape)
+
+    fig, axes = plt.subplots(1, 3, figsize=(15, 5))
 
     # training targets
-    axs[0].scatter(positions[:, 0], positions[:, 1], c=targets[mask], s=1, cmap='Blues')
-    axs[0].set_title("Training Targets")
+    axes[0].scatter(positions[:, 0], positions[:, 1], c=targets[mask])
+    axes[0].set_title("Training Targets")
 
     # model predictions
-    axs[1].scatter(positions[:, 0], positions[:, 1], c=predictions[mask], s=1, cmap='Blues')
-    axs[1].set_title("Model Predictions")
+    axes[1].scatter(positions[:, 0], positions[:, 1], c=predictions[mask])
+    axes[1].set_title("Model Predictions")
 
     # true targets
-    axs[2].scatter(positions[:, 0], positions[:, 1], c=targets_full[mask], s=1, cmap='Blues')
-    axs[2].set_title("True Targets")
+    axes[2].scatter(positions[:, 0], positions[:, 1], c=targets_full[mask])
+    axes[2].set_title("True Targets")
 
     # Save plot
-    file_name = file_name_prefix + "prediction_map.png"
+    file_name = file_name_prefix + "_prediction_map.png"
 
     return save_plot(fig, root_dir=root_dir, file_name=file_name)
 
