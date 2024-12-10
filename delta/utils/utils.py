@@ -106,7 +106,7 @@ def get_model_predictions(model, dataloader, device, egnn=False, output_angle=Tr
                     samples = torch.atan2(samples[:, 1], samples[:, 0]).unsqueeze(1)
 
             else:
-                samples = model.sample(h, x, edge_index)
+                samples = model.sample(h, x, edge_index) - np.pi # vmdn returns samples between 0 and 2pi, shift to -pi to pi
                 if not output_angle:
                     samples = torch.hstack([torch.cos(samples), torch.sin(samples)])
 
