@@ -106,7 +106,7 @@ def get_model_predictions(model, dataloader, device, egnn=False, output_angle=Tr
             if egnn:
                 _, _, samples = model(h, x, edge_index)  # egnn returns h, x, and v_pred, where v_pred is the samples
                 if output_angle:
-                    samples = torch.atan2(samples[:, 1], samples[:, 0])
+                    samples = torch.atan2(samples[:, 1], samples[:, 0]).unsqueeze(1)
 
             else:
                 samples = model.sample(h, x, edge_index)
@@ -114,7 +114,7 @@ def get_model_predictions(model, dataloader, device, egnn=False, output_angle=Tr
                     samples = torch.hstack([torch.cos(samples), torch.sin(samples)])
 
             if output_angle:
-                v_target = torch.atan2(v_target[:, 1], v_target[:, 0])
+                v_target = torch.atan2(v_target[:, 1], v_target[:, 0]).unsqueeze(1)
 
             predictions.append(samples.cpu().numpy())
             targets.append(v_target.cpu().numpy())
