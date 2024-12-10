@@ -113,7 +113,7 @@ def get_model_predictions(model, dataloader, device, egnn=False, output_angle=Tr
                     samples = signed_to_unsigned_angle(samples)
 
             else:
-                samples = model.sample(h, x, edge_index)
+                samples, _ = model(h, x, edge_index)  # vmdn return mu and log_sigma, where mu is the samples
                 samples = signed_to_unsigned_angle(samples)
                 if not output_angle:
                     samples = torch.hstack([torch.cos(samples), torch.sin(samples)])
