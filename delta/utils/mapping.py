@@ -15,12 +15,14 @@ def create_prediction_map(model, dataloader, dataloader_full, device, root_dir, 
 
     positions = dataloader.dataset.positions
 
-    mask = (
-        (positions[:, 0] > 0)
-        & (positions[:, 0] < 100)
-        & (positions[:, 1] > 0)
-        & (positions[:, 1] < 100)
-    )
+    # mask = (
+    #     (positions[:, 0] > 0)
+    #     & (positions[:, 0] < 100)
+    #     & (positions[:, 1] > 0)
+    #     & (positions[:, 1] < 100)
+    # )
+
+    mask = slice(None)
 
     positions = positions[mask]
 
