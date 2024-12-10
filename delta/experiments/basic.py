@@ -59,15 +59,15 @@ def run_basic_experiment(config):
     torch.save(config, os.path.join(analysis_dir, "config.pth"))
 
     # plot the results
-    plot_results(losses, predictions, targets, analysis_dir, analysis_name)
+    plot_results(losses, predictions, targets, analysis_di, file_name_prefix='data')
 
     # Repeat with the fully aligned data
     alignment_strength = 1.0
     _, dataloaders_full = create_dataloaders(data_dir, alignment_strength, num_neighbors)
     _, targets_full = get_model_predictions(model, dataloaders_full['val'], device)
-    torch.save(targets_full, os.path.join(analysis_dir, "targets_full.pth"))
+    torch.save(targets_full, os.path.join(analysis_dir, "targets_true.pth"))
 
-    plot_results(losses, predictions, targets_full, analysis_dir, analysis_name + "_full")
+    plot_results(losses, predictions, targets_full, analysis_dir, file_name_prefix="true")
 
     # plot the maps
     create_prediction_map(model, dataloaders['val'], dataloaders_full['val'], device, analysis_dir, analysis_name)
