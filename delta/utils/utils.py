@@ -107,6 +107,7 @@ def get_model_predictions(model, dataloader, device, egnn=False):
                 _, _, samples = model(h, x, edge_index)  # egnn returns h, x, and v_pred, where v_pred is the samples
             else:
                 samples = model.sample(h, x, edge_index)
+                print(samples.shape)
 
             predictions.append(samples.cpu().numpy())
             targets.append(v_target.cpu().numpy())
