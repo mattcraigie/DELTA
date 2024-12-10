@@ -65,6 +65,8 @@ def plot_predictions_heatmap(predictions, targets, x_variable='Predictions', y_v
     """
 
     # Compute joint histogram
+    print(predictions.shape)
+    print(targets.shape)
     joint_histogram, xedges, yedges = np.histogram2d(predictions, targets, bins=bins, range=hist_range, density=True)
 
     # Normalize joint histogram to form joint PDF
