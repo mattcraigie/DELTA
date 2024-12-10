@@ -48,6 +48,8 @@ class VMDN(nn.Module):
     def loss(self, *args, target=None):
         mu, kappa = self.forward(*args)
         dist_vonmises = VonMises(mu, kappa)
+        print(mu.min(), mu.max())
+        print(target.min(), target.max())
         log_prob = dist_vonmises.log_prob(target)
         nll = -log_prob.mean()
         return nll
