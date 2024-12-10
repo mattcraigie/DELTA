@@ -88,7 +88,7 @@ def angular_mean_with_error(theta_1, theta_2, n_bins=20, n_bootstrap=100):
     return bin_centers, angular_means, angular_errors
 
 
-def get_model_predictions(model, dataloader, device, egnn=False):
+def get_model_predictions(model, dataloader, device, egnn=False, output_angle=True):
     """
     Get the model predictions for a dataset.
     """
@@ -105,9 +105,16 @@ def get_model_predictions(model, dataloader, device, egnn=False):
 
             if egnn:
                 _, _, samples = model(h, x, edge_index)  # egnn returns h, x, and v_pred, where v_pred is the samples
+                if output_angle:
+                    samples = torch.atan2(samples[:, 1], samples[:, 0])
+
             else:
                 samples = model.sample(h, x, edge_index)
-                print(samples.shape)
+                if not output_angle:
+                    samples = torch.hstack([torch.cos(samples), torch.sin(samples)])
+
+            if output_angle:
+                v_target = torch.atan2(v_target[:, 1], v_target[:, 0])
 
             predictions.append(samples.cpu().numpy())
             targets.append(v_target.cpu().numpy())
