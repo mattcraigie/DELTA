@@ -88,7 +88,7 @@ def angular_mean_with_error(theta_1, theta_2, n_bins=20, n_bootstrap=100):
     return bin_centers, angular_means, angular_errors
 
 
-def get_model_predictions(model, dataloader, device):
+def get_model_predictions(model, dataloader, device, egnn=False):
     """
     Get the model predictions for a dataset.
     """
@@ -103,8 +103,12 @@ def get_model_predictions(model, dataloader, device):
             edge_index = edge_index.to(device)
             v_target = v_target.to(device)
 
-            _, _, v_pred = model(h, x, edge_index)
-            predictions.append(v_pred.cpu().numpy())
+            if egnn:
+                _, _, samples = model(h, x, edge_index)  # egnn returns h, x, and v_pred, where v_pred is the samples
+            else:
+                samples = model.sample(h, x, edge_index)
+
+            predictions.append(samples.cpu().numpy())
             targets.append(v_target.cpu().numpy())
 
     predictions = np.concatenate(predictions, axis=0)
