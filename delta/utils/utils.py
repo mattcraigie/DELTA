@@ -22,10 +22,15 @@ def circular_mean(angles):
 def angular_differences(angles_1, angles_2):
     mean_1 = circular_mean(angles_1)
     mean_2 = circular_mean(angles_2)
+
+    # Calculate angular difference between the means
     mean_diff = angle_from_trig(np.cos(mean_1 - mean_2), np.sin(mean_1 - mean_2))
-    diff_abs = np.abs(mean_diff - angles_1)
-    differences = np.minimum(diff_abs, 2 * np.pi - diff_abs)
-    return differences
+
+    # Compute pairwise angular differences and wrap them into [-pi, pi]
+    differences = angles_1 - mean_diff
+    differences = (differences + np.pi) % (2 * np.pi) - np.pi  # Wrap to [-pi, pi]
+
+    return np.abs(differences)
 
 
 def angular_mean_with_error(theta_1, theta_2, n_bins=20, n_bootstrap=100):
