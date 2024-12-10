@@ -185,6 +185,8 @@ def plot_results(losses, predictions, targets, analysis_dir, file_name_prefix, e
         file_name_losses = file_name_prefix + '_losses.png'
         plot_losses(losses['train'], losses['val'], root_dir=analysis_dir, file_name=file_name_losses)
 
+    predictions, targets = predictions.squeeze(1), targets.squeeze(1)
+
     # Plot heatmap of angular predictions and targets
     file_name_heatmap = file_name_prefix + '_heatmap.png'
     plot_predictions_heatmap(predictions, targets, x_variable='Predicted Angle', y_variable='Target Angle',
