@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import argparse
 from .plotting import save_plot
 import numpy as np
+import os
 
 
 def load_pretrained_model(model_path):
@@ -74,18 +75,22 @@ if __name__ == '__main__':
 
     # argparse for model path
     parser = argparse.ArgumentParser()
-    parser.add_argument('--model_path', type=str, required=True)
+    parser.add_argument('--output_dir', type=str, required=True)
     parser.add_argument('--data_path', type=str, required=True)
     parser.add_argument('--data_full_path', type=str, required=True)
-    parser.add_argument('--output_dir', type=str, required=True)
+
     args = parser.parse_args()
 
     # load model
+    model_path = os.path.join(args.output_dir, 'model.pth')
     model = load_pretrained_model(args.model_path)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model.to(device)
 
     # create prediction map
-    create_prediction_map(model, args.data_path, args.data_full_path, device, args.output_dir, map_type='angle')
+    plots_path = os.path.join(args.output_dir, 'plots')
+
+
+    # create_prediction_map(model, args.data_path, args.data_full_path, device, args.output_dir)
 
 

@@ -203,24 +203,20 @@ def plot_angular_differences(prediction, target, root_dir=None, file_name=None):
     return save_plot(fig, root_dir=root_dir, file_name=file_name)
 
 
-def plot_results(losses, predictions, targets, analysis_dir, file_name_prefix, egnn=False):
+def plot_results(losses, predictions, targets, analysis_dir, egnn=False):
 
     # Plot losses
     if losses is not None:
-        file_name_losses = file_name_prefix + '_losses.png'
-        plot_losses(losses['train'], losses['val'], root_dir=analysis_dir, file_name=file_name_losses)
+        plot_losses(losses['train'], losses['val'], root_dir=analysis_dir)
 
     predictions, targets = predictions.squeeze(1), targets.squeeze(1)
 
     # Plot heatmap of angular predictions and targets
-    file_name_heatmap = file_name_prefix + '_heatmap.png'
     plot_predictions_heatmap(predictions, targets, x_variable='Predicted Angle', y_variable='Target Angle',
-                             root_dir=analysis_dir, file_name=file_name_heatmap)
+                             root_dir=analysis_dir)
 
     # Plot averaged angular predictions and targets
-    file_name_means = file_name_prefix + '_means.png'
-    plot_angular_means(predictions, targets, root_dir=analysis_dir, file_name=file_name_means)
+    plot_angular_means(predictions, targets, root_dir=analysis_dir)
 
     # Plot histogram of angular predictions and targets
-    file_name_histogram = file_name_prefix + '_differences.png'
-    plot_angular_differences(predictions, targets, root_dir=analysis_dir, file_name=file_name_histogram)
+    plot_angular_differences(predictions, targets, root_dir=analysis_dir)
