@@ -39,7 +39,7 @@ class VMDN(nn.Module):
 
     def forward(self, *args):
         compressed = self.compression_network(*args)
-        mu = (self.angle_network(compressed) % (np.pi * 2)) - np.pi
+        mu = (self.angle_network(compressed) % (np.pi * 2))
         log_kappa = self.kappa_network(compressed)
         log_kappa = torch.clamp(log_kappa, min=-3, max=3)  # Prevent extreme values
         kappa = torch.exp(log_kappa)

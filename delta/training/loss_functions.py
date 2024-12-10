@@ -9,6 +9,6 @@ def egnn_loss(model, model_input, targets):
 
 
 def vmdn_loss(model, model_inputs, targets):
-    targets = torch.atan2(targets[:, 1], targets[:, 0]).unsqueeze(-1) * np.pi
+    targets = torch.atan2(targets[:, 1], targets[:, 0]).unsqueeze(-1) + np.pi
     return model.loss(*model_inputs, target=targets)
 
