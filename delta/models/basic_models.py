@@ -27,6 +27,9 @@ class CompressionNetwork(nn.Module):
         self.out_size = egnn.hidden_dim + 1
 
     def forward(self, *args):
+        print(len(args))
+        print(args)
+        print([i.shape for i in args])
         h, _, v = self.egnn(*args)
 
         angle = torch.arctan2(v[:, 1], v[:, 0] + 1e-5)[:, None]
