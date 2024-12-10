@@ -11,16 +11,9 @@ from ..data.dataloading import create_dataloaders
 # todo: I need some way of getting the kappa output from the model, so I can show that the poorly predicted points are
 # the ones with low kappa. Probably just rewrite the get_model_predictions function to return the kappa values as well.
 
-def load_pretrained_model(model_path):
-    model = torch.load(model_path)
-    return model
 
-def create_prediction_map(model, dataloader, dataloader_full, device, root_dir, file_name=None, map_type=None,
+def create_prediction_map(positions, predictions, targets, targets_full, root_dir, file_name_prefix=None, map_type=None,
                           mask_edges=None):
-    predictions, targets = get_model_predictions(model, dataloader, device)  # can avoid running this by loading predictions from file
-    _, targets_full = get_model_predictions(model, dataloader_full, device)
-
-    positions = dataloader.dataset.positions
 
     if mask_edges is None:
         mask_edges = (520, 540, 20, 40)
@@ -49,8 +42,6 @@ def create_prediction_map(model, dataloader, dataloader_full, device, root_dir, 
     else:
         raise ValueError(f"Map type {map_type} not recognized.")
 
-    print(positions.shape)
-
     fig, axes = plt.subplots(1, 4, figsize=(20, 5))
 
     # training targets
@@ -71,8 +62,10 @@ def create_prediction_map(model, dataloader, dataloader_full, device, root_dir, 
     axes[3].set_title("Prediction Error")
 
     # Save plot
-    if file_name is None:
+    if file_name_prefix is None:
         file_name = "prediction_map.png"
+    else:
+        file_name = f"{file_name_prefix}_prediction_map.png"
 
     return save_plot(fig, root_dir=root_dir, file_name=file_name)
 
@@ -90,23 +83,22 @@ if __name__ == '__main__':
     config = torch.load(os.path.join(args.output_dir, 'config.pth'))
 
     # load model
-    model_path = os.path.join(args.output_dir, 'model.pth')
-    model = load_pretrained_model(model_path)
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    model.to(device)
+    predictions = torch.load(os.path.join(args.output_dir, 'predictions.pth')).numpy()
+    targets = torch.load(os.path.join(args.output_dir, 'targets.pth')).numpy()
+    targets_full = torch.load(os.path.join(args.output_dir, 'targets_true.pth')).numpy()
 
     # data access
     data_dir = config["data"]["data_root"]
     alignment_strength = config["data"]["alignment_strength"]
     num_neighbors = config["data"]["num_neighbors"]
-    datasets, dataloaders = create_dataloaders(data_dir, alignment_strength, num_neighbors)
-    _, dataloaders_full = create_dataloaders(data_dir, 1.0, num_neighbors)
+    datasets, _ = create_dataloaders(data_dir, alignment_strength, num_neighbors)
+    positions = datasets['val'].positions
 
     # create prediction map
     plots_path = os.path.join(args.output_dir, 'plots')
 
     mask_edges = list(map(int, args.mask_edges.split(',')))
 
-    create_prediction_map(model, dataloaders['val'], dataloaders_full['val'], device, plots_path,
-                          'prediction_map', mask_edges=mask_edges)
+    create_prediction_map(positions, predictions, targets, targets_full, plots_path, 'prediction_map',
+                          mask_edges=mask_edges)
 
