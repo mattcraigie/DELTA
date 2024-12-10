@@ -3,6 +3,8 @@ import numpy as np
 
 
 def angle_from_trig(costheta, sintheta):
+    if isinstance(costheta, torch.Tensor):
+        return torch.atan2(sintheta, costheta)
     theta = np.arctan2(sintheta, costheta)
     return theta
 
