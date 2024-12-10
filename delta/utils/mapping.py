@@ -17,9 +17,9 @@ def create_prediction_map(model, dataloader, dataloader_full, device, root_dir, 
 
     mask = (
         (positions[:, 0] > 500)
-        & (positions[:, 0] < 600)
+        & (positions[:, 0] < 520)
         & (positions[:, 1] > 0)
-        & (positions[:, 1] < 100)
+        & (positions[:, 1] < 20)
     )
 
     positions = positions[mask]
