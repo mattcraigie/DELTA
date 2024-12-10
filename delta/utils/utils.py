@@ -24,6 +24,12 @@ def angular_differences(angles_1, angles_2):
     diff_complement = 2 * np.pi - diff_abs
     return np.minimum(diff_abs % (2 * np.pi), diff_complement % (2 * np.pi))
 
+def signed_to_unsigned_angle(angles):
+    """
+    Convert signed angles (between -pi and pi) to unsigned angles (between 0 and 2pi).
+    """
+    return (angles + 2 * np.pi) % (2 * np.pi)
+
 
 def angular_mean_with_error(theta_1, theta_2, n_bins=20, n_bootstrap=100):
     """
@@ -104,14 +110,17 @@ def get_model_predictions(model, dataloader, device, egnn=False, output_angle=Tr
                 _, _, samples = model(h, x, edge_index)  # egnn returns h, x, and v_pred, where v_pred is the samples
                 if output_angle:
                     samples = torch.atan2(samples[:, 1], samples[:, 0]).unsqueeze(1)
+                    samples = signed_to_unsigned_angle(samples)
 
             else:
-                samples = model.sample(h, x, edge_index) - np.pi # vmdn returns samples between 0 and 2pi, shift to -pi to pi
+                samples = model.sample(h, x, edge_index)
+                samples = signed_to_unsigned_angle(samples)
                 if not output_angle:
                     samples = torch.hstack([torch.cos(samples), torch.sin(samples)])
 
             if output_angle:
                 v_target = torch.atan2(v_target[:, 1], v_target[:, 0]).unsqueeze(1)
+                v_target = signed_to_unsigned_angle(v_target)
 
             predictions.append(samples.cpu().numpy())
             targets.append(v_target.cpu().numpy())

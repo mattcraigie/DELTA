@@ -31,4 +31,4 @@ class CompressionNetwork(nn.Module):
 
         angle = torch.arctan2(v[:, 1], v[:, 0] + 1e-5)[:, None]
 
-        return angle # torch.cat([h], dim=1)
+        return torch.cat([h, angle], dim=1)
