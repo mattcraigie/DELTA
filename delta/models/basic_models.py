@@ -24,11 +24,11 @@ class CompressionNetwork(nn.Module):
     def __init__(self, egnn):
         super(CompressionNetwork, self).__init__()
         self.egnn = egnn
-        self.out_size = egnn.hidden_dim + 1
+        self.out_size = 1
 
     def forward(self, *args):
         h, _, v = self.egnn(*args)
 
         angle = torch.arctan2(v[:, 1], v[:, 0] + 1e-5)[:, None]
 
-        return torch.cat([angle, h], dim=1)
+        return angle # torch.cat([h], dim=1)
