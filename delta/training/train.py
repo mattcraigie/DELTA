@@ -19,6 +19,7 @@ def train_epoch(model, optimizer, loss_function, train_loader, device):
         model_input = (h, x, edge_index)
 
         optimizer.zero_grad()
+        print("train.py: train_epoch: model_input: ", model_input)
         loss = loss_function(model, model_input, v_target)
         loss.backward()
         optimizer.step()
@@ -42,6 +43,7 @@ def validate(model, loss_function, val_loader, device):
             edge_index = edge_index.to(device)
             v_target = v_target.to(device)
             model_input = (h, x, edge_index)
+            print("train.py: validate: model_input: ", model_input)
             val_loss = loss_function(model, model_input, v_target)
             val_losses.append(val_loss.item())
 
