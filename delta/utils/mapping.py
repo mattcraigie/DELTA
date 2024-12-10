@@ -83,9 +83,9 @@ if __name__ == '__main__':
     config = torch.load(os.path.join(args.output_dir, 'config.pth'))
 
     # load model
-    predictions = torch.load(os.path.join(args.output_dir, 'predictions.pth')).numpy()
-    targets = torch.load(os.path.join(args.output_dir, 'targets.pth')).numpy()
-    targets_full = torch.load(os.path.join(args.output_dir, 'targets_true.pth')).numpy()
+    predictions = torch.load(os.path.join(args.output_dir, 'predictions.pth'))
+    targets = torch.load(os.path.join(args.output_dir, 'targets.pth'))
+    targets_full = torch.load(os.path.join(args.output_dir, 'targets_true.pth'))
 
     # data access
     data_dir = config["data"]["data_root"]
