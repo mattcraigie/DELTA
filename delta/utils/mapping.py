@@ -91,7 +91,7 @@ if __name__ == '__main__':
 
     # load model
     model_path = os.path.join(args.output_dir, 'model.pth')
-    model = load_pretrained_model(args.model_path)
+    model = load_pretrained_model(model_path)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model.to(device)
 
