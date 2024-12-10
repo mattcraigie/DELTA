@@ -6,6 +6,7 @@ from ..models.basic_models import CompressionNetwork
 from ..utils.plotting import plot_results
 from ..training.train import train_model
 from ..utils.utils import get_model_predictions
+from ..utils.mapping import create_prediction_map
 import os
 
 
@@ -67,3 +68,6 @@ def run_basic_experiment(config):
     torch.save(targets_full, os.path.join(analysis_dir, "targets_full.pth"))
 
     plot_results(losses, predictions, targets_full, analysis_dir, analysis_name + "_full")
+
+    # plot the maps
+    create_prediction_map(model, dataloaders['val'], dataloaders_full['val'], device, analysis_dir, analysis_name)

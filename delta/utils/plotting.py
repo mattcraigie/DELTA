@@ -65,8 +65,6 @@ def plot_predictions_heatmap(predictions, targets, x_variable='Predictions', y_v
     """
 
     # Compute joint histogram
-    print(predictions.shape)
-    print(targets.shape)
     joint_histogram, xedges, yedges = np.histogram2d(predictions, targets, bins=bins, range=hist_range, density=True)
 
     # Normalize joint histogram to form joint PDF
@@ -117,10 +115,17 @@ def plot_angular_means(prediction, target, n_bins=20, n_bootstrap=100, root_dir=
     # Compute angular means and bootstrap error bars
     bin_centers, angular_means, angular_errors = angular_mean_with_error(prediction, target, n_bins, n_bootstrap)
 
+    # Duplicate angular means and errors for looping across boundaries
+    extended_bin_centers = np.concatenate([bin_centers - 2 * np.pi, bin_centers, bin_centers + 2 * np.pi])
+    extended_angular_means = np.concatenate([angular_means - 2 * np.pi, angular_means, angular_means + 2 * np.pi])
+    extended_angular_errors = np.concatenate([angular_errors, angular_errors, angular_errors])
+
     # Setup figure and plot
     fig, ax = plt.subplots(figsize=(6, 4))
-    ax.errorbar(bin_centers, angular_means, yerr=angular_errors, fmt='o', capsize=5, color='b')
+    ax.errorbar(extended_bin_centers, extended_angular_means, yerr=extended_angular_errors, fmt='o', capsize=5, color='b')
     ax.plot([-np.pi, np.pi], [-np.pi, np.pi], 'k--', alpha=0.5)
+    ax.set_xlim(-np.pi, np.pi)
+    ax.set_ylim(-np.pi, np.pi)
     ax.set_xlabel('Predicted Angle')
     ax.set_ylabel('Target Angle')
     ax.set_title('Angular Mean with Bootstrap Error Bars')
@@ -170,6 +175,8 @@ def plot_angular_differences(prediction, target, root_dir=None, file_name=None):
     ax.set_ylabel('Probability Density')
     ax.set_title('Angular Differences')
     ax.legend()
+
+    ax.set_ylim(0, ax.get_ylim()[1])
 
     # Save plot
     if file_name is None:
