@@ -8,6 +8,5 @@ def egnn_loss(model, model_input, targets):
 
 
 def vmdn_loss(model, model_inputs, targets):
-    print("loss_functions.py: vmdn_loss: model_inputs: ", model_inputs)
-    return model.loss(model_inputs, target=targets)
+    return model.loss(*model_inputs, target=targets)
 
