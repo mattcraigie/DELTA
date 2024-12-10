@@ -27,11 +27,11 @@ class CompressionNetwork(nn.Module):
         self.out_size = egnn.hidden_dim + 1
 
     def forward(self, *args):
-        print(len(args))
-        print(len(args[0]))
-        print(len(args[1]))
-        print(args[0])
-        print(args[1])
+        # print(len(args))
+        # print(len(args[0]))
+        # print(len(args[1]))
+        # print(args[0])
+        # print(args[1])
         # print([i.shape for i in args[0]])
         # print([i.shape for i in args[1]])
         h, _, v = self.egnn(*args)
