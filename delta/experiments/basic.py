@@ -59,7 +59,7 @@ def run_basic_experiment(config):
     torch.save(config, os.path.join(analysis_dir, "config.pth"))
 
     # plot the results
-    plot_results(losses, predictions, targets, analysis_di, file_name_prefix='data')
+    plot_results(losses, predictions, targets, analysis_dir, file_name_prefix='data')
 
     # Repeat with the fully aligned data
     alignment_strength = 1.0
