@@ -90,8 +90,8 @@ def run_observables_experiment(config):
     model, losses = train_model(model, dataloaders['train'], dataloaders['val'], train_epochs, train_lr, device)
 
     # Get predictions
-    print(predictions.shape, targets.shape)
     predictions, targets = get_model_predictions(model, dataloaders['val'], device)
+    print(predictions.shape, targets.shape)
 
     # Save results
     analysis_dir = os.path.join(output_dir, analysis_name)
