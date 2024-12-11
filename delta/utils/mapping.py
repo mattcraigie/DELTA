@@ -33,15 +33,17 @@ def make_error_plots(positions, abs_error, kappa, mask):
     positions = positions[mask]
 
     # prediction error from true targets
-    axes[0].scatter(positions[:, 0], positions[:, 1], s=10, c=abs_error[mask], cmap='cool')
+    axes[0].scatter(positions[:, 0], positions[:, 1], s=10, c=abs_error[mask], cmap='copper_r')
     axes[0].set_title("Prediction Error")
 
     # kappa values
-    axes[1].scatter(positions[:, 0], positions[:, 1], s=10, c=kappa[mask], cmap='cool')
+    axes[1].scatter(positions[:, 0], positions[:, 1], s=10, c=kappa[mask], cmap='copper_r')
     axes[1].set_title("Model Von Mises $\kappa$ Values")
 
     # scatter plot of kappa vs prediction error
-    axes[2].scatter(kappa, abs_error, s=10, c='red')
+    print(kappa)
+    print(kappa.min(), kappa.max())
+    axes[2].scatter(kappa, abs_error, s=1, alpha=0.1, c='red')
     axes[2].set_title("Kappa vs Prediction Error")
 
     return fig
