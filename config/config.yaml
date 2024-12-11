@@ -8,6 +8,7 @@ model:
   egnn_num_layers: 3                      # Number of layers in the model
   egnn_hidden_dim: 16                     # Hidden dimension of the model layers
   vmdn_hidden_layers: [32, 32]            # Hidden layers of the VMDN model
+  vmdn_regularization: 0.0              # Regularization parameter for the VMDN model
 
 training:
   pretrain: true

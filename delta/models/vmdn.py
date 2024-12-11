@@ -11,10 +11,11 @@ def init_vmdn(model_config):
     egnn_num_layers = model_config["egnn_num_layers"]
     egnn_hidden_dim = model_config["egnn_hidden_dim"]
     vmdn_hidden_layers = model_config["vmdn_hidden_layers"]
+    vmdn_regularization = model_config["vmdn_regularization"]
 
     egnn = EGNN(num_properties, egnn_num_layers, egnn_hidden_dim)
     compression_model = CompressionNetwork(egnn)
-    model = VMDN(compression_model, vmdn_hidden_layers)
+    model = VMDN(compression_model, vmdn_hidden_layers, vmdn_regularization)
 
     return model
 
