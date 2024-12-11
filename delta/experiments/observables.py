@@ -54,6 +54,7 @@ def run_observables_experiment(config):
     """
     Run an observables test of the model using the updated workflows.
     """
+
     # Set the device
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -79,6 +80,8 @@ def run_observables_experiment(config):
         config["model"]["num_properties"] = dataloaders['train'].dataset.h.shape[1]
     model = init_vmdn(config["model"])
     model.to(device)
+
+    print("Training model...")
 
     # Possibly pre-train the model if specified
     if config["training"].get("pretrain", False):
@@ -141,43 +144,44 @@ def run_observables_experiment(config):
     print("Permutation experiment complete.")
 
     # Ablation Experiment
-    print("Running ablation experiment...")
-    original_train_h = datasets['train'].h.copy()
-    original_val_h = datasets['val'].h.copy()
 
-    for i in range(num_columns):
-        # Remove the observable column i
-        datasets['train'].h = np.delete(datasets['train'].h, i, axis=1)
-        datasets['val'].h = np.delete(datasets['val'].h, i, axis=1)
-
-        # Retrain the model with one less property
-        if "num_properties" in config["model"]:
-            config["model"]["num_properties"] = datasets['train'].h.shape[1]
-
-        model_ablated = init_vmdn(config["model"])
-        model_ablated.to(device)
-
-        # If pretrain is still desired for each ablation (you may decide otherwise):
-        if config["training"].get("pretrain", False):
-            train_model(model_ablated.compression_network.egnn, dataloaders['train'], dataloaders['val'],
-                        pretrain_epochs, pretrain_lr, device)
-
-        model_ablated, losses_ablated = train_model(model_ablated, dataloaders['train'], dataloaders['val'],
-                                                    train_epochs, train_lr, device)
-
-        # Get predictions
-        predictions_ablated, _ = get_model_predictions(model_ablated, dataloaders['val'], device)
-
-        # Plot the results
-        plot_results(losses_ablated, predictions_ablated, targets, analysis_dir,
-                     file_name_prefix=f"{analysis_name}_ablated_{i}")
-        plot_results(losses_ablated, predictions_ablated, targets_full, analysis_dir,
-                     file_name_prefix=f"{analysis_name}_ablated_{i}_full")
-
-        # Reset the dataset to the original state for the next iteration
-        datasets['train'].h = original_train_h.copy()
-        datasets['val'].h = original_val_h.copy()
-
-    print("Ablation experiment complete.")
+    # print("Running ablation experiment...")
+    # original_train_h = datasets['train'].h.copy()
+    # original_val_h = datasets['val'].h.copy()
+    #
+    # for i in range(num_columns):
+    #     # Remove the observable column i
+    #     datasets['train'].h = np.delete(datasets['train'].h, i, axis=1)
+    #     datasets['val'].h = np.delete(datasets['val'].h, i, axis=1)
+    #
+    #     # Retrain the model with one less property
+    #     if "num_properties" in config["model"]:
+    #         config["model"]["num_properties"] = datasets['train'].h.shape[1]
+    #
+    #     model_ablated = init_vmdn(config["model"])
+    #     model_ablated.to(device)
+    #
+    #     # If pretrain is still desired for each ablation (you may decide otherwise):
+    #     if config["training"].get("pretrain", False):
+    #         train_model(model_ablated.compression_network.egnn, dataloaders['train'], dataloaders['val'],
+    #                     pretrain_epochs, pretrain_lr, device)
+    #
+    #     model_ablated, losses_ablated = train_model(model_ablated, dataloaders['train'], dataloaders['val'],
+    #                                                 train_epochs, train_lr, device)
+    #
+    #     # Get predictions
+    #     predictions_ablated, _ = get_model_predictions(model_ablated, dataloaders['val'], device)
+    #
+    #     # Plot the results
+    #     plot_results(losses_ablated, predictions_ablated, targets, analysis_dir,
+    #                  file_name_prefix=f"{analysis_name}_ablated_{i}")
+    #     plot_results(losses_ablated, predictions_ablated, targets_full, analysis_dir,
+    #                  file_name_prefix=f"{analysis_name}_ablated_{i}_full")
+    #
+    #     # Reset the dataset to the original state for the next iteration
+    #     datasets['train'].h = original_train_h.copy()
+    #     datasets['val'].h = original_val_h.copy()
+    #
+    # print("Ablation experiment complete.")
     print("Observables experiment finished.")
 
