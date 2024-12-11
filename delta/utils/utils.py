@@ -129,3 +129,30 @@ def get_model_predictions(model, dataloader, device, egnn=False, output_angle=Tr
     targets = np.concatenate(targets, axis=0)
 
     return predictions, targets
+
+
+def get_vmdn_outputs(model, dataloader, device, output_angle=True):
+    """
+    Get the output mu and kappa of a VMDN model for a dataset.
+    """
+    model.eval()
+    mus = []
+    kappas = []
+
+    with torch.no_grad():
+        for h, x, edge_index, _ in dataloader:
+            h = h.to(device)
+            x = x.to(device)
+            edge_index = edge_index.to(device)
+            v_target = v_target.to(device)
+            mu, kappa = model(h, x, edge_index)
+            mu = mu.cpu().numpy()
+            kappa = kappa.cpu().numpy()
+            mu = signed_to_unsigned_angle(mu)
+            mus.append(mu)
+            kappas.append(kappa)
+
+    mus = np.concatenate(mus, axis=0)
+    kappas = np.concatenate(kappas, axis=0)
+
+    return mus, kappas
