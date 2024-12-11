@@ -33,8 +33,8 @@ def make_error_plots(positions, abs_error, kappa, mask):
     positions = positions[mask]
 
     # prediction error from true targets
-    axes[0].scatter(positions[:, 0], positions[:, 1], s=10, c=abs_error[mask], cmap='copper_r')
-    axes[0].set_title("Prediction Error")
+    axes[0].scatter(positions[:, 0], positions[:, 1], s=10, c=-abs_error[mask], cmap='copper_r')
+    axes[0].set_title("Prediction Accuracy")
 
     # kappa values
     axes[1].scatter(positions[:, 0], positions[:, 1], s=10, c=kappa[mask], cmap='copper_r')
@@ -43,7 +43,7 @@ def make_error_plots(positions, abs_error, kappa, mask):
     # scatter plot of kappa vs prediction error
     print(kappa)
     print(kappa.min(), kappa.max())
-    axes[2].scatter(kappa, abs_error, s=1, alpha=0.1, c='red')
+    axes[2].scatter(kappa, abs_error, s=1, alpha=0.01, c='red')
     axes[2].set_title("Kappa vs Prediction Error")
 
     return fig
