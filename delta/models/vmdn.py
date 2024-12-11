@@ -26,9 +26,10 @@ class VMDN(nn.Module):
     The model predicts the mean (mu) and concentration (kappa).
     """
 
-    def __init__(self, compression_network, hidden_layers=None):
+    def __init__(self, compression_network, hidden_layers=None, lambda_kappa=0.1):
         super().__init__()
         self.compression_network = compression_network
+        self.lambda_kappa = lambda_kappa
 
         if hidden_layers is None:
             hidden_layers = [32, 32]
@@ -37,15 +38,16 @@ class VMDN(nn.Module):
         self.kappa_network = MLP(input_dim=compression_network.out_size, output_dim=1, hidden_layers=hidden_layers)
 
 
+
     def forward(self, *args):
         compressed = self.compression_network(*args)
         mu = (self.angle_network(compressed) % (np.pi * 2))
         log_kappa = self.kappa_network(compressed)
-        log_kappa = torch.clamp(log_kappa, min=-3, max=3)  # Prevent extreme values
+        log_kappa = torch.clamp(log_kappa, min=-10, max=3)  # Prevent extreme values
         kappa = torch.exp(log_kappa)
         return mu, kappa
 
-    def loss(self, *args, target=None, lambda_kappa=0.1):
+    def loss(self, *args, target=None, lambda_kappa=0.0):
         mu, kappa = self.forward(*args)
         dist_vonmises = VonMises(mu, kappa)
         log_prob = dist_vonmises.log_prob(target)
@@ -59,7 +61,7 @@ class VMDN(nn.Module):
         kappa_penalty = torch.mean(tight_penalty + loose_penalty)
 
         # Total loss: Negative log-likelihood + regularization
-        total_loss = nll + lambda_kappa * kappa_penalty
+        total_loss = nll + self.lambda_kappa * kappa_penalty
         return total_loss
 
     def sample(self, *args, n_samples=1):
