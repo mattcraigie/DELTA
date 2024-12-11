@@ -90,6 +90,7 @@ def run_observables_experiment(config):
     model, losses = train_model(model, dataloaders['train'], dataloaders['val'], train_epochs, train_lr, device)
 
     # Get predictions
+    print(predictions.shape, targets.shape)
     predictions, targets = get_model_predictions(model, dataloaders['val'], device)
 
     # Save results
@@ -105,9 +106,11 @@ def run_observables_experiment(config):
 
     # Repeat with the fully aligned data
     alignment_strength = 1.0
-    _, dataloaders_full = create_dataloaders(data_dir, alignment_strength, num_neighbors)
-    _, targets_full = get_model_predictions(model, dataloaders_full['val'], device)
+    dataset_full, _ = create_dataloaders(data_dir, alignment_strength, num_neighbors)
+    targets_full = dataset_full['val'].orientations[:, None]
     torch.save(targets_full, os.path.join(analysis_dir, "targets_true.pth"))
+
+    print(targets_full.shape)
 
     plot_results(losses, predictions, targets_full, analysis_dir, file_name_prefix="true")
 
