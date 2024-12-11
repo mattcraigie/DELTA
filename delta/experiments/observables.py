@@ -16,7 +16,7 @@ def make_informative_observable(properties):
     """
     informative_property = properties[:, 0] * 2 - 1  # scale to [-1, 1]
     informative_observable = informative_property + np.random.normal(0, 0.01, len(informative_property))
-    return informative_observable
+    return informative_observable.astype(np.float32)
 
 
 def make_uninformative_observable(properties):
@@ -24,7 +24,7 @@ def make_uninformative_observable(properties):
     Create an uninformative observable. It is just standard normal noise.
     """
     uninformative_observable = np.random.normal(0, 1, len(properties))
-    return uninformative_observable
+    return uninformative_observable.astype(np.float32)
 
 
 def add_observables_to_datasets(datasets):
@@ -51,8 +51,6 @@ def run_observables_experiment(config):
     """
     Run an observables test of the model using the updated workflows.
     """
-    print("Running observables experiment...")
-
     # Set the device
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
