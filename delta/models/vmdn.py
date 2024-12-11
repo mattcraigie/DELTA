@@ -19,6 +19,10 @@ def init_vmdn(model_config):
     return model
 
 
+import torch
+import torch.nn as nn
+import numpy as np
+
 class VMDN(nn.Module):
     """
     Von Mises Density Network (VMDN) model.
@@ -34,15 +38,15 @@ class VMDN(nn.Module):
             hidden_layers = [32, 32]
 
         self.angle_network = MLP(input_dim=compression_network.out_size, output_dim=1, hidden_layers=hidden_layers)
-        self.kappa_network = MLP(input_dim=compression_network.out_size, output_dim=1, hidden_layers=hidden_layers)
-
+        self.kappa_network = nn.Sequential(
+            MLP(input_dim=compression_network.out_size, output_dim=1, hidden_layers=hidden_layers),
+            nn.Softplus()
+        )
 
     def forward(self, *args):
         compressed = self.compression_network(*args)
         mu = (self.angle_network(compressed) % (np.pi * 2))
-        log_kappa = self.kappa_network(compressed)
-        log_kappa = torch.clamp(log_kappa, min=-3, max=3)  # Prevent extreme values
-        kappa = torch.exp(log_kappa)
+        kappa = self.kappa_network(compressed)  # Ensure kappa > 0
         return mu, kappa
 
     def loss(self, *args, target=None):
@@ -57,3 +61,4 @@ class VMDN(nn.Module):
         dist_vonmises = VonMises(mu, kappa)
         samples = dist_vonmises.sample((n_samples,))
         return samples[0]
+
