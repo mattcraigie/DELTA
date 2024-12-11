@@ -45,12 +45,22 @@ class VMDN(nn.Module):
         kappa = torch.exp(log_kappa)
         return mu, kappa
 
-    def loss(self, *args, target=None):
+    def loss(self, *args, target=None, lambda_kappa=0.1):
         mu, kappa = self.forward(*args)
         dist_vonmises = VonMises(mu, kappa)
         log_prob = dist_vonmises.log_prob(target)
         nll = -log_prob.mean()
-        return nll
+
+        # Penalize tight kappa if mu is far from target, and loose kappa if mu is close to target
+        mu_error = torch.abs(target - mu) % (2 * np.pi)  # Circular distance
+        tight_penalty = mu_error * kappa  # Penalize tightness when error is high
+        loose_penalty = (2 * np.pi - mu_error) / (kappa + 1e-6)  # Penalize looseness when error is low
+
+        kappa_penalty = torch.mean(tight_penalty + loose_penalty)
+
+        # Total loss: Negative log-likelihood + regularization
+        total_loss = nll + lambda_kappa * kappa_penalty
+        return total_loss
 
     def sample(self, *args, n_samples=1):
         mu, kappa = self.forward(*args)
