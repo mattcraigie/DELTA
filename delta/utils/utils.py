@@ -131,7 +131,7 @@ def get_model_predictions(model, dataloader, device, egnn=False, output_angle=Tr
     return predictions, targets
 
 
-def get_vmdn_outputs(model, dataloader, device, output_angle=True):
+def get_vmdn_outputs(model, dataloader, device):
     """
     Get the output mu and kappa of a VMDN model for a dataset.
     """
@@ -144,7 +144,6 @@ def get_vmdn_outputs(model, dataloader, device, output_angle=True):
             h = h.to(device)
             x = x.to(device)
             edge_index = edge_index.to(device)
-            v_target = v_target.to(device)
             mu, kappa = model(h, x, edge_index)
             mu = mu.cpu().numpy()
             kappa = kappa.cpu().numpy()
