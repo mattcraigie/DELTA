@@ -162,11 +162,11 @@ def run_observables_experiment(config):
             train_model(model_ablated.compression_network.egnn, dataloaders['train'], dataloaders['val'],
                         pretrain_epochs, pretrain_lr, device)
 
-        model_ablated, losses_ablated = train_model(model_ablated, ablated_train_loader, ablated_val_loader,
+        model_ablated, losses_ablated = train_model(model_ablated, dataloaders['train'], dataloaders['val'],
                                                     train_epochs, train_lr, device)
 
         # Get predictions
-        predictions_ablated, _ = get_model_predictions(model_ablated, ablated_val_loader, device)
+        predictions_ablated, _ = get_model_predictions(model_ablated, dataloaders['val'], device)
 
         # Plot the results
         plot_results(losses_ablated, predictions_ablated, targets, analysis_dir,
