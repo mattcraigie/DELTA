@@ -101,13 +101,12 @@ def run_observables_experiment(config):
     torch.save(config, os.path.join(analysis_dir, "config.pth"))
 
     # Plot the results
-    print(predictions.shape, targets.shape)
     plot_results(losses, predictions, targets, analysis_dir, file_name_prefix='data')
 
     # Repeat with fully aligned data
     alignment_strength_full = 1.0
     dataset_full, dataloaders_full = create_dataloaders(data_dir, alignment_strength_full, num_neighbors)
-    targets_full = dataset_full['val'].orientations
+    targets_full = dataset_full['val'].orientations[:, None]
     torch.save(targets_full, os.path.join(analysis_dir, "targets_true.pth"))
     plot_results(losses, predictions, targets_full, analysis_dir, file_name_prefix="true")
 
