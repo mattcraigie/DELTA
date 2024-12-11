@@ -103,11 +103,12 @@ def run_observables_experiment(config):
     # Plot the results
     plot_results(losses, predictions, targets, analysis_dir, file_name_prefix='data')
 
-    # Repeat with fully aligned data
-    alignment_strength_full = 1.0
-    dataset_full, dataloaders_full = create_dataloaders(data_dir, alignment_strength_full, num_neighbors)
-    targets_full = dataset_full['val'].orientations[:, None]
+    # Repeat with the fully aligned data
+    alignment_strength = 1.0
+    _, dataloaders_full = create_dataloaders(data_dir, alignment_strength, num_neighbors)
+    _, targets_full = get_model_predictions(model, dataloaders_full['val'], device)
     torch.save(targets_full, os.path.join(analysis_dir, "targets_true.pth"))
+
     plot_results(losses, predictions, targets_full, analysis_dir, file_name_prefix="true")
 
     # Permutation Experiment
