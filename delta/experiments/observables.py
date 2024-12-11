@@ -39,12 +39,12 @@ def add_observables_to_datasets(datasets):
     # Create informative and uninformative observables for train
     informative_obs_train = make_informative_observable(original_properties_train)
     uninformative_obs_train = make_uninformative_observable(original_properties_train)
-    datasets['train'].h = np.column_stack((original_properties_train, informative_obs_train, uninformative_obs_train))
+    datasets['train'].h = np.column_stack((informative_obs_train, uninformative_obs_train))
 
     # Create informative and uninformative observables for val
     informative_obs_val = make_informative_observable(original_properties_val)
     uninformative_obs_val = make_uninformative_observable(original_properties_val)
-    datasets['val'].h = np.column_stack((original_properties_val, informative_obs_val, uninformative_obs_val))
+    datasets['val'].h = np.column_stack((informative_obs_val, uninformative_obs_val))
 
 
 def run_observables_experiment(config):
@@ -72,6 +72,8 @@ def run_observables_experiment(config):
     dataloaders = {'train': train_loader, 'val': val_loader}
 
     # Initialize the model
+    if "num_properties" in config["model"]:
+        config["model"]["num_properties"] = dataloaders['train'].dataset.h.shape[1]
     model = init_vmdn(config["model"])
     model.to(device)
 
