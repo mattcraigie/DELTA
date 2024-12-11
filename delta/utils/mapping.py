@@ -30,6 +30,8 @@ def make_prediction_maps(positions, predictions, targets, targets_full, cmap):
 def error_heatmap(ax, prediction_error, kappa, x_variable='Prediction Error', y_variable='Model Kappa', bins=50,
                              hist_range=None, pmax=None, cmap='Blues'):
 
+    print(prediction_error.shape, kappa.shape)
+
     # Compute joint histogram
     joint_histogram, xedges, yedges = np.histogram2d(prediction_error, kappa, bins=bins, range=hist_range, density=True)
 
@@ -66,7 +68,7 @@ def make_error_plots(positions, abs_error, kappa, mask):
 
     # kappa values
     axes[1].scatter(positions[:, 0], positions[:, 1], s=10, c=kappa[mask], cmap='copper_r')
-    axes[1].set_title("Model Von Mises $\kappa$ Values")
+    axes[1].set_title(r"Model Von Mises $\kappa$ Values")
 
     # scatter plot of kappa vs prediction error
     print(kappa)
