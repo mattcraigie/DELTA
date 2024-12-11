@@ -27,15 +27,17 @@ def make_prediction_maps(positions, predictions, targets, targets_full, cmap):
     return fig
 
 
-def make_error_plots(positions, abs_error, kappa):
+def make_error_plots(positions, abs_error, kappa, mask):
     fig, axes = plt.subplots(1, 3, figsize=(15, 5))
 
+    positions = positions[mask]
+
     # prediction error from true targets
-    axes[0].scatter(positions[:, 0], positions[:, 1], s=10, c=abs_error, cmap='cool')
+    axes[0].scatter(positions[:, 0], positions[:, 1], s=10, c=abs_error[mask], cmap='cool')
     axes[0].set_title("Prediction Error")
 
     # kappa values
-    axes[1].scatter(positions[:, 0], positions[:, 1], s=10, c=kappa, cmap='cool')
+    axes[1].scatter(positions[:, 0], positions[:, 1], s=10, c=kappa[mask], cmap='cool')
     axes[1].set_title("Model Von Mises $\kappa$ Values")
 
     # scatter plot of kappa vs prediction error
@@ -91,7 +93,7 @@ def create_maps(positions, targets, targets_full, mu, kappa, root_dir, file_name
     else:
         raise ValueError(f"Map type {map_type} not recognized.")
 
-    fig2 = make_error_plots(positions[mask], abs_error[mask], kappa[mask])
+    fig2 = make_error_plots(positions, abs_error, kappa, mask)
 
     # Save plot
     if file_name_prefix is None:
@@ -122,13 +124,7 @@ if __name__ == '__main__':
     predictions_kappa = torch.load(os.path.join(args.output_dir, 'predictions_kappa.pth'))
     targets = torch.load(os.path.join(args.output_dir, 'targets.pth'))
     targets_full = torch.load(os.path.join(args.output_dir, 'targets_true.pth'))
-
-    # data access
-    data_dir = config["data"]["data_root"]
-    alignment_strength = config["data"]["alignment_strength"]
-    num_neighbors = config["data"]["num_neighbors"]
-    datasets, _ = create_dataloaders(data_dir, alignment_strength, num_neighbors)
-    positions = datasets['val'].positions
+    positions = torch.load(os.path.join(args.output_dir, 'positions.pth'))
 
     # create prediction map
 
