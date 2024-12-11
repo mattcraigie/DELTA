@@ -170,6 +170,9 @@ def plot_angular_differences(prediction, target, root_dir=None, file_name=None):
     """
     # Compute angular differences
     angular_diff = angular_differences(prediction, target)
+    mean_angular_diff = angular_diff.mean()
+    baseline = np.pi / 2
+    improvement_percentage = ((baseline - mean_angular_diff) / abs(baseline)) * 100
 
     # Compute histogram
     n_bins = 50  # Number of bins for the histogram
@@ -191,7 +194,7 @@ def plot_angular_differences(prediction, target, root_dir=None, file_name=None):
     # Set plot labels, title, and legend
     ax.set_xlabel('Angular Difference (radians)')
     ax.set_ylabel('Probability Density')
-    ax.set_title('Angular Differences')
+    ax.set_title('Angular Differences, Improvement: {:.2f}%'.format(improvement_percentage))
     ax.legend()
 
     ax.set_ylim(0, ax.get_ylim()[1])
