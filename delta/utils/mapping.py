@@ -30,10 +30,8 @@ def make_prediction_maps(positions, predictions, targets, targets_full, cmap):
 def error_heatmap(ax, prediction_error, kappa, x_variable='Prediction Error', y_variable='Model Kappa', bins=50,
                              hist_range=None, pmax=None, cmap='Blues'):
 
-    print(prediction_error.shape, kappa.shape)
-
     # Compute joint histogram
-    joint_histogram, xedges, yedges = np.histogram2d(prediction_error, kappa, bins=bins, range=hist_range, density=True)
+    joint_histogram, xedges, yedges = np.histogram2d(prediction_error.squeeze(1), kappa.squeeze(1), bins=bins, range=hist_range, density=True)
 
     # Normalize joint histogram to form joint PDF
     joint_pdf = joint_histogram / joint_histogram.sum()
