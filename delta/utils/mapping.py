@@ -27,6 +27,34 @@ def make_prediction_maps(positions, predictions, targets, targets_full, cmap):
     return fig
 
 
+def error_heatmap(ax, prediction_error, kappa, x_variable='Prediction Error', y_variable='Model Kappa', bins=50,
+                             hist_range=None, pmax=None, cmap='Blues'):
+
+    # Compute joint histogram
+    joint_histogram, xedges, yedges = np.histogram2d(prediction_error, kappa, bins=bins, range=hist_range, density=True)
+
+    # Normalize joint histogram to form joint PDF
+    joint_pdf = joint_histogram / joint_histogram.sum()
+
+    # Conditional distribution P(y|x)
+    sum_x = joint_pdf.sum(axis=1)[:, np.newaxis]
+    py_given_x = joint_pdf / (sum_x + (sum_x == 0))
+
+    # Determine maximum value for consistent color scale
+    if pmax is None:
+        pmax = py_given_x.max()
+
+    # Setup figure and plot
+
+    extent = [xedges[0], xedges[-1], yedges[0], yedges[-1]]
+
+    ax.imshow(py_given_x.T, origin='lower', extent=extent, aspect='auto', cmap=cmap, vmax=pmax)
+    ax.set_xlabel(x_variable)
+    ax.set_ylabel(y_variable)
+
+
+
+
 def make_error_plots(positions, abs_error, kappa, mask):
     fig, axes = plt.subplots(1, 3, figsize=(15, 5))
 
@@ -43,7 +71,7 @@ def make_error_plots(positions, abs_error, kappa, mask):
     # scatter plot of kappa vs prediction error
     print(kappa)
     print(kappa.min(), kappa.max())
-    axes[2].scatter(kappa, abs_error, s=1, alpha=0.01, c='red')
+    error_heatmap(axes[2], abs_error, kappa, x_variable='Prediction Error', y_variable='Model Kappa', bins=50,)
     axes[2].set_title("Kappa vs Prediction Error")
 
     return fig
@@ -115,6 +143,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Create prediction map')
     parser.add_argument('--output_dir', type=str, required=True)
     parser.add_argument('--mask_edges', type=str, default='520,540,20,40')
+    parser.add_argument('--map_type', type=str, default='x_component')
 
     args = parser.parse_args()
 
@@ -133,5 +162,5 @@ if __name__ == '__main__':
     mask_edges = list(map(int, args.mask_edges.split(',')))
 
     create_maps(positions, targets, targets_full, predictions_mu, predictions_kappa, args.output_dir,
-                          file_name_prefix=None, mask_edges=mask_edges)
+                          file_name_prefix=None, mask_edges=mask_edges, map_type=args.map_type)
 
