@@ -4,7 +4,7 @@ import os
 from ..data.dataloading import create_dataloaders, load_dataset, split_dataset
 from ..models.vmdn import init_vmdn
 from ..training.train import train_model
-from ..utils.utils import get_model_predictions
+from ..utils.utils import get_model_predictions, signed_to_unsigned_angle
 from ..utils.plotting import plot_results
 from torch.utils.data import DataLoader
 from ..data.dataloading import collate_fn
@@ -91,7 +91,6 @@ def run_observables_experiment(config):
 
     # Get predictions
     predictions, targets = get_model_predictions(model, dataloaders['val'], device)
-    print(predictions.shape, targets.shape)
 
     # Save results
     analysis_dir = os.path.join(output_dir, analysis_name)
@@ -107,10 +106,11 @@ def run_observables_experiment(config):
     # Repeat with the fully aligned data
     alignment_strength = 1.0
     dataset_full, _ = create_dataloaders(data_dir, alignment_strength, num_neighbors)
-    targets_full = dataset_full['val'].orientations[:, None]
-    torch.save(targets_full, os.path.join(analysis_dir, "targets_true.pth"))
+    targets_full = dataset_full['val'].orientations
+    targets_full = torch.atan2(targets_full[:, 1], targets_full[:, 0]).unsqueeze(1)
+    targets_full = signed_to_unsigned_angle(targets_full)
 
-    print(targets_full.shape)
+    torch.save(targets_full, os.path.join(analysis_dir, "targets_true.pth"))
 
     plot_results(losses, predictions, targets_full, analysis_dir, file_name_prefix="true")
 
