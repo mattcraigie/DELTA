@@ -101,6 +101,7 @@ def run_observables_experiment(config):
     torch.save(config, os.path.join(analysis_dir, "config.pth"))
 
     # Plot the results
+    print(predictions.shape, targets.shape)
     plot_results(losses, predictions, targets, analysis_dir, file_name_prefix='data')
 
     # Repeat with fully aligned data
