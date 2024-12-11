@@ -4,7 +4,7 @@ import os
 from ..data.dataloading import create_dataloaders, load_dataset, split_dataset
 from ..models.vmdn import init_vmdn
 from ..training.train import train_model
-from ..utils.utils import get_model_predictions, signed_to_unsigned_angle
+from ..utils.utils import get_model_predictions, signed_to_unsigned_angle, angle_from_trig
 from ..utils.plotting import plot_results
 from torch.utils.data import DataLoader
 from ..data.dataloading import collate_fn
@@ -107,7 +107,7 @@ def run_observables_experiment(config):
     alignment_strength = 1.0
     dataset_full, _ = create_dataloaders(data_dir, alignment_strength, num_neighbors)
     targets_full = dataset_full['val'].orientations
-    targets_full = torch.atan2(targets_full[:, 1], targets_full[:, 0]).unsqueeze(1)
+    targets_full = angle_from_trig(targets_full[:, 0], targets_full[:, 1])[:, None]
     targets_full = signed_to_unsigned_angle(targets_full)
 
     torch.save(targets_full, os.path.join(analysis_dir, "targets_true.pth"))
