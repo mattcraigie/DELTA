@@ -1,5 +1,5 @@
 import torch
-from .utils import angular_differences
+from .utils import angular_differences, angular_mean_with_error
 import matplotlib.pyplot as plt
 import argparse
 from .plotting import save_plot
@@ -53,6 +53,28 @@ def error_heatmap(ax, prediction_error, kappa, x_variable='Prediction Error', y_
     ax.set_ylabel(y_variable)
 
 
+def error_means(ax, prediction, target, n_bins=20, n_bootstrap=100, root_dir=None, file_name=None):
+    # Compute angular means and bootstrap error bars
+    bin_centers, angular_means, angular_errors = angular_mean_with_error(prediction, target, n_bins, n_bootstrap)
+
+    # Setup figure and plot
+    for bin_center, mean, error in zip(bin_centers, angular_means, angular_errors):
+        lower = mean - error
+        upper = mean + error
+
+        ax.plot([bin_center, bin_center], [lower, upper], color='gray', linestyle='-',
+                alpha=0.6)  # Regular error bar
+        ax.plot(bin_center, mean, 'o', color='blue')
+
+    ax.set_xlim(0, np.pi)
+    ax.set_xlabel('Prediction Error')
+    ax.set_ylabel('Model Kappa')
+    ax.set_title('Mean with Bootstrap Error Bars')
+
+    return
+
+
+
 
 
 def make_error_plots(positions, abs_error, kappa, mask):
@@ -71,7 +93,8 @@ def make_error_plots(positions, abs_error, kappa, mask):
     # scatter plot of kappa vs prediction error
     print(kappa)
     print(kappa.min(), kappa.max())
-    error_heatmap(axes[2], abs_error, kappa, x_variable='Prediction Error', y_variable='Model Kappa', bins=50,)
+    # error_heatmap(axes[2], abs_error, kappa, x_variable='Prediction Error', y_variable='Model Kappa', bins=50,)
+    error_means(axes[2], abs_error, kappa, n_bins=20, n_bootstrap=100)
     axes[2].set_title("Kappa vs Prediction Error")
 
     return fig
