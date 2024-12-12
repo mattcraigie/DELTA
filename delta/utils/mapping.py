@@ -120,17 +120,18 @@ def create_maps(positions, targets, targets_full, mu, kappa, root_dir, file_name
 
     if map_type == 'x_component':
         # use the inbuilt map
-        targets, mu, targets_full = map(lambda x: np.cos(x), [targets, mu, targets_full])
+        targets_map, mu_map, targets_full_map = map(lambda x: np.cos(x), [targets, mu, targets_full])
         cmap = 'bwr'
     elif map_type == 'y_component':
-        targets, mu, targets_full = map(lambda x: np.sin(x), [targets, mu, targets_full])
+        targets_map, mu_map, targets_full_map = map(lambda x: np.sin(x), [targets, mu, targets_full])
         cmap = 'bwr'
     elif map_type == 'angle':
+        targets_map, mu_map, targets_full_map = targets, mu, targets_full
         cmap = 'twilight'
     else:
         raise ValueError(f"Map type {map_type} not recognized.")
 
-    fig1 = make_prediction_maps(positions[mask], mu[mask], targets[mask], targets_full[mask], cmap)
+    fig1 = make_prediction_maps(positions[mask], mu_map[mask], targets_map[mask], targets_full_map[mask], cmap)
 
     # Save plot
     if file_name_prefix is None:
@@ -141,8 +142,6 @@ def create_maps(positions, targets, targets_full, mu, kappa, root_dir, file_name
     save_plot(fig1, root_dir=root_dir, file_name=file_name)
 
     # compute abs error, always angle error
-
-
     abs_error = angular_differences(targets, mu)
     true_abs_error = angular_differences(targets_full, mu)
 
