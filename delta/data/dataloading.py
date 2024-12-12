@@ -90,7 +90,7 @@ class GraphDataset(Dataset):
         return {
             'x': self.positions,
             'edge_index': self.edge_index,
-            'h': self.h
+            'h': self.h,
             'target': self.orientations
         }
 
