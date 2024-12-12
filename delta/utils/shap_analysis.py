@@ -3,6 +3,7 @@ from scipy.spatial.distance import cdist
 import matplotlib.pyplot as plt
 from matplotlib.colors import LogNorm
 
+# todo: make this work
 
 def analyze_importance_distance(gnn_model, dataset, num_samples=1000, batch_size=128):
     """
