@@ -26,8 +26,8 @@ def run_basic_experiment(config):
     datasets, dataloaders = create_dataloaders(data_dir, alignment_strength, num_neighbors)
 
     # disable properties
-    datasets['train'].h = np.ones(datasets['train'].h.shape, dtype=np.float32)
-    datasets['val'].h = np.ones(datasets['val'].h.shape, dtype=np.float32)
+    datasets['train'].h = None
+    datasets['val'].h = None
 
     # Initialize the model
     model = init_vmdn(config["model"])
