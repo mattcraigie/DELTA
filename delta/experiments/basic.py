@@ -23,7 +23,8 @@ def run_basic_experiment(config):
     data_dir = config["data"]["data_root"]
     alignment_strength = config["data"]["alignment_strength"]
     num_neighbors = config["data"]["num_neighbors"]
-    datasets, dataloaders = create_dataloaders(data_dir, alignment_strength, num_neighbors)
+    batch_size = config["data"]["batch_size"]
+    datasets, dataloaders = create_dataloaders(data_dir, alignment_strength, num_neighbors, batch_size)
 
     # disable properties
     # datasets['train'].h = np.ones((datasets['train'].h.shape[0], 1), dtype=np.float32)
