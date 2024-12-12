@@ -143,7 +143,7 @@ def collate_fn(batch):
 
     return h, x, edge_index, target
 
-def create_dataloaders(root_dir, alignment_strength, num_neighbors=10, batch_size=32, shuffle=True):
+def create_dataloaders(root_dir, alignment_strength, num_neighbors=10, batch_size=1024, shuffle=True):
     """
     Create data loaders for training and validation sets with batching.
     """
