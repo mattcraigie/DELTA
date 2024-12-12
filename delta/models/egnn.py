@@ -8,7 +8,7 @@ import torch.nn.functional as F
 
 
 class EGNN(nn.Module):
-    def __init__(self, num_properties, num_layers, hidden_dim, dropout=0.0):
+    def __init__(self, num_properties, num_layers, hidden_dim):
         super().__init__()
 
         assert num_layers > 0, 'Number of layers must be greater than 0.'
@@ -21,8 +21,6 @@ class EGNN(nn.Module):
         self.node_mlp = MLP(hidden_dim * 2, hidden_dim, hidden_layers=[hidden_dim,])
         self.vector_mlp = MLP(hidden_dim, 2, hidden_layers=[hidden_dim,])
         self.coord_mlp = MLP(hidden_dim, 1, hidden_layers=[hidden_dim,])
-
-        self.dropout = dropout
 
     def forward(self, h, x, edge_index):
         row, col = edge_index
@@ -44,11 +42,6 @@ class EGNN(nn.Module):
 
             node_inp = torch.cat([h, m_i], dim=-1)
             h = h + self.node_mlp(node_inp)
-
-        # End node dropout (trim random nodes after propagation)
-        end_node_dropout_prob = self.dropout  # Drop 20% of end nodes
-        end_node_mask = torch.rand(h.size(0)) > end_node_dropout_prob
-        h = h * end_node_mask.unsqueeze(-1).to(h.device)  # Zero out specific nodes
 
         # Predicted vector field (2D)
         v = self.vector_mlp(h)

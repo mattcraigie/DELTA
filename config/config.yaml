@@ -8,9 +8,9 @@ model:
   num_properties: 1                       # Number of input properties for the model
   egnn_num_layers: 3                      # Number of layers in the model
   egnn_hidden_dim: 16                     # Hidden dimension of the model layers
-  egnn_dropout: 0.0                       # Dropout rate for the model
   vmdn_hidden_layers: [32, 32]            # Hidden layers of the VMDN model
   vmdn_regularization: 0.0              # Regularization parameter for the VMDN model
+  vmdn_dropout: 0.0                       # Dropout rate for the model
 
 training:
   pretrain: true
