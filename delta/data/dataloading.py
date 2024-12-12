@@ -91,7 +91,7 @@ class GraphDataset(Dataset):
             properties = np.random.normal(0, 1, (self.positions.shape[0], 1)).astype(np.float32)
         else:
             properties = self.h
-
+        print(properties)
 
         return {
             'x': self.positions,
