@@ -27,7 +27,7 @@ class VMDN(nn.Module):
     The model predicts the mean (mu) and concentration (kappa).
     """
 
-    def __init__(self, compression_network, hidden_layers=None, lambda_kappa=0.1):
+    def __init__(self, compression_network, hidden_layers=None, lambda_kappa=0.0):
         super().__init__()
         self.compression_network = compression_network
         self.lambda_kappa = lambda_kappa
@@ -48,7 +48,7 @@ class VMDN(nn.Module):
         kappa = torch.exp(log_kappa)
         return mu, kappa
 
-    def loss(self, *args, target=None, lambda_kappa=0.0):
+    def loss(self, *args, target=None):
         mu, kappa = self.forward(*args)
         dist_vonmises = VonMises(mu, kappa)
         log_prob = dist_vonmises.log_prob(target)

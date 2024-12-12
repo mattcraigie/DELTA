@@ -26,8 +26,8 @@ def run_basic_experiment(config):
     datasets, dataloaders = create_dataloaders(data_dir, alignment_strength, num_neighbors)
 
     # disable properties
-    # datasets['train'].h = None
-    # datasets['val'].h = None
+    datasets['train'].h = np.ones((datasets['train'].h.shape[0], 1), dtype=np.float32)
+    datasets['val'].h = np.ones((datasets['val'].h.shape[0], 1), dtype=np.float32)
 
     # Initialize the model
     model = init_vmdn(config["model"])
@@ -81,7 +81,7 @@ def run_basic_experiment(config):
     dataset_full, dataloaders_full = create_dataloaders(data_dir, alignment_strength, num_neighbors)
 
     # disable properties
-    # dataset_full['val'].h = None
+    dataset_full['val'].h = np.ones((dataset_full['val'].h.shape[0], 1), dtype=np.float32)
 
     _, targets_full = get_model_predictions(model, dataloaders_full['val'], device)
     torch.save(targets_full, os.path.join(analysis_dir, "targets_true.pth"))
