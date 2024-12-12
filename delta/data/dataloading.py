@@ -84,11 +84,16 @@ class GraphDataset(Dataset):
         self.orientations = orientations
         self.h = properties.astype(np.float32)
         self.k = k
-        self.edge_indices = []
 
-        # Precompute edge indices for each data point
-        for idx in range(len(positions)):
-            self.edge_indices.append(compute_edges_knn(positions[idx], self.k))
+        # Ensure positions is a list of 2D arrays
+        if isinstance(positions, np.ndarray):
+            if len(positions.shape) == 2:
+                # Split by the number of graphs
+                self.positions = np.array_split(positions, len(orientations))
+            else:
+                raise ValueError("Positions must be a 2D array or a list of 2D arrays.")
+
+        self.edge_indices = [compute_edges_knn(pos, self.k) for pos in self.positions]
 
     def __len__(self):
         return len(self.positions)
