@@ -10,13 +10,13 @@ def init_vmdn(model_config):
     num_properties = model_config["num_properties"]
     egnn_num_layers = model_config["egnn_num_layers"]
     egnn_hidden_dim = model_config["egnn_hidden_dim"]
-    egnn_dropout = model_config["egnn_dropout"]
     vmdn_hidden_layers = model_config["vmdn_hidden_layers"]
     vmdn_regularization = model_config["vmdn_regularization"]
+    vmdn_dropout = model_config["vmdn_dropout"]
 
-    egnn = EGNN(num_properties, egnn_num_layers, egnn_hidden_dim, egnn_dropout)
+    egnn = EGNN(num_properties, egnn_num_layers, egnn_hidden_dim)
     compression_model = CompressionNetwork(egnn)
-    model = VMDN(compression_model, vmdn_hidden_layers, vmdn_regularization)
+    model = VMDN(compression_model, vmdn_hidden_layers, vmdn_regularization, vmdn_dropout)
 
     return model
 
