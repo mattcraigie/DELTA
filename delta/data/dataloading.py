@@ -75,10 +75,10 @@ class GraphDataset(Dataset):
     """
     Dataset class for the graph neural network.
     """
-    def __init__(self, positions, orientations, properties=None, k=10):
+    def __init__(self, positions, orientations, properties, k=10):
         self.positions = positions
         self.orientations = orientations
-        self.h = properties
+        self.h = properties.astype(np.float32)
         self.k = k
         self.edge_index = compute_edges_knn(self.positions, self.k)
 
@@ -87,16 +87,10 @@ class GraphDataset(Dataset):
 
     def __getitem__(self, idx):
 
-        if self.h is None:
-            properties = np.random.normal(0, 1, (self.positions.shape[0], 1)).astype(np.float32)
-        else:
-            properties = self.h
-        # print(properties)
-
         return {
             'x': self.positions,
             'edge_index': self.edge_index,
-            'h': properties,
+            'h': self.h
             'target': self.orientations
         }
 
