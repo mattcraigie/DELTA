@@ -17,16 +17,7 @@ class EGNN(nn.Module):
         self.hidden_dim = hidden_dim
 
         self.node_embedding = nn.Linear(num_properties, hidden_dim)
-        # self.edge_mlp = MLP(hidden_dim * 2 + 1, hidden_dim, hidden_layers=[hidden_dim,])
-        # instead of MLP, we make it with a dropout layer
-        self.edge_mlp = nn.Sequential(
-            nn.Linear(hidden_dim * 2 + 1, hidden_dim),
-            nn.ReLU(),
-            nn.Dropout(0.2),
-            nn.Linear(hidden_dim, hidden_dim),
-        )
-
-
+        self.edge_mlp = MLP(hidden_dim * 2 + 1, hidden_dim, hidden_layers=[hidden_dim,])
         self.node_mlp = MLP(hidden_dim * 2, hidden_dim, hidden_layers=[hidden_dim,])
         self.vector_mlp = MLP(hidden_dim, 2, hidden_layers=[hidden_dim,])
         self.coord_mlp = MLP(hidden_dim, 1, hidden_layers=[hidden_dim,])
