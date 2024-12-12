@@ -17,12 +17,12 @@ class EGNN(nn.Module):
         self.hidden_dim = hidden_dim
 
         self.node_embedding = nn.Linear(num_properties, hidden_dim)
-        self.edge_mlp = nn.Sequential(
-            MLP(hidden_dim * 2 + 1, hidden_dim, hidden_layers=[hidden_dim, ]),
-            nn.Dropout(dropout))
+        self.edge_mlp = MLP(hidden_dim * 2 + 1, hidden_dim, hidden_layers=[hidden_dim, ])
         self.node_mlp = MLP(hidden_dim * 2, hidden_dim, hidden_layers=[hidden_dim,])
         self.vector_mlp = MLP(hidden_dim, 2, hidden_layers=[hidden_dim,])
         self.coord_mlp = MLP(hidden_dim, 1, hidden_layers=[hidden_dim,])
+
+        self.dropout = dropout
 
     def forward(self, h, x, edge_index):
         row, col = edge_index
@@ -34,7 +34,7 @@ class EGNN(nn.Module):
             rel_dist = (rel_pos ** 2).sum(dim=-1, keepdim=True)
             rel_theta = torch.arctan2(rel_pos[:, 1], rel_pos[:, 0])
 
-            # this modified the edge positions to be placed according to spin-2
+            # Adjust edge positions to be spin-2
             rel_pos = rel_dist * torch.stack([torch.cos(2 * rel_theta), torch.sin(2 * rel_theta)], dim=1)
 
             edge_feat = torch.cat([h[row], h[col], rel_dist], dim=-1)
@@ -45,15 +45,21 @@ class EGNN(nn.Module):
             node_inp = torch.cat([h, m_i], dim=-1)
             h = h + self.node_mlp(node_inp)
 
-            # Predicted vector field (2D)
-            v = self.vector_mlp(h)
+        # End node dropout (trim random nodes after propagation)
+        end_node_dropout_prob = self.dropout  # Drop 20% of end nodes
+        end_node_mask = torch.rand(h.size(0)) > end_node_dropout_prob
+        h = h * end_node_mask.unsqueeze(-1)  # Zero out specific nodes
 
-            # Update positions based on relative positions
-            v = v + scatter(rel_pos * self.coord_mlp(m_ij), row, dim=0,
-                            dim_size=x.size(0), reduce='mean')
+        # Predicted vector field (2D)
+        v = self.vector_mlp(h)
+
+        # Update positions based on relative positions
+        v = v + scatter(rel_pos * self.coord_mlp(m_ij), row, dim=0,
+                        dim_size=x.size(0), reduce='mean')
 
         # Constrain predictions to lie on the unit circle
         v = F.normalize(v, p=2, dim=-1)
 
         return h, x, v
+
 
