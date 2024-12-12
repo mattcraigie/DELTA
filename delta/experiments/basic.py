@@ -78,7 +78,11 @@ def run_basic_experiment(config):
 
     # Repeat with the fully aligned data
     alignment_strength = 1.0
-    _, dataloaders_full = create_dataloaders(data_dir, alignment_strength, num_neighbors)
+    dataset_full, dataloaders_full = create_dataloaders(data_dir, alignment_strength, num_neighbors)
+
+    # disable properties
+    dataset_full['val'].h = None
+
     _, targets_full = get_model_predictions(model, dataloaders_full['val'], device)
     torch.save(targets_full, os.path.join(analysis_dir, "targets_true.pth"))
 
