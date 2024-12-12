@@ -8,7 +8,7 @@ import torch.nn.functional as F
 
 
 class EGNN(nn.Module):
-    def __init__(self, num_properties, num_layers, hidden_dim):
+    def __init__(self, num_properties, num_layers, hidden_dim, dropout=0.0):
         super().__init__()
 
         assert num_layers > 0, 'Number of layers must be greater than 0.'
@@ -17,7 +17,9 @@ class EGNN(nn.Module):
         self.hidden_dim = hidden_dim
 
         self.node_embedding = nn.Linear(num_properties, hidden_dim)
-        self.edge_mlp = MLP(hidden_dim * 2 + 1, hidden_dim, hidden_layers=[hidden_dim,])
+        self.edge_mlp = nn.Sequential(
+            MLP(hidden_dim * 2 + 1, hidden_dim, hidden_layers=[hidden_dim, ]),
+            nn.Dropout(dropout))
         self.node_mlp = MLP(hidden_dim * 2, hidden_dim, hidden_layers=[hidden_dim,])
         self.vector_mlp = MLP(hidden_dim, 2, hidden_layers=[hidden_dim,])
         self.coord_mlp = MLP(hidden_dim, 1, hidden_layers=[hidden_dim,])
