@@ -48,7 +48,7 @@ class EGNN(nn.Module):
         # End node dropout (trim random nodes after propagation)
         end_node_dropout_prob = self.dropout  # Drop 20% of end nodes
         end_node_mask = torch.rand(h.size(0)) > end_node_dropout_prob
-        h = h * end_node_mask.unsqueeze(-1)  # Zero out specific nodes
+        h = h * end_node_mask.unsqueeze(-1).to(h.device)  # Zero out specific nodes
 
         # Predicted vector field (2D)
         v = self.vector_mlp(h)
