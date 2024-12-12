@@ -8,6 +8,7 @@ from ..training.train import train_model
 from ..utils.utils import get_model_predictions, get_vmdn_outputs
 from ..utils.mapping import create_maps
 import os
+import numpy as np
 
 
 def run_basic_experiment(config):
@@ -25,8 +26,8 @@ def run_basic_experiment(config):
     datasets, dataloaders = create_dataloaders(data_dir, alignment_strength, num_neighbors)
 
     # disable properties
-    datasets['train'].h = torch.ones(datasets['train'].h.shape)
-    datasets['val'].h = torch.ones(datasets['val'].h.shape)
+    datasets['train'].h = np.ones(datasets['train'].h.shape)
+    datasets['val'].h = np.ones(datasets['val'].h.shape)
 
     # Initialize the model
     model = init_vmdn(config["model"])
