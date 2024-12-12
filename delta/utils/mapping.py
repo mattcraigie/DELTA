@@ -77,8 +77,8 @@ def error_means(ax, prediction, target, n_bins=20, n_bootstrap=100, root_dir=Non
 
 
 
-def make_error_plots(positions, abs_error, kappa, mask):
-    fig, axes = plt.subplots(1, 3, figsize=(15, 5))
+def make_error_plots(positions, abs_error, true_abs_error, kappa, mask):
+    fig, axes = plt.subplots(1, 5, figsize=(25, 5))
 
     positions = positions[mask]
     # kappa values
@@ -91,6 +91,13 @@ def make_error_plots(positions, abs_error, kappa, mask):
     # scatter plot of kappa vs prediction error
     error_means(axes[2], abs_error, kappa, n_bins=20, n_bootstrap=100)
     axes[2].set_title("Mean Kappa for Prediction Error Bins")
+
+    error_heatmap(axes[3], true_abs_error, kappa, x_variable='True Prediction Error', y_variable='Model Kappa', bins=50,)
+    axes[3].set_title("Kappa vs True Prediction Error Heatmap")
+
+    error_means(axes[4], true_abs_error, kappa, n_bins=20, n_bootstrap=100)
+    axes[4].set_title("Mean Kappa for True Prediction Error Bins")
+
 
     return fig
 
@@ -133,15 +140,13 @@ def create_maps(positions, targets, targets_full, mu, kappa, root_dir, file_name
 
     save_plot(fig1, root_dir=root_dir, file_name=file_name)
 
-    # compute abs error depending on map type
-    if map_type == 'x_component' or map_type == 'y_component':
-        abs_error = np.abs(targets - mu)
-    elif map_type == 'angle':
-        abs_error = angular_differences(targets, mu)
-    else:
-        raise ValueError(f"Map type {map_type} not recognized.")
+    # compute abs error, always angle error
 
-    fig2 = make_error_plots(positions, abs_error, kappa, mask)
+
+    abs_error = angular_differences(targets, mu)
+    true_abs_error = angular_differences(targets_full, mu)
+
+    fig2 = make_error_plots(positions, abs_error, true_abs_error, kappa, mask)
 
     # Save plot
     if file_name_prefix is None:
