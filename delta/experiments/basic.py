@@ -26,8 +26,8 @@ def run_basic_experiment(config):
     datasets, dataloaders = create_dataloaders(data_dir, alignment_strength, num_neighbors)
 
     # disable properties
-    datasets['train'].h = None
-    datasets['val'].h = None
+    # datasets['train'].h = None
+    # datasets['val'].h = None
 
     # Initialize the model
     model = init_vmdn(config["model"])
@@ -81,7 +81,7 @@ def run_basic_experiment(config):
     dataset_full, dataloaders_full = create_dataloaders(data_dir, alignment_strength, num_neighbors)
 
     # disable properties
-    dataset_full['val'].h = None
+    # dataset_full['val'].h = None
 
     _, targets_full = get_model_predictions(model, dataloaders_full['val'], device)
     torch.save(targets_full, os.path.join(analysis_dir, "targets_true.pth"))
