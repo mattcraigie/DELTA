@@ -35,7 +35,7 @@ def save_plot(fig, root_dir=None, file_name=None, subdir="plots"):
     return file_path
 
 
-def plot_losses(train_losses, val_losses, logy=False, root_dir=None, file_name=None):
+def plot_losses(train_losses, val_losses, logy=True, root_dir=None, file_name=None):
     """
     Plot the training and validation losses, save the figure, and return the file path.
     """
