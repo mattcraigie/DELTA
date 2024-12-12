@@ -24,6 +24,10 @@ def run_basic_experiment(config):
     num_neighbors = config["data"]["num_neighbors"]
     datasets, dataloaders = create_dataloaders(data_dir, alignment_strength, num_neighbors)
 
+    # disable properties
+    datasets['train'].h = torch.ones(datasets['train'].h.shape)
+    datasets['val'].h = torch.ones(datasets['val'].h.shape)
+
     # Initialize the model
     model = init_vmdn(config["model"])
     model.to(device)
