@@ -83,7 +83,7 @@ def make_error_plots(positions, abs_error, true_abs_error, kappa, mask):
     positions = positions[mask]
 
     # scatter plot of prediction error vs true prediction error
-    axes[0].scatter(positions[:, 0], positions[:, 1], s=10, c=true_abs_error[mask], cmap='cool')
+    axes[0].scatter(positions[:, 0], positions[:, 1], s=10, c=true_abs_error[mask], cmap='copper_r')
     axes[0].set_title(r"True Prediction Error")
 
     # kappa values
