@@ -78,26 +78,24 @@ def error_means(ax, prediction, target, n_bins=20, n_bootstrap=100, root_dir=Non
 
 
 def make_error_plots(positions, abs_error, true_abs_error, kappa, mask):
-    fig, axes = plt.subplots(1, 5, figsize=(25, 5))
+    fig, axes = plt.subplots(1, 4, figsize=(20, 5))
 
     positions = positions[mask]
-    # kappa values
-    axes[0].scatter(positions[:, 0], positions[:, 1], s=10, c=kappa[mask], cmap='copper_r')
+
+    # scatter plot of prediction error vs true prediction error
+    axes[0].scatter(positions[:, 0], positions[:, 1], s=10, c=true_abs_error[mask], cmap='copper_r')
     axes[0].set_title(r"Model Von Mises $\kappa$ Values")
 
-    error_heatmap(axes[1], abs_error, kappa, x_variable='Prediction Error', y_variable='Model Kappa', bins=50,)
-    axes[1].set_title("Kappa vs Prediction Error Heatmap")
+    # kappa values
+    axes[1].scatter(positions[:, 0], positions[:, 1], s=10, c=kappa[mask], cmap='copper_r')
+    axes[1].set_title(r"Model Von Mises $\kappa$ Values")
 
     # scatter plot of kappa vs prediction error
     error_means(axes[2], abs_error, kappa, n_bins=20, n_bootstrap=100)
     axes[2].set_title("Mean Kappa for Prediction Error Bins")
 
-    error_heatmap(axes[3], true_abs_error, kappa, x_variable='True Prediction Error', y_variable='Model Kappa', bins=50,)
-    axes[3].set_title("Kappa vs True Prediction Error Heatmap")
-
-    error_means(axes[4], true_abs_error, kappa, n_bins=20, n_bootstrap=100)
-    axes[4].set_title("Mean Kappa for True Prediction Error Bins")
-
+    error_means(axes[3], true_abs_error, kappa, n_bins=20, n_bootstrap=100)
+    axes[3].set_title("Mean Kappa for True Prediction Error Bins")
 
     return fig
 
