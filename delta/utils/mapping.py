@@ -164,7 +164,7 @@ if __name__ == '__main__':
     # argparse for model path
     parser = argparse.ArgumentParser(description='Create prediction map')
     parser.add_argument('--output_dir', type=str, required=True)
-    parser.add_argument('--mask_edges', type=str, default='520,540,20,40')
+    parser.add_argument('--mask_edges', type=str, default='940,960,960,980')
     parser.add_argument('--map_type', type=str, default='x_component')
 
     args = parser.parse_args()
