@@ -40,7 +40,6 @@ def analyze_importance_distance(explainer, positions, max_distance, num_samples=
     knn = NearestNeighbors(radius=max_distance, metric='euclidean')
     knn.fit(positions)
 
-    # Analyze each galaxy
     for i in range(num_galaxies):
         # Get explanation for the current galaxy
         explanation = explainer.explain(
@@ -59,17 +58,13 @@ def analyze_importance_distance(explainer, positions, max_distance, num_samples=
         distances, indices = distances[0], indices[0]
 
         # Bin the importance values by distance
-        for d, idx in zip(distances, indices):
-            if idx == i:  # Skip self-interaction
+        for w_idx, d_idx in enumerate(indices):
+            if d_idx == i:  # Skip self-interaction
                 continue
 
-            bin_idx = np.digitize(d, distance_bins) - 1
+            bin_idx = np.digitize(distances[w_idx], distance_bins) - 1
             if 0 <= bin_idx < num_bins:
-                print(f"bin_idx: {bin_idx}, max: {bin_idx.max()}, min: {bin_idx.min()}")
-                print(f"bin_values shape: {bin_values.shape}")
-                print(f"weights shape: {weights.shape}")
-
-                bin_values[i, bin_idx] += weights[idx]
+                bin_values[i, bin_idx] += weights[w_idx]
                 bin_counts[i, bin_idx] += 1
 
     # Average values in each bin
