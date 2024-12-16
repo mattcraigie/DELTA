@@ -41,6 +41,8 @@ class VMDN(nn.Module):
 
         self.dropout = dropout
 
+        self.device = None
+
 
     def forward(self, *args):
         compressed = self.compression_network(*args)
@@ -82,3 +84,8 @@ class VMDN(nn.Module):
         dist_vonmises = VonMises(mu, kappa)
         samples = dist_vonmises.sample((n_samples,))
         return samples[0]
+
+    def to(self, device):
+        super().to(device)
+        self.device = device
+        return self
