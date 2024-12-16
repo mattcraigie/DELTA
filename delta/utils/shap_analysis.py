@@ -46,7 +46,6 @@ class DirectionClassificationWrapper(nn.Module):
 
 def compute_direction_classes(target, num_classes=8):
     # target shape: (N, 2), a unit vector direction
-    print(target.shape)
     vx, vy = target[:, 0], target[:, 1]
     angles = np.arctan2(vy, vx)
     angles = np.mod(angles, 2 * np.pi)

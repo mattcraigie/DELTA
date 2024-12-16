@@ -198,4 +198,4 @@ if __name__ == '__main__':
     os.makedirs(analysis_dir, exist_ok=True)
 
     run_distance_experiment(model, positions, orientations, properties, k=10, max_distance=50, device=device,
-                            analysis_dir=analysis_dir)
+                            analysis_dir=analysis_dir, file_name_prefix='distances')
