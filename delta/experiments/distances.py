@@ -29,7 +29,7 @@ def analyze_importance_distance(explainer, positions, max_distance, num_samples=
 
     # Define distance bins
     min_dist = 0
-    num_bins = 10
+    num_bins = 50
     distance_bins = np.linspace(min_dist, max_distance, num_bins + 1)
 
     # Initialize arrays for storing results
@@ -40,8 +40,9 @@ def analyze_importance_distance(explainer, positions, max_distance, num_samples=
     knn = NearestNeighbors(radius=max_distance, metric='euclidean')
     knn.fit(positions)
 
-    for i in range(1000):
-        print(i)
+    for i in range(10000):
+        if i % 100 == 0:
+            print(i)
 
         try:
             explanation = explainer.explain(
@@ -133,6 +134,7 @@ def make_plot(bin_centers, mean_bin_values, std_bin_values):
     ax.set_ylabel('Mean Importance Value')
     ax.set_title('Mean Importance vs Distance')
     ax.legend()
+    plt.semilogy()
 
     plt.tight_layout()
     return fig
