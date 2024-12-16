@@ -73,9 +73,6 @@ def run_basic_experiment(config):
     torch.save(config, os.path.join(analysis_dir, "config.pth"))
     torch.save(positions, os.path.join(analysis_dir, "positions.pth"))
 
-    # plot the results
-    plot_results(losses, predictions, targets, analysis_dir, file_name_prefix='data')
-
     # Repeat with the fully aligned data
     alignment_strength = 1.0
     dataset_full, dataloaders_full = create_dataloaders(data_dir, alignment_strength, num_neighbors)
@@ -86,6 +83,10 @@ def run_basic_experiment(config):
     _, targets_full = get_model_predictions(model, dataloaders_full['val'], device)
     torch.save(targets_full, os.path.join(analysis_dir, "targets_true.pth"))
 
-    plot_results(losses, predictions, targets_full, analysis_dir, file_name_prefix="true")
 
+    # basic test results
+    plot_results(losses, predictions, targets, analysis_dir, file_name_prefix='data')
+    plot_results(losses, predictions, targets_full, analysis_dir, file_name_prefix="true")
     create_maps(positions, targets, targets_full, predictions_mu, predictions_kappa, analysis_dir)
+
+    # distances test results
