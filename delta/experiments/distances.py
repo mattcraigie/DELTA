@@ -52,12 +52,24 @@ def analyze_importance_distance(explainer, positions, max_distance, num_samples=
             batch_size=batch_size
         )
 
-        # Aggregate edge-level shap_values to node-level in the subgraph
-        src_nodes = explanation.sub_edge_index[0]
-        dst_nodes = explanation.sub_edge_index[1]
-        sub_node_shap_values = np.zeros(len(explanation.sub_nodes))
+        global_to_local = {g_id: i for i, g_id in enumerate(explanation.sub_nodes)}
 
-        # Aggregate absolute shap values
+        num_edges = explanation.sub_edge_index.shape[1]
+        local_edge_index = np.zeros_like(explanation.sub_edge_index)
+
+        for e in range(num_edges):
+            src_g = explanation.sub_edge_index[0, e]
+            dst_g = explanation.sub_edge_index[1, e]
+
+            # Map global IDs to local indices
+            local_edge_index[0, e] = global_to_local[src_g]
+            local_edge_index[1, e] = global_to_local[dst_g]
+
+        # Aggregate edge-level shap_values to node-level in the subgraph
+        src_nodes = local_edge_index[0]
+        dst_nodes = local_edge_index[1]
+
+        sub_node_shap_values = np.zeros(len(explanation.sub_nodes))
         np.add.at(sub_node_shap_values, src_nodes, np.abs(explanation.shap_values))
         np.add.at(sub_node_shap_values, dst_nodes, np.abs(explanation.shap_values))
 
