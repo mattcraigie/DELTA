@@ -6,7 +6,7 @@ from .data.preprocessing import preprocess_data
 
 from .experiments.datascaling import run_datascaling_experiment
 from .experiments.observables import run_observables_experiment
-from .experiments.distances import run_distances_experiment
+# from .experiments.distances import run_distances_experiment
 from .experiments.basic import run_basic_experiment
 
 
@@ -29,9 +29,9 @@ def main(config):
         print("Running observables experiment...")
         run_observables_experiment(config)
 
-    if config["experiments"]["run_distances_experiment"]:
-        print("Running distances experiment...")
-        run_distances_experiment(config)
+    # if config["experiments"]["run_distances_experiment"]:
+    #     print("Running distances experiment...")
+    #     run_distances_experiment(config)
 
     if config["experiments"]["run_basic_experiment"]:
         print("Running basic experiment...")
