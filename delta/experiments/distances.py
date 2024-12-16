@@ -44,8 +44,8 @@ def analyze_importance_distance(explainer, positions, max_distance, num_samples=
     print("Positions shape:", positions.shape)
     print("Distance bins:", distance_bins)
 
-    for i in range(num_galaxies):
-        if i % 10000 == 0:
+    for i in range(10000):
+        if i % 100 == 0:
             print(i)
 
         try:
