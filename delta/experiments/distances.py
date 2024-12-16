@@ -191,7 +191,7 @@ if __name__ == '__main__':
     positions = torch.load(os.path.join(args.output_dir, 'positions.pth'))
     orientations = torch.load(os.path.join(args.output_dir, 'targets.pth'))
     # back to directions
-    orientations = torch.stack([torch.cos(orientations), torch.sin(orientations)], dim=-1)
+    orientations = torch.stack([np.cos(orientations), np.sin(orientations)], dim=-1)
     properties = torch.load(os.path.join(args.output_dir, 'targets_true.pth'))
 
     analysis_dir = os.path.join(args.output_dir, 'distance_analysis')
