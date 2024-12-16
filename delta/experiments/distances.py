@@ -1,7 +1,7 @@
 import torch
 from ..data.dataloading import GraphDataset
 import matplotlib.pyplot as plt
-from ..gnnshap.explainer import GNNShapExplainer
+from gnnshap.explainer import GNNShapExplainer
 from sklearn.neighbors import NearestNeighbors
 import numpy as np
 from ..utils.shap_analysis import DirectionClassificationWrapper, collate_fn
