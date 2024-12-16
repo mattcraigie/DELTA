@@ -16,6 +16,10 @@ class DirectionClassificationWrapper(nn.Module):
     def forward(self, node_features, edge_index, edge_weight=None):
         # Assume node_features = [h, x]
          # x has dimension 2 (positions)
+        node_features = node_features.to(self.model.device)
+        edge_index = edge_index.to(self.model.device)
+
+
         h_dim = self.model.compression_network.egnn.hidden_dim
         h = node_features[:, :h_dim]
         x = node_features[:, h_dim:h_dim+2]
