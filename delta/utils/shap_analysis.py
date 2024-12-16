@@ -35,13 +35,14 @@ class DirectionClassificationWrapper(nn.Module):
         bin_size = (2 * np.pi) / self.num_classes
         class_ids = torch.floor(angles / bin_size).long()
 
+        # Create logits (N, num_classes)
+        # We'll put a large negative number for all classes except the chosen one
+        logits = torch.full((mu.size(0), self.num_classes), -1000.0, device=self.model.device)
+
         print(f"mu.size: {mu.size()}")
         print(f"class_ids.size: {class_ids.size() if isinstance(class_ids, torch.Tensor) else class_ids}")
         print(f"logits.size: {logits.size()}")
 
-        # Create logits (N, num_classes)
-        # We'll put a large negative number for all classes except the chosen one
-        logits = torch.full((mu.size(0), self.num_classes), -1000.0, device=self.model.device)
         logits[torch.arange(mu.size(0)), class_ids] = 0.0
 
         return logits
