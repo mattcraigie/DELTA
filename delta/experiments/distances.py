@@ -40,6 +40,10 @@ def analyze_importance_distance(explainer, positions, max_distance, num_samples=
     knn = NearestNeighbors(radius=max_distance, metric='euclidean')
     knn.fit(positions)
 
+    print("Number of galaxies:", num_galaxies)
+    print("Positions shape:", positions.shape)
+    print("Distance bins:", distance_bins)
+
     for i in range(num_galaxies):
         # Get explanation for the current galaxy
         explanation = explainer.explain(
@@ -48,22 +52,40 @@ def analyze_importance_distance(explainer, positions, max_distance, num_samples=
             sampler_name='GNNShapSampler',
             batch_size=batch_size
         )
-
         weights = np.abs(explanation.shap_values)
 
-        # Query distances from the current galaxy to others
+        # Print out shape of weights for debugging
+        print(f"Galaxy {i}: weights shape before indexing:", weights.shape)
+
+        # Query distances and indices
         distances, indices = knn.radius_neighbors([positions[i]], radius=max_distance)
         distances, indices = distances[0], indices[0]
 
-        # Slice weights to match indices
+        # Print indices and their ranges to ensure they are valid
+        print(f"Galaxy {i}: indices returned by knn:", indices)
+        print(f"Galaxy {i}: max index in indices:", indices.max())
+        print(f"Galaxy {i}: min index in indices:", indices.min())
+        print(f"Galaxy {i}: indices length:", len(indices))
+
+        # Also print the expected shape of weights and the indices before slicing
+        print(
+            f"Galaxy {i}: Attempting weights[indices], weights shape: {weights.shape}, indices shape: {indices.shape}")
+
+        # Now slice weights
         weights = weights[indices]  # Only retain weights for current neighbors
+
+        # Print shape after slicing
+        print(f"Galaxy {i}: weights shape after indexing:", weights.shape)
 
         # Bin the importance values by distance
         for w_idx, d_idx in enumerate(indices):
             if d_idx == i:  # Skip self-interaction
                 continue
 
-            bin_idx = np.digitize(distances[w_idx], distance_bins) - 1
+            # Print the current distance and bin index calculation
+            current_dist = distances[w_idx]
+            bin_idx = np.digitize(current_dist, distance_bins) - 1
+            print(f"Galaxy {i}, neighbor index {d_idx}, distance {current_dist}, assigned to bin {bin_idx}")
 
             if 0 <= bin_idx < num_bins:
                 bin_values[i, bin_idx] += weights[w_idx]
