@@ -65,6 +65,10 @@ def analyze_importance_distance(explainer, positions, max_distance, num_samples=
 
             bin_idx = np.digitize(d, distance_bins) - 1
             if 0 <= bin_idx < num_bins:
+                print(f"bin_idx: {bin_idx}, max: {bin_idx.max()}, min: {bin_idx.min()}")
+                print(f"bin_values shape: {bin_values.shape}")
+                print(f"weights shape: {weights.shape}")
+
                 bin_values[i, bin_idx] += weights[idx]
                 bin_counts[i, bin_idx] += 1
 
@@ -78,6 +82,7 @@ def analyze_importance_distance(explainer, positions, max_distance, num_samples=
 
     # Plotting
     bin_centers = 0.5 * (distance_bins[1:] + distance_bins[:-1])
+
 
     return bin_centers, mean_bin_values, std_bin_values
 
