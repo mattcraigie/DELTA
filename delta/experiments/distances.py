@@ -41,7 +41,11 @@ def analyze_importance_distance(explainer, positions, max_distance, num_samples=
     knn.fit(positions)
 
     for i in range(num_galaxies):
-        # Get explanation for the current galaxy
+
+        if i % 100 == 0:
+            print(i)
+
+                # Get explanation for the current galaxy
         explanation = explainer.explain(
             i,
             nsamples=num_samples,

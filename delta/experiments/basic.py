@@ -91,5 +91,6 @@ def run_basic_experiment(config):
     # create_maps(positions, targets, targets_full, predictions_mu, predictions_kappa, analysis_dir)
 
     # distances test results
-    run_distance_experiment(model, datasets['val'].positions, datasets['val'].orientations, datasets['val'].h, k=num_neighbors, max_distance=10, device=device,
+    run_distance_experiment(model, datasets['val'].positions, datasets['val'].orientations, datasets['val'].h, k=num_neighbors,
+                            max_distance=100, device=device,
                             analysis_dir=analysis_dir, file_name_prefix='data')
