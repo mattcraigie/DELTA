@@ -8,7 +8,7 @@ from ..data.dataloading import compute_edges_knn
 
 
 class DirectionClassificationWrapper(nn.Module):
-    def __init__(self, model, num_classes=, num_properties=1):
+    def __init__(self, model, num_classes=8, num_properties=1):
         super(DirectionClassificationWrapper, self).__init__()
         self.model = model
         self.num_classes = num_classes
