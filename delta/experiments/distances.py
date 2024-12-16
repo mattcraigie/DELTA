@@ -44,9 +44,8 @@ def analyze_importance_distance(explainer, positions, max_distance, num_samples=
     print("Positions shape:", positions.shape)
     print("Distance bins:", distance_bins)
 
-    for i in range(10000):
-        if i % 100 == 0:
-            print(i)
+    for i in range(1000):
+        print(i)
 
         try:
             explanation = explainer.explain(
