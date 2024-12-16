@@ -90,7 +90,9 @@ def run_basic_experiment(config):
     # plot_results(losses, predictions, targets_full, analysis_dir, file_name_prefix="true")
     # create_maps(positions, targets, targets_full, predictions_mu, predictions_kappa, analysis_dir)
 
+    # todo: make this a separate runnable script that operates on a trained and saved model
+
     # distances test results
     run_distance_experiment(model, datasets['val'].positions, datasets['val'].orientations, datasets['val'].h, k=num_neighbors,
-                            max_distance=100, device=device,
+                            max_distance=50, device=device,
                             analysis_dir=analysis_dir, file_name_prefix='data')

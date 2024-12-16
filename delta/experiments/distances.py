@@ -167,3 +167,33 @@ def run_distance_experiment(model, positions, orientations, properties, k, max_d
     fig = make_plot(bin_centers, mean_bin_values, std_bin_values)
 
     save_plot(fig, root_dir=analysis_dir, file_name=file_name_prefix + "_distance_analysis.png")
+
+
+if __name__ == '__main__':
+
+    import argparse
+    import os
+    from ..models.vmdn import init_vmdn
+
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
+    parser = argparse.ArgumentParser(description='Run distance analysis')
+    parser.add_argument('--output_dir', type=str, required=True)
+
+    args = parser.parse_args()
+
+    config = torch.load(os.path.join(args.output_dir, 'config.pth'))
+
+    model = init_vmdn(config["model"])
+    model.load_state_dict(torch.load(os.path.join(args.output_dir, 'model.pth')))
+    model.to(device)
+
+    positions = torch.load(os.path.join(args.output_dir, 'positions.pth'))
+    orientations = torch.load(os.path.join(args.output_dir, 'targets.pth'))
+    properties = torch.load(os.path.join(args.output_dir, 'targets_true.pth'))
+
+    analysis_dir = os.path.join(args.output_dir, 'distance_analysis')
+    os.makedirs(analysis_dir, exist_ok=True)
+
+    run_distance_experiment(model, positions, orientations, properties, k=10, max_distance=50, device=device,
+                            analysis_dir=analysis_dir)
