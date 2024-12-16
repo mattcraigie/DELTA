@@ -8,10 +8,11 @@ from ..data.dataloading import compute_edges_knn
 
 
 class DirectionClassificationWrapper(nn.Module):
-    def __init__(self, model, num_classes=8):
+    def __init__(self, model, num_classes=, num_properties=1):
         super(DirectionClassificationWrapper, self).__init__()
         self.model = model
         self.num_classes = num_classes
+        self.num_properties = num_properties
 
     def forward(self, node_features, edge_index, edge_weight=None):
         # Assume node_features = [h, x]
@@ -20,9 +21,8 @@ class DirectionClassificationWrapper(nn.Module):
         edge_index = edge_index.to(self.model.device)
 
 
-        h_dim = self.model.compression_network.egnn.hidden_dim
-        h = node_features[:, :h_dim]
-        x = node_features[:, h_dim:h_dim+2]
+        h = node_features[:, :self.num_properties]
+        x = node_features[:, self.num_properties:self.num_properties+2]
 
         # Run the original EGNN model
         mu, kappa = self.model(h, x, edge_index)
@@ -37,7 +37,7 @@ class DirectionClassificationWrapper(nn.Module):
 
         # Create logits (N, num_classes)
         # We'll put a large negative number for all classes except the chosen one
-        logits = torch.full((mu.size(0), self.num_classes), -1000.0, device=mu.device)
+        logits = torch.full((mu.size(0), self.num_classes), -1000.0, device=self.model.device)
         logits[torch.arange(mu.size(0)), class_ids] = 0.0
 
         return logits
