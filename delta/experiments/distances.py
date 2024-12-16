@@ -122,13 +122,13 @@ def make_plot(bin_centers, mean_bin_values, std_bin_values):
 
     # Mean and std plot
     ax.plot(bin_centers, mean_bin_values, 'b-', label='Mean')
-    ax.fill_between(
-        bin_centers,
-        mean_bin_values - std_bin_values,
-        mean_bin_values + std_bin_values,
-        alpha=0.3,
-        color='b'
-    )
+    # ax.fill_between(
+    #     bin_centers,
+    #     mean_bin_values - std_bin_values,
+    #     mean_bin_values + std_bin_values,
+    #     alpha=0.3,
+    #     color='b'
+    # )
     ax.set_xlabel('Distance')
     ax.set_ylabel('Mean Importance Value')
     ax.set_title('Mean Importance vs Distance')
