@@ -40,10 +40,6 @@ def analyze_importance_distance(explainer, positions, max_distance, num_samples=
     knn = NearestNeighbors(radius=max_distance, metric='euclidean')
     knn.fit(positions)
 
-    print("Number of galaxies:", num_galaxies)
-    print("Positions shape:", positions.shape)
-    print("Distance bins:", distance_bins)
-
     for i in range(1000):
         print(i)
 
@@ -97,7 +93,13 @@ def analyze_importance_distance(explainer, positions, max_distance, num_samples=
                 continue
             bin_idx = np.digitize(distances[w_idx], distance_bins) - 1
             if 0 <= bin_idx < num_bins:
-                bin_values[i, bin_idx] += weights[w_idx]
+
+                # avoid outliers
+                abs_weight = np.abs(weights[w_idx])
+                if abs_weight > 1:
+                    continue
+
+                bin_values[i, bin_idx] += abs_weight
                 bin_counts[i, bin_idx] += 1
 
     # Average values in each bin
@@ -116,21 +118,21 @@ def analyze_importance_distance(explainer, positions, max_distance, num_samples=
 
 
 def make_plot(bin_centers, mean_bin_values, std_bin_values):
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(15, 6))
+    fig, ax = plt.subplots(1, 1, figsize=(8, 6))
 
     # Mean and std plot
-    ax2.plot(bin_centers, mean_bin_values, 'b-', label='Mean')
-    ax2.fill_between(
+    ax.plot(bin_centers, mean_bin_values, 'b-', label='Mean')
+    ax.fill_between(
         bin_centers,
         mean_bin_values - std_bin_values,
         mean_bin_values + std_bin_values,
         alpha=0.3,
         color='b'
     )
-    ax2.set_xlabel('Distance')
-    ax2.set_ylabel('Mean Importance Value')
-    ax2.set_title('Mean Importance vs Distance')
-    ax2.legend()
+    ax.set_xlabel('Distance')
+    ax.set_ylabel('Mean Importance Value')
+    ax.set_title('Mean Importance vs Distance')
+    ax.legend()
 
     plt.tight_layout()
     return fig
