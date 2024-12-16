@@ -45,48 +45,39 @@ def analyze_importance_distance(explainer, positions, max_distance, num_samples=
     print("Distance bins:", distance_bins)
 
     for i in range(num_galaxies):
-        # Get explanation for the current galaxy
         explanation = explainer.explain(
             i,
             nsamples=num_samples,
             sampler_name='GNNShapSampler',
             batch_size=batch_size
         )
-        weights = np.abs(explanation.shap_values)
 
-        # Print out shape of weights for debugging
-        print(f"Galaxy {i}: weights shape before indexing:", weights.shape)
+        # Aggregate edge-level shap_values to node-level in the subgraph
+        src_nodes = explanation.sub_edge_index[0]
+        dst_nodes = explanation.sub_edge_index[1]
+        sub_node_shap_values = np.zeros(len(explanation.sub_nodes))
 
-        # Query distances and indices
+        # Aggregate absolute shap values
+        np.add.at(sub_node_shap_values, src_nodes, np.abs(explanation.shap_values))
+        np.add.at(sub_node_shap_values, dst_nodes, np.abs(explanation.shap_values))
+
+        # Map to global indexing
+        global_node_ids = explanation.sub_nodes
+        global_shap_values = np.zeros(num_galaxies)
+        global_shap_values[global_node_ids] = sub_node_shap_values
+
+        # KNN query on global positions
         distances, indices = knn.radius_neighbors([positions[i]], radius=max_distance)
         distances, indices = distances[0], indices[0]
 
-        # Print indices and their ranges to ensure they are valid
-        print(f"Galaxy {i}: indices returned by knn:", indices)
-        print(f"Galaxy {i}: max index in indices:", indices.max())
-        print(f"Galaxy {i}: min index in indices:", indices.min())
-        print(f"Galaxy {i}: indices length:", len(indices))
-
-        # Also print the expected shape of weights and the indices before slicing
-        print(
-            f"Galaxy {i}: Attempting weights[indices], weights shape: {weights.shape}, indices shape: {indices.shape}")
-
-        # Now slice weights
-        weights = weights[indices]  # Only retain weights for current neighbors
-
-        # Print shape after slicing
-        print(f"Galaxy {i}: weights shape after indexing:", weights.shape)
+        # Now index global_shap_values by indices
+        weights = global_shap_values[indices]
 
         # Bin the importance values by distance
         for w_idx, d_idx in enumerate(indices):
-            if d_idx == i:  # Skip self-interaction
+            if d_idx == i:
                 continue
-
-            # Print the current distance and bin index calculation
-            current_dist = distances[w_idx]
-            bin_idx = np.digitize(current_dist, distance_bins) - 1
-            print(f"Galaxy {i}, neighbor index {d_idx}, distance {current_dist}, assigned to bin {bin_idx}")
-
+            bin_idx = np.digitize(distances[w_idx], distance_bins) - 1
             if 0 <= bin_idx < num_bins:
                 bin_values[i, bin_idx] += weights[w_idx]
                 bin_counts[i, bin_idx] += 1
