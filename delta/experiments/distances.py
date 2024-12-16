@@ -50,27 +50,21 @@ def analyze_importance_distance(explainer, positions, max_distance, num_samples=
         )
 
         weights = np.abs(explanation.shap_values)
-        # Remove extreme outliers
-        weights[weights > np.percentile(weights, 99)] = 0
 
         # Query distances from the current galaxy to others
         distances, indices = knn.radius_neighbors([positions[i]], radius=max_distance)
         distances, indices = distances[0], indices[0]
 
-        # Map global indices to local indices
-        subset = explanation.subset  # Ensure this corresponds to the subset used for `weights`
-        global_to_local = {global_idx: local_idx for local_idx, global_idx in enumerate(subset)}
-        filtered_indices = [global_to_local[idx] for idx in indices if idx in global_to_local]
-
-        # Slice weights to match filtered indices
-        weights = weights[filtered_indices]
+        # Slice weights to match indices
+        weights = weights[indices]  # Only retain weights for current neighbors
 
         # Bin the importance values by distance
-        for w_idx, d_idx in enumerate(filtered_indices):
+        for w_idx, d_idx in enumerate(indices):
             if d_idx == i:  # Skip self-interaction
                 continue
 
             bin_idx = np.digitize(distances[w_idx], distance_bins) - 1
+
             if 0 <= bin_idx < num_bins:
                 bin_values[i, bin_idx] += weights[w_idx]
                 bin_counts[i, bin_idx] += 1
