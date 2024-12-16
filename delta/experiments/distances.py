@@ -107,7 +107,7 @@ def run_distance_experiment(model, positions, orientations, properties, k, max_d
                             file_name_prefix=None):
 
     num_classes = 8
-    wrapped_model = DirectionClassificationWrapper(model.compression_network.egnn, num_classes=num_classes)
+    wrapped_model = DirectionClassificationWrapper(model, num_classes=num_classes)
 
     # Prepare the data
     dataset = GraphDataset(positions, orientations, properties, k)
