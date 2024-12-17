@@ -73,6 +73,7 @@ def run_basic_experiment(config):
     np.save(os.path.join(analysis_dir, "predictions_kappa.npy"), predictions_kappa)
     np.save(os.path.join(analysis_dir, "targets.npy"), targets)
     np.save(os.path.join(analysis_dir, "positions.npy"), positions)
+    np.save(os.path.join(analysis_dir, "properties.npy"), datasets['val'].h)
 
     with open(os.path.join(analysis_dir, "config.yaml"), 'w') as file:
         yaml.dump(config, file)

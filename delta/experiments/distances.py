@@ -196,7 +196,7 @@ if __name__ == '__main__':
 
     # back to directions
     orientations = np.stack([np.cos(orientations), np.sin(orientations)], axis=1)
-    properties = np.load(os.path.join(args.output_dir, 'targets_true.npy'))
+    properties = np.load(os.path.join(args.output_dir, 'properties.npy'))
 
     analysis_dir = os.path.join(args.output_dir, 'distance_analysis')
     os.makedirs(analysis_dir, exist_ok=True)
