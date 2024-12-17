@@ -182,6 +182,10 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
+    # load yaml config
+    with open(os.path.join(args.output_dir, 'config.yaml'), 'r') as file:
+        config = yaml.safe_load(file)
+
     model = init_vmdn(config["model"])
     model.load_state_dict(torch.load(os.path.join(args.output_dir, 'model.pth')))
     model.to(device)
