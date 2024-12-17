@@ -6,6 +6,7 @@ from sklearn.neighbors import NearestNeighbors
 import numpy as np
 from ..utils.shap_analysis import DirectionClassificationWrapper, collate_fn
 from ..utils.plotting import save_plot
+import yaml
 
 def analyze_importance_distance(explainer, positions, max_distance, num_samples=1000, batch_size=128):
     """
