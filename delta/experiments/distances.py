@@ -182,15 +182,12 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-    config = yaml.safe_load(open(os.path.join(args.output_dir, 'config.yaml'), 'r'))
-
     model = init_vmdn(config["model"])
     model.load_state_dict(torch.load(os.path.join(args.output_dir, 'model.pth')))
     model.to(device)
 
     positions = np.load(os.path.join(args.output_dir, 'positions.npy'))
     orientations = np.load(os.path.join(args.output_dir, 'targets.npy'))
-
 
     # back to directions
     orientations = np.stack([np.cos(orientations), np.sin(orientations)], axis=1)

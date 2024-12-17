@@ -170,12 +170,13 @@ if __name__ == '__main__':
     # config
     config = torch.load(os.path.join(args.output_dir, 'config.pth'))
 
-    # load model
-    predictions_mu = torch.load(os.path.join(args.output_dir, 'predictions_mu.pth'))
-    predictions_kappa = torch.load(os.path.join(args.output_dir, 'predictions_kappa.pth'))
-    targets = torch.load(os.path.join(args.output_dir, 'targets.pth'))
-    targets_full = torch.load(os.path.join(args.output_dir, 'targets_true.pth'))
-    positions = torch.load(os.path.join(args.output_dir, 'positions.pth'))
+    # replace all with numpy
+    predictions_mu = np.load(os.path.join(args.output_dir, 'predictions_mu.npy'))
+    predictions_kappa = np.load(os.path.join(args.output_dir, 'predictions_kappa.npy'))
+    targets = np.load(os.path.join(args.output_dir, 'targets.npy'))
+    targets_full = np.load(os.path.join(args.output_dir, 'targets_full.npy'))
+    positions = np.load(os.path.join(args.output_dir, 'positions.npy'))
+
 
     # create prediction map
 
