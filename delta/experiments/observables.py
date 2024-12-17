@@ -101,10 +101,7 @@ def run_observables_experiment(config):
     # Save results
     analysis_dir = os.path.join(output_dir, analysis_name)
     torch.save(model.state_dict(), os.path.join(analysis_dir, "model.pth"))
-    torch.save(losses, os.path.join(analysis_dir, "losses.pth"))
-    torch.save(predictions, os.path.join(analysis_dir, "predictions.pth"))
-    torch.save(targets, os.path.join(analysis_dir, "targets.pth"))
-    torch.save(config, os.path.join(analysis_dir, "config.pth"))
+
 
     # Plot the results
     plot_results(losses, predictions, targets, analysis_dir, file_name_prefix='data')
@@ -183,5 +180,5 @@ def run_observables_experiment(config):
     #     datasets['val'].h = original_val_h.copy()
     #
     # print("Ablation experiment complete.")
-    print("Observables experiment finished.")
+    # print("Observables experiment finished.")
 

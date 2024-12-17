@@ -40,7 +40,7 @@ def analyze_importance_distance(explainer, positions, max_distance, num_samples=
     knn = NearestNeighbors(radius=max_distance, metric='euclidean')
     knn.fit(positions)
 
-    for i in range(10000):
+    for i in range(1000):
         if i % 100 == 0:
             print(i)
 
@@ -182,17 +182,19 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-    config = torch.load(os.path.join(args.output_dir, 'config.pth'))
+    config = yaml.safe_load(open(os.path.join(args.output_dir, 'config.yaml'), 'r'))
 
     model = init_vmdn(config["model"])
     model.load_state_dict(torch.load(os.path.join(args.output_dir, 'model.pth')))
     model.to(device)
 
-    positions = torch.load(os.path.join(args.output_dir, 'positions.pth'))
-    orientations = torch.load(os.path.join(args.output_dir, 'targets.pth'))
+    positions = np.load(os.path.join(args.output_dir, 'positions.npy'))
+    orientations = np.load(os.path.join(args.output_dir, 'targets.npy'))
+
+
     # back to directions
     orientations = np.stack([np.cos(orientations), np.sin(orientations)], axis=1)
-    properties = torch.load(os.path.join(args.output_dir, 'targets_true.pth'))
+    properties = np.load(os.path.join(args.output_dir, 'targets_true.npy'))
 
     analysis_dir = os.path.join(args.output_dir, 'distance_analysis')
     os.makedirs(analysis_dir, exist_ok=True)

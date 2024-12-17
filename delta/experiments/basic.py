@@ -65,34 +65,28 @@ def run_basic_experiment(config):
 
     # todo: don't save everything as torch tensors
     # save the model, losses, predictions and targets into the folder
-    # torch.save(model.state_dict(), os.path.join(analysis_dir, "model.pth"))
-    # torch.save(losses, os.path.join(analysis_dir, "losses.pth"))
-    # torch.save(predictions, os.path.join(analysis_dir, "predictions.pth"))
-    # torch.save(predictions_mu, os.path.join(analysis_dir, "predictions_mu.pth"))
-    # torch.save(predictions_kappa, os.path.join(analysis_dir, "predictions_kappa.pth"))
-    # torch.save(targets, os.path.join(analysis_dir, "targets.pth"))
-    # torch.save(config, os.path.join(analysis_dir, "config.pth"))
-    # torch.save(positions, os.path.join(analysis_dir, "positions.pth"))
+    torch.save(model.state_dict(), os.path.join(analysis_dir, "model.pth"))
+    np.save(os.path.join(analysis_dir, "losses.npy"), losses)
+    np.save(os.path.join(analysis_dir, "predictions.npy"), predictions)
+    np.save(os.path.join(analysis_dir, "predictions_mu.npy"), predictions_mu)
+    np.save(os.path.join(analysis_dir, "predictions_kappa.npy"), predictions_kappa)
+    np.save(os.path.join(analysis_dir, "targets.npy"), targets)
+    np.save(os.path.join(analysis_dir, "positions.npy"), positions)
+
+    with open(os.path.join(analysis_dir, "config.yaml"), 'w') as file:
+        yaml.dump(config, file)
 
     # # Repeat with the fully aligned data
-    # alignment_strength = 1.0
-    # dataset_full, dataloaders_full = create_dataloaders(data_dir, alignment_strength, num_neighbors)
-    #
-    # # disable properties
-    # dataset_full['val'].h = np.ones((dataset_full['val'].h.shape[0], 1), dtype=np.float32)
-    #
-    # _, targets_full = get_model_predictions(model, dataloaders_full['val'], device)
-    # torch.save(targets_full, os.path.join(analysis_dir, "targets_true.pth"))
-    #
-    #
+    alignment_strength = 1.0
+    dataset_full, dataloaders_full = create_dataloaders(data_dir, alignment_strength, num_neighbors)
+
+    # disable properties
+    dataset_full['val'].h = np.ones((dataset_full['val'].h.shape[0], 1), dtype=np.float32)
+
+    _, targets_full = get_model_predictions(model, dataloaders_full['val'], device)
+    np.save(os.path.join(analysis_dir, "targets_full.npy"), targets_full)
+
     # # basic test results
-    # plot_results(losses, predictions, targets, analysis_dir, file_name_prefix='data')
-    # plot_results(losses, predictions, targets_full, analysis_dir, file_name_prefix="true")
-    # create_maps(positions, targets, targets_full, predictions_mu, predictions_kappa, analysis_dir)
-
-    # todo: make this a separate runnable script that operates on a trained and saved model
-
-    # distances test results
-    run_distance_experiment(model, datasets['val'].positions, datasets['val'].orientations, datasets['val'].h, k=num_neighbors,
-                            max_distance=50, device=device,
-                            analysis_dir=analysis_dir, file_name_prefix='data')
+    plot_results(losses, predictions, targets, analysis_dir, file_name_prefix='data')
+    plot_results(losses, predictions, targets_full, analysis_dir, file_name_prefix="true")
+    create_maps(positions, targets, targets_full, predictions_mu, predictions_kappa, analysis_dir)
