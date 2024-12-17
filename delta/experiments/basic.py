@@ -10,6 +10,7 @@ from ..utils.mapping import create_maps
 import os
 import numpy as np
 from ..experiments.distances import run_distance_experiment
+import yaml
 
 
 def run_basic_experiment(config):
