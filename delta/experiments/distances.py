@@ -61,7 +61,7 @@ def analyze_shap_vs_distance(explainer, data, max_distance, num_samples=1000, ba
         # Get linked nodes' positions
         linked_nodes = explainer.sub_edge_index
         source_positions = positions[linked_nodes[0]]  # Assuming linked_nodes[0] provides global indices
-        weights = explainer.shap_value
+        weights = np.abs(explanation.shap_values)
 
         # Calculate distances
         node_position = positions[idx]  # (2,)
@@ -71,7 +71,7 @@ def analyze_shap_vs_distance(explainer, data, max_distance, num_samples=1000, ba
         # Bin distances
         bin_index = np.digitize(distance_norms, distance_bins) - 1
         for b_i, w in zip(bin_index, weights):
-            bin_values[b_i] += np.abs(w)
+            bin_values[b_i] += w
             bin_counts[b_i] += 1
 
     # Average values in each bin
@@ -167,10 +167,6 @@ if __name__ == '__main__':
     # back to directions
     orientations = np.stack([np.cos(orientations), np.sin(orientations)], axis=1)
     properties = np.load(os.path.join(args.output_dir, 'properties.npy'))
-
-    positions = torch.tensor(positions)
-    orientations = torch.tensor(orientations)
-    properties = torch.tensor(properties)
 
     analysis_dir = os.path.join(args.output_dir, 'distance_analysis')
     os.makedirs(analysis_dir, exist_ok=True)
