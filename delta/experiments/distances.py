@@ -59,7 +59,7 @@ def analyze_shap_vs_distance(explainer, data, max_distance, num_samples=1000, ba
             continue
 
         # Get linked nodes' positions
-        linked_nodes = explainer.sub_edge_index
+        linked_nodes = explanation.sub_edge_index
         source_positions = positions[linked_nodes[0]]  # Assuming linked_nodes[0] provides global indices
         weights = np.abs(explanation.shap_values)
 
