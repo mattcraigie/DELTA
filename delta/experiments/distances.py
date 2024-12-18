@@ -97,10 +97,16 @@ def analyze_shap_vs_distance(explainer, data, max_distance, num_samples=1000, ba
 
 
 def make_plot(bin_centers, mean_bin_values):
+
+
     fig, ax = plt.subplots(1, 1, figsize=(8, 6))
 
     # Mean and std plot
     ax.plot(bin_centers, mean_bin_values, 'b-', label='Mean')
+
+    power_law_m, power_law_c = fit_power_low(bin_centers, mean_bin_values)
+    ax.plot(bin_centers, np.exp(power_law_c) * bin_centers ** power_law_m, 'r--', label=f'Power Law Fit: {power_law_m:.2f}')
+
     ax.set_xlabel('Distance')
     ax.set_ylabel('Mean Importance Value')
     ax.set_title('Mean Importance vs Distance')
@@ -110,6 +116,30 @@ def make_plot(bin_centers, mean_bin_values):
     plt.tight_layout()
     return fig
 
+
+def fit_power_low(x, y):
+    """
+    Use a log transform to fit a power law to the data with a linear regression.
+
+    Outputs:
+    - m: Slope of the fit
+    - c: Intercept of the fit
+
+    The slope m is the power law exponent. The intercept c is the log of the prefactor.
+    """
+
+    # remove any zeros
+    x = x[y > 0]
+    y = y[y > 0]
+
+    log_x = np.log(x)
+    log_y = np.log(y)
+
+    # Fit a line to the log-transformed data
+    A = np.vstack([log_x, np.ones(len(log_x))]).T
+    m, c = np.linalg.lstsq(A, log_y, rcond=None)[0]
+
+    return m, c
 
 def run_distance_experiment(model, positions, orientations, properties, k, max_distance, device, analysis_dir,
                             file_name_prefix=None):
