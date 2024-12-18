@@ -104,7 +104,7 @@ def create_maps(positions, targets, targets_full, mu, kappa, root_dir, file_name
                           mask_edges=None):
 
     if mask_edges is None:
-        mask_edges = (520, 540, 20, 40)
+        mask_edges = (940, 960, 960, 980)
 
     mask = (
         (positions[:, 0] > mask_edges[0])
