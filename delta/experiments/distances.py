@@ -8,8 +8,8 @@ from ..utils.shap_analysis import DirectionClassificationWrapper, collate_fn
 from ..utils.plotting import save_plot
 import yaml
 
-def analyze_shap_vs_distance(explainer, data, max_distance, num_samples=1000, batch_size=128,
-                             num_explained_galaxies=1000):
+def analyze_shap_vs_distance(explainer, data, max_distance, num_samples=100, batch_size=128,
+                             num_explained_galaxies=100):
     """
     Analyzes the relationship between SHAP importance values and distances between data points.
 
@@ -78,29 +78,19 @@ def analyze_shap_vs_distance(explainer, data, max_distance, num_samples=1000, ba
     mask = bin_counts > 0
     bin_values[mask] /= bin_counts[mask]
 
-    # Calculate statistics
-    mean_bin_values = np.nanmean(bin_values[mask])
-    std_bin_values = np.nanstd(bin_values[mask])
-
     # Define bin centers
     bin_centers = 0.5 * (distance_bins[1:] + distance_bins[:-1])
 
-    return bin_centers, mean_bin_values, std_bin_values
+
+    return bin_centers, bin_values
 
 
 
-def make_plot(bin_centers, mean_bin_values, std_bin_values):
+def make_plot(bin_centers, mean_bin_values):
     fig, ax = plt.subplots(1, 1, figsize=(8, 6))
 
     # Mean and std plot
     ax.plot(bin_centers, mean_bin_values, 'b-', label='Mean')
-    # ax.fill_between(
-    #     bin_centers,
-    #     mean_bin_values - std_bin_values,
-    #     mean_bin_values + std_bin_values,
-    #     alpha=0.3,
-    #     color='b'
-    # )
     ax.set_xlabel('Distance')
     ax.set_ylabel('Mean Importance Value')
     ax.set_title('Mean Importance vs Distance')
@@ -133,9 +123,9 @@ def run_distance_experiment(model, positions, orientations, properties, k, max_d
         progress_hide=True
     )
 
-    bin_centers, mean_bin_values, std_bin_values = analyze_shap_vs_distance(explainer, data, max_distance)
+    bin_centers, mean_bin_values = analyze_shap_vs_distance(explainer, data, max_distance)
 
-    fig = make_plot(bin_centers, mean_bin_values, std_bin_values)
+    fig = make_plot(bin_centers, mean_bin_values)
 
     save_plot(fig, root_dir=analysis_dir, file_name=file_name_prefix + "_distance_analysis.png")
 
