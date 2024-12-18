@@ -75,6 +75,11 @@ def analyze_shap_vs_distance(explainer, data, max_distance, num_samples=1000, ba
 
         # Bin distances
         bin_index = np.digitize(distance_norms, distance_bins) - 1
+
+        valid_bins = (bin_index >= 0) & (bin_index < num_bins)  # Keep valid indices
+        bin_index = bin_index[valid_bins]
+        weights = weights[valid_bins]  # Ensure weights align with valid distances
+
         for b_i, w in zip(bin_index, weights):
             bin_values[b_i] += w
             bin_counts[b_i] += 1
