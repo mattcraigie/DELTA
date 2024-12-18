@@ -8,23 +8,27 @@ from ..utils.shap_analysis import DirectionClassificationWrapper, collate_fn
 from ..utils.plotting import save_plot
 import yaml
 
-def analyze_importance_distance(explainer, positions, max_distance, num_samples=1000, batch_size=128):
+def analyze_shap_vs_distance(explainer, data, max_distance=50, num_samples=1000, batch_size=128,
+                             num_explained_galaxies=1000):
     """
     Analyzes the relationship between SHAP importance values and distances between data points.
 
     Parameters:
     - explainer: Explainer object for the GNN model
-    - positions: 2D array-like positions of data points
+    - data: Dataset containing node features and edge indices
     - device: Torch device for computations
     - num_samples: Number of samples for SHAP explanation
     - batch_size: Batch size for SHAP explanation
     - max_distance: Maximum distance for the analysis
+    - num_explained_galaxies: Number of galaxies to explain
 
     Returns:
     - bin_centers: Midpoints of distance bins
     - mean_bin_values: Mean SHAP values in each distance bin
     - std_bin_values: Standard deviation of SHAP values in each distance bin
     """
+    positions = data.x[:, -2:].cpu().numpy()
+
     # Extract the number of galaxies
     num_galaxies = positions.shape[0]
 
@@ -34,89 +38,55 @@ def analyze_importance_distance(explainer, positions, max_distance, num_samples=
     distance_bins = np.linspace(min_dist, max_distance, num_bins + 1)
 
     # Initialize arrays for storing results
-    bin_values = np.zeros((num_galaxies, num_bins))
-    bin_counts = np.zeros((num_galaxies, num_bins))
+    bin_values = np.zeros((num_bins,))
+    bin_counts = np.zeros((num_bins,))
 
-    # Setup a KNN model to calculate distances efficiently
-    knn = NearestNeighbors(radius=max_distance, metric='euclidean')
-    knn.fit(positions)
+    test_gal_indices = np.arange(num_galaxies)
+    np.random.shuffle(test_gal_indices)
 
-    for i in range(1000):
+    for i, idx in enumerate(test_gal_indices[:num_explained_galaxies]):
         if i % 100 == 0:
-            print(i)
+            print(f"Processing galaxy {i}/{num_explained_galaxies}")
 
         try:
             explanation = explainer.explain(
-                i,
+                idx,
                 nsamples=num_samples,
                 sampler_name='GNNShapSampler',
                 batch_size=batch_size
             )
-        except AssertionError:
+        except AssertionError as e:
             continue
 
+        # Get linked nodes' positions
+        linked_nodes = explainer.sub_edge_index
+        source_positions = positions[linked_nodes[0]]  # Assuming linked_nodes[0] provides global indices
+        weights = explainer.shap_value
 
-        global_to_local = {g_id: i for i, g_id in enumerate(explanation.sub_nodes)}
+        # Calculate distances
+        node_position = positions[idx]  # (2,)
+        distances = source_positions - node_position
+        distance_norms = np.linalg.norm(distances, axis=1)
 
-        num_edges = explanation.sub_edge_index.shape[1]
-        local_edge_index = np.zeros_like(explanation.sub_edge_index)
-
-        for e in range(num_edges):
-            src_g = explanation.sub_edge_index[0, e]
-            dst_g = explanation.sub_edge_index[1, e]
-
-            # Map global IDs to local indices
-            local_edge_index[0, e] = global_to_local[src_g]
-            local_edge_index[1, e] = global_to_local[dst_g]
-
-        # Aggregate edge-level shap_values to node-level in the subgraph
-        src_nodes = local_edge_index[0]
-        dst_nodes = local_edge_index[1]
-
-        sub_node_shap_values = np.zeros(len(explanation.sub_nodes))
-        np.add.at(sub_node_shap_values, src_nodes, np.abs(explanation.shap_values))
-        np.add.at(sub_node_shap_values, dst_nodes, np.abs(explanation.shap_values))
-
-        # Map to global indexing
-        global_node_ids = explanation.sub_nodes
-        global_shap_values = np.zeros(num_galaxies)
-        global_shap_values[global_node_ids] = sub_node_shap_values
-
-        # KNN query on global positions
-        distances, indices = knn.radius_neighbors([positions[i]], radius=max_distance)
-        distances, indices = distances[0], indices[0]
-
-        # Now index global_shap_values by indices
-        weights = global_shap_values[indices]
-
-        # Bin the importance values by distance
-        for w_idx, d_idx in enumerate(indices):
-            if d_idx == i:
-                continue
-            bin_idx = np.digitize(distances[w_idx], distance_bins) - 1
-            if 0 <= bin_idx < num_bins:
-
-                # avoid outliers
-                abs_weight = np.abs(weights[w_idx])
-                if abs_weight > 1:
-                    continue
-
-                bin_values[i, bin_idx] += abs_weight
-                bin_counts[i, bin_idx] += 1
+        # Bin distances
+        bin_index = np.digitize(distance_norms, distance_bins) - 1
+        for b_i, w in zip(bin_index, weights):
+            bin_values[b_i] += np.abs(w)
+            bin_counts[b_i] += 1
 
     # Average values in each bin
     mask = bin_counts > 0
     bin_values[mask] /= bin_counts[mask]
 
     # Calculate statistics
-    mean_bin_values = np.nanmean(bin_values, axis=0)
-    std_bin_values = np.nanstd(bin_values, axis=0)
+    mean_bin_values = np.nanmean(bin_values[mask])
+    std_bin_values = np.nanstd(bin_values[mask])
 
-    # Plotting
+    # Define bin centers
     bin_centers = 0.5 * (distance_bins[1:] + distance_bins[:-1])
 
-
     return bin_centers, mean_bin_values, std_bin_values
+
 
 
 def make_plot(bin_centers, mean_bin_values, std_bin_values):
@@ -163,7 +133,7 @@ def run_distance_experiment(model, positions, orientations, properties, k, max_d
         progress_hide=True
     )
 
-    bin_centers, mean_bin_values, std_bin_values = analyze_importance_distance(explainer, positions, max_distance)
+    bin_centers, mean_bin_values, std_bin_values = analyze_importance_distance(explainer, data, max_distance)
 
     fig = make_plot(bin_centers, mean_bin_values, std_bin_values)
 
