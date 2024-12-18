@@ -65,8 +65,8 @@ def analyze_shap_vs_distance(explainer, data, max_distance, num_samples=1000, ba
 
         # filter out outliers (e.g. nodes with very high outlier values)
         outlier_cut = weights < 1e3
-        weights = weights[~outlier_cut]
-        source_positions = source_positions[~outlier_cut]
+        weights = weights[outlier_cut]
+        source_positions = source_positions[outlier_cut]
 
         # Calculate distances
         node_position = positions[idx]  # (2,)
