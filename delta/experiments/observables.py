@@ -9,14 +9,70 @@ from ..utils.plotting import plot_results
 from torch.utils.data import DataLoader
 from ..data.dataloading import collate_fn
 
-def make_informative_observable(properties):
+import torch
+import torch.nn.functional as F
+
+import torch
+import numpy as np
+from scipy.ndimage import gaussian_filter
+
+def assign_density_to_galaxies(galaxy_positions, sigma, grid_size):
+    """
+    Assign a smoothed density value to each galaxy based on its position.
+
+    Parameters:
+    - galaxy_positions (torch.Tensor): Tensor of shape (num_galaxies, 2) containing x and y positions.
+    - sigma (float): Standard deviation for Gaussian smoothing.
+    - grid_size (int): Number of grid cells along each axis.
+
+    Returns:
+    - densities (torch.Tensor): Tensor of shape (num_galaxies,) containing the density value for each galaxy.
+    """
+    # Convert galaxy positions to NumPy array for processing
+    galaxy_positions_np = galaxy_positions.numpy()
+
+    # Determine the min and max positions
+    min_pos = galaxy_positions_np.min(axis=0)
+    max_pos = galaxy_positions_np.max(axis=0)
+
+    # Create a 2D histogram (density grid) of the galaxy positions
+    H, xedges, yedges = np.histogram2d(
+        galaxy_positions_np[:, 0], galaxy_positions_np[:, 1],
+        bins=grid_size,
+        range=[[min_pos[0], max_pos[0]], [min_pos[1], max_pos[1]]]
+    )
+
+    # Apply Gaussian smoothing to the density grid
+    H_smoothed = gaussian_filter(H, sigma=sigma)
+
+    # Normalize the smoothed density grid to mean 0 and standard deviation 1
+    H_normalized = (H_smoothed - H_smoothed.mean()) / H_smoothed.std()
+
+    # Assign density values to each galaxy based on its position
+    # Find the bin indices for each galaxy
+    x_indices = np.digitize(galaxy_positions_np[:, 0], xedges) - 1
+    y_indices = np.digitize(galaxy_positions_np[:, 1], yedges) - 1
+
+    # Ensure indices are within valid range
+    x_indices = np.clip(x_indices, 0, grid_size - 1)
+    y_indices = np.clip(y_indices, 0, grid_size - 1)
+
+    # Retrieve the density value for each galaxy
+    densities = H_normalized[x_indices, y_indices]
+
+    # Convert densities back to a PyTorch tensor
+    densities_tensor = torch.from_numpy(densities)
+
+    return densities_tensor
+
+
+def make_informative_observable(positions, ):
     """
     Create an informative observable based on the properties.
     It is standard normal noise + scaled properties.
     """
-    informative_property = properties[:, 0] * 2 - 1  # scale to [-1, 1]
-    informative_observable = informative_property + np.random.normal(0, 0.01, len(informative_property))
-    return informative_observable.astype(np.float32)
+    densities = assign_density_to_galaxies(positions, sigma=1, grid_size=200)
+    return densities.astype(np.float32)
 
 
 def make_uninformative_observable(properties):
