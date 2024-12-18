@@ -8,7 +8,7 @@ from ..utils.shap_analysis import DirectionClassificationWrapper, collate_fn
 from ..utils.plotting import save_plot
 import yaml
 
-def analyze_shap_vs_distance(explainer, data, max_distance=50, num_samples=1000, batch_size=128,
+def analyze_shap_vs_distance(explainer, data, max_distance, num_samples=1000, batch_size=128,
                              num_explained_galaxies=1000):
     """
     Analyzes the relationship between SHAP importance values and distances between data points.
@@ -133,7 +133,7 @@ def run_distance_experiment(model, positions, orientations, properties, k, max_d
         progress_hide=True
     )
 
-    bin_centers, mean_bin_values, std_bin_values = analyze_importance_distance(explainer, data, max_distance)
+    bin_centers, mean_bin_values, std_bin_values = analyze_shap_vs_distance(explainer, data, max_distance)
 
     fig = make_plot(bin_centers, mean_bin_values, std_bin_values)
 
