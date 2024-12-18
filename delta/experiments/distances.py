@@ -9,7 +9,7 @@ from ..utils.plotting import save_plot
 import yaml
 
 def analyze_shap_vs_distance(explainer, data, max_distance, num_samples=1000, batch_size=128,
-                             num_explained_galaxies=10000):
+                             num_explained_galaxies=1000):
     """
     Analyzes the relationship between SHAP importance values and distances between data points.
 
