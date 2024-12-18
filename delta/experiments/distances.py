@@ -50,7 +50,7 @@ def analyze_shap_vs_distance(explainer, data, max_distance, num_samples=1000, ba
 
         try:
             explanation = explainer.explain(
-                idx,
+                i,
                 nsamples=num_samples,
                 sampler_name='GNNShapSampler',
                 batch_size=batch_size
