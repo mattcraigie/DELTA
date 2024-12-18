@@ -63,6 +63,11 @@ def analyze_shap_vs_distance(explainer, data, max_distance, num_samples=1000, ba
         source_positions = positions[linked_nodes[0]]  # Assuming linked_nodes[0] provides global indices
         weights = np.abs(explanation.shap_values)
 
+        # filter out outliers (e.g. nodes with very high outlier values)
+        outlier_idx = np.where(weights > 1e3)
+        weights = weights[~outlier_idx]
+        source_positions = source_positions[~outlier_idx]
+
         # Calculate distances
         node_position = positions[idx]  # (2,)
         distances = source_positions - node_position
