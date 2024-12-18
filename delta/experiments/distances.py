@@ -168,6 +168,10 @@ if __name__ == '__main__':
     orientations = np.stack([np.cos(orientations), np.sin(orientations)], axis=1)
     properties = np.load(os.path.join(args.output_dir, 'properties.npy'))
 
+    positions = torch.tensor(positions)
+    orientations = torch.tensor(orientations)
+    properties = torch.tensor(properties)
+
     analysis_dir = os.path.join(args.output_dir, 'distance_analysis')
     os.makedirs(analysis_dir, exist_ok=True)
 
