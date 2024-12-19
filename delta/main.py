@@ -1,12 +1,9 @@
 import argparse
-import os
 import yaml
 
 from .data.preprocessing import preprocess_data
 
-from .experiments.datascaling import run_datascaling_experiment
 from .experiments.observables import run_observables_experiment
-# from .experiments.distances import run_distances_experiment
 from .experiments.basic import run_basic_experiment
 
 
@@ -20,22 +17,13 @@ def main(config):
     # Data Preprocessing
     preprocess_data(config)
 
-    # Experiments
-    if config["experiments"]["run_datascaling_experiment"]:
-        print("Running data scaling experiment...")
-        run_datascaling_experiment(config)
+    if config["experiments"]["run_basic_experiment"]:
+        print("Running basic experiment...")
+        run_basic_experiment(config)
 
     if config["experiments"]["run_observables_experiment"]:
         print("Running observables experiment...")
         run_observables_experiment(config)
-
-    # if config["experiments"]["run_distances_experiment"]:
-    #     print("Running distances experiment...")
-    #     run_distances_experiment(config)
-
-    if config["experiments"]["run_basic_experiment"]:
-        print("Running basic experiment...")
-        run_basic_experiment(config)
 
     print("All experiments completed!")
 

@@ -8,8 +8,7 @@ from ..utils.shap_analysis import DirectionClassificationWrapper, collate_fn
 from ..utils.plotting import save_plot
 import yaml
 
-def analyze_shap_vs_distance(explainer, data, max_distance, num_samples=1000, batch_size=128,
-                             num_explained_galaxies=10000):
+def analyze_shap_vs_distance(explainer, data, max_distance, num_samples, num_explained_galaxies, batch_size=128):
     """
     Analyzes the relationship between SHAP importance values and distances between data points.
 
@@ -141,8 +140,8 @@ def fit_power_low(x, y):
 
     return m, c
 
-def run_distance_experiment(model, positions, orientations, properties, k, max_distance, device, analysis_dir,
-                            file_name_prefix=None):
+def run_distance_experiment(model, positions, orientations, properties, k, max_distance, num_samples,
+                            num_explained_galaxies, device, analysis_dir, file_name_prefix=None):
 
     num_classes = 8
     wrapped_model = DirectionClassificationWrapper(model, num_classes=num_classes)
@@ -163,7 +162,8 @@ def run_distance_experiment(model, positions, orientations, properties, k, max_d
         progress_hide=True
     )
 
-    bin_centers, mean_bin_values = analyze_shap_vs_distance(explainer, data, max_distance)
+    bin_centers, mean_bin_values = analyze_shap_vs_distance(explainer, data, max_distance, num_samples,
+                                                            num_explained_galaxies)
 
     fig = make_plot(bin_centers, mean_bin_values)
 
@@ -180,6 +180,9 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description='Run distance analysis')
     parser.add_argument('--output_dir', type=str, required=True)
+    parser.add_argument('--max_distance', type=float, default=50)
+    parser.add_argument('--num_samples', type=int, default=1000)
+    parser.add_argument('--num_galaxies', type=int, default=10000)
 
     args = parser.parse_args()
 
@@ -191,6 +194,8 @@ if __name__ == '__main__':
     model.load_state_dict(torch.load(os.path.join(args.output_dir, 'model.pth')))
     model.to(device)
 
+    k = config["data"]["num_neighbors"]
+
     positions = np.load(os.path.join(args.output_dir, 'positions.npy'))
     orientations = np.load(os.path.join(args.output_dir, 'targets.npy'))
 
@@ -201,5 +206,6 @@ if __name__ == '__main__':
     analysis_dir = os.path.join(args.output_dir, 'distance_analysis')
     os.makedirs(analysis_dir, exist_ok=True)
 
-    run_distance_experiment(model, positions, orientations, properties, k=10, max_distance=50, device=device,
+    run_distance_experiment(model, positions, orientations, properties, k=k, max_distance=args.max_distance, device=device,
+                            num_samples=args.num_samples, num_explained_galaxies=args.num_galaxies,
                             analysis_dir=analysis_dir, file_name_prefix='distances')
