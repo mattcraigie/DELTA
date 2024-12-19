@@ -86,8 +86,8 @@ def add_observables_to_datasets(datasets):
     Add observables to the datasets in-place. This assumes that datasets['train']
     and datasets['val'] have a 'h' attribute representing the properties.
     """
-    positions_train = datasets['train'].x
-    positions_val = datasets['val'].x
+    positions_train = datasets['train'].positions
+    positions_val = datasets['val'].positions
 
     # Extract the original properties from the train set (we assume train and val have same shape properties)
     original_properties_train = datasets['train'].h
