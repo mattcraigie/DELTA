@@ -30,12 +30,12 @@ def assign_density_to_galaxies(galaxy_positions, sigma, grid_size):
     """
 
     # Determine the min and max positions
-    min_pos = galaxy_positions_np.min(axis=0)
-    max_pos = galaxy_positions_np.max(axis=0)
+    min_pos = galaxy_positions.min(axis=0)
+    max_pos = galaxy_positions.max(axis=0)
 
     # Create a 2D histogram (density grid) of the galaxy positions
     H, xedges, yedges = np.histogram2d(
-        galaxy_positions_np[:, 0], galaxy_positions_np[:, 1],
+        galaxy_positions[:, 0], galaxy_positions[:, 1],
         bins=grid_size,
         range=[[min_pos[0], max_pos[0]], [min_pos[1], max_pos[1]]]
     )
@@ -48,8 +48,8 @@ def assign_density_to_galaxies(galaxy_positions, sigma, grid_size):
 
     # Assign density values to each galaxy based on its position
     # Find the bin indices for each galaxy
-    x_indices = np.digitize(galaxy_positions_np[:, 0], xedges) - 1
-    y_indices = np.digitize(galaxy_positions_np[:, 1], yedges) - 1
+    x_indices = np.digitize(galaxy_positions[:, 0], xedges) - 1
+    y_indices = np.digitize(galaxy_positions[:, 1], yedges) - 1
 
     # Ensure indices are within valid range
     x_indices = np.clip(x_indices, 0, grid_size - 1)
