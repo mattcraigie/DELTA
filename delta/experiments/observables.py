@@ -59,7 +59,7 @@ def assign_density_to_galaxies(galaxy_positions, sigma, grid_size):
     densities = H_normalized[x_indices, y_indices]
 
     # Convert densities back to a PyTorch tensor
-    densities_tensor = torch.from_numpy(densities)
+    densities_tensor = torch.from_numpy(densities).float()
 
     return densities_tensor
 
@@ -70,7 +70,7 @@ def make_informative_observable(positions, ):
     It is standard normal noise + scaled properties.
     """
     densities = assign_density_to_galaxies(positions, sigma=1, grid_size=200)
-    return densities.astype(np.float32)
+    return densities
 
 
 def make_uninformative_observable(properties):
