@@ -86,23 +86,23 @@ def add_observables_to_datasets(datasets):
     Add observables to the datasets in-place. This assumes that datasets['train']
     and datasets['val'] have a 'h' attribute representing the properties.
     """
+    positions_train = datasets['train'].x
+    positions_val = datasets['val'].x
+
     # Extract the original properties from the train set (we assume train and val have same shape properties)
     original_properties_train = datasets['train'].h
     original_properties_val = datasets['val'].h
 
-    print(original_properties_val)
-
     # Create informative and uninformative observables for train
-    informative_obs_train = make_informative_observable(original_properties_train)
+    informative_obs_train = make_informative_observable(positions_train)
     uninformative_obs_train = make_uninformative_observable(original_properties_train)
     datasets['train'].h = np.column_stack((informative_obs_train, uninformative_obs_train))
 
     # Create informative and uninformative observables for val
-    informative_obs_val = make_informative_observable(original_properties_val)
+    informative_obs_val = make_informative_observable(positions_val)
     uninformative_obs_val = make_uninformative_observable(original_properties_val)
     datasets['val'].h = np.column_stack((informative_obs_val, uninformative_obs_val))
 
-    print(datasets['val'].h)
 
 def run_observables_experiment(config):
     """
