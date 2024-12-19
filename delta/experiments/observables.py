@@ -28,8 +28,6 @@ def assign_density_to_galaxies(galaxy_positions, sigma, grid_size):
     Returns:
     - densities (torch.Tensor): Tensor of shape (num_galaxies,) containing the density value for each galaxy.
     """
-    # Convert galaxy positions to NumPy array for processing
-    galaxy_positions_np = galaxy_positions.numpy()
 
     # Determine the min and max positions
     min_pos = galaxy_positions_np.min(axis=0)
