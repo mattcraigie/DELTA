@@ -135,6 +135,7 @@ def plot_swarm(scores_dict, analysis_dir, y_label='% Improvement', title='Swarm 
     plt.scatter(jittered_x, y_values, alpha=0.7, edgecolor='k', linewidth=0.5)
     plt.xticks(list(x_positions.values()), list(x_positions.keys()))
     plt.xlabel('Category')
+    plt.xlim(-0.5, 2.5)
     plt.ylabel(y_label)
     plt.title(title)
 
@@ -230,7 +231,7 @@ def run_observables_experiment(config):
             scores_dict_data[i].append(perm_error_i_data)
 
             perm_error_i_full = get_improvement_percentage(predictions_permuted, targets_full)
-            scores_dict_data[i].append(perm_error_i_full)
+            scores_dict_full[i].append(perm_error_i_full)
 
             datasets['val'].h = val_h_original.copy()
 
