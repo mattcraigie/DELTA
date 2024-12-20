@@ -3,9 +3,6 @@ import yaml
 
 from .data.preprocessing import preprocess_data
 
-from .experiments.observables import run_observables_experiment
-from .experiments.basic import run_basic_experiment
-
 
 def load_config(config_path):
     """Loads configuration from a YAML file."""
@@ -19,10 +16,12 @@ def main(config):
 
     if config["experiments"]["run_basic_experiment"]:
         print("Running basic experiment...")
+        from .experiments.basic import run_basic_experiment
         run_basic_experiment(config)
 
     if config["experiments"]["run_observables_experiment"]:
         print("Running observables experiment...")
+        from .experiments.observables import run_observables_experiment
         run_observables_experiment(config)
 
     print("All experiments completed!")

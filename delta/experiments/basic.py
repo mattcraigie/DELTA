@@ -9,7 +9,6 @@ from ..utils.utils import get_model_predictions, get_vmdn_outputs
 from ..utils.mapping import create_maps
 import os
 import numpy as np
-from ..experiments.distances import run_distance_experiment
 import yaml
 
 
