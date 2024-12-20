@@ -155,3 +155,26 @@ def get_vmdn_outputs(model, dataloader, device):
     kappas = np.concatenate(kappas, axis=0)
 
     return mus, kappas
+
+
+
+def get_improvement_percentage(prediction, target):
+    """
+    Calculate the improvement percentage in angular differences compared to a baseline.
+
+    Parameters:
+        prediction (np.ndarray): Array of predicted angular values.
+        target (np.ndarray): Array of target angular values.
+
+    Returns:
+        float: Improvement percentage.
+    """
+    # Compute angular differences
+    angular_diff = angular_differences(prediction, target)
+    mean_angular_diff = angular_diff.mean()
+    baseline = np.pi / 2
+
+    # Calculate improvement percentage
+    improvement_percentage = ((baseline - mean_angular_diff) / abs(baseline)) * 100
+
+    return improvement_percentage
