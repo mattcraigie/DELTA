@@ -4,10 +4,11 @@ import os
 from ..data.dataloading import create_dataloaders, load_dataset, split_dataset
 from ..models.vmdn import init_vmdn
 from ..training.train import train_model
-from ..utils.utils import get_model_predictions, signed_to_unsigned_angle, angle_from_trig
-from ..utils.plotting import plot_results
+from ..utils.utils import get_model_predictions, signed_to_unsigned_angle, angle_from_trig, get_improvement_percentage
+from ..utils.plotting import plot_results, save_plot
 from torch.utils.data import DataLoader
 from ..data.dataloading import collate_fn
+import matplotlib.pyplot as plt
 
 import torch
 import torch.nn.functional as F
@@ -104,6 +105,39 @@ def add_observables_to_datasets(datasets):
     datasets['val'].h = np.column_stack((informative_obs_val, uninformative_obs_val))
 
 
+def plot_swarm(scores_dict, analysis_dir, y_label='% Improvement', title='Swarm Plot'):
+    """
+    Plots a swarm plot.
+
+    Parameters:
+    - scores_dict: dict
+        A dictionary where keys are categories (e.g., strings or integers) and values are lists of scores.
+    - y_label: str
+        Label for the y-axis.
+    - title: str
+        Title of the plot.
+    """
+    # Map categories to x positions
+    x_positions = {category: i for i, category in enumerate(scores_dict.keys())}
+
+    # Generate jittered x values for each category
+    jittered_x = []
+    y_values = []
+    for category, x in x_positions.items():
+        jittered_x.extend(x + np.random.uniform(-0.1, 0.1, size=len(scores_dict[category])))
+        y_values.extend(scores_dict[category])
+
+    # Plot
+    plt.figure(figsize=(8, 6))
+    plt.scatter(jittered_x, y_values, alpha=0.7, edgecolor='k', linewidth=0.5)
+    plt.xticks(list(x_positions.values()), list(x_positions.keys()))
+    plt.xlabel('Category')
+    plt.ylabel(y_label)
+    plt.title(title)
+
+    save_plot(plt.gcf(), root_dir=analysis_dir, file_name='swarm_plot.png')
+
+
 def run_observables_experiment(config):
     """
     Run an observables test of the model using the updated workflows.
@@ -120,6 +154,8 @@ def run_observables_experiment(config):
     alignment_strength = config["data"]["alignment_strength"]
     num_neighbors = config["data"]["num_neighbors"]
 
+    analysis_dir = os.path.join(output_dir, analysis_name)
+
     # Load datasets and dataloaders
     datasets, dataloaders = create_dataloaders(data_dir, alignment_strength, num_neighbors)
 
@@ -129,68 +165,74 @@ def run_observables_experiment(config):
     val_loader = DataLoader(datasets['val'], batch_size=1, shuffle=False, collate_fn=collate_fn)
     dataloaders = {'train': train_loader, 'val': val_loader}
 
-    # Initialize the model
-    if "num_properties" in config["model"]:
-        config["model"]["num_properties"] = dataloaders['train'].dataset.h.shape[1]
-    model = init_vmdn(config["model"])
-    model.to(device)
+    num_columns = datasets['train'].h.shape[1]
 
-    print("Training model...")
+    scores_dict_data = {'base': []} | {i: [] for i in range(num_columns)}
+    scores_dict_full = {'base': []} | {i: [] for i in range(num_columns)}
 
-    # Possibly pre-train the model if specified
-    if config["training"].get("pretrain", False):
-        pretrain_epochs = config["training"]["pretrain_epochs"]
-        pretrain_lr = config["training"]["pretrain_learning_rate"]
-        train_model(model.compression_network.egnn, dataloaders['train'], dataloaders['val'],
-                    pretrain_epochs, pretrain_lr, device)
+    repeats = 10
 
-    # Train the model
-    train_epochs = config["training"]["train_epochs"]
-    train_lr = config["training"]["train_learning_rate"]
-    model, losses = train_model(model, dataloaders['train'], dataloaders['val'], train_epochs, train_lr, device)
+    for repeat in range(repeats):
 
-    # Get predictions
-    predictions, targets = get_model_predictions(model, dataloaders['val'], device)
+        # Initialize the model
+        if "num_properties" in config["model"]:
+            config["model"]["num_properties"] = dataloaders['train'].dataset.h.shape[1]
+        model = init_vmdn(config["model"])
+        model.to(device)
 
-    # Save results
-    analysis_dir = os.path.join(output_dir, analysis_name)
-    torch.save(model.state_dict(), os.path.join(analysis_dir, "model.pth"))
+        print("Training model...")
+
+        # Possibly pre-train the model if specified
+        if config["training"].get("pretrain", False):
+            pretrain_epochs = config["training"]["pretrain_epochs"]
+            pretrain_lr = config["training"]["pretrain_learning_rate"]
+            train_model(model.compression_network.egnn, dataloaders['train'], dataloaders['val'],
+                        pretrain_epochs, pretrain_lr, device)
+
+        # Train the model
+        train_epochs = config["training"]["train_epochs"]
+        train_lr = config["training"]["train_learning_rate"]
+        model, losses = train_model(model, dataloaders['train'], dataloaders['val'], train_epochs, train_lr, device)
+
+        # Get predictions
+        predictions, targets = get_model_predictions(model, dataloaders['val'], device)
+        base_error_data = get_improvement_percentage(predictions, targets)
+        scores_dict_data['base'].append(base_error_data)
 
 
-    # Plot the results
-    plot_results(losses, predictions, targets, analysis_dir, file_name_prefix='data')
+        # Repeat with the fully aligned data
+        alignment_strength = 1.0
+        dataset_full, _ = create_dataloaders(data_dir, alignment_strength, num_neighbors)
+        targets_full = dataset_full['val'].orientations
+        targets_full = angle_from_trig(targets_full[:, 0], targets_full[:, 1])[:, None]
+        targets_full = signed_to_unsigned_angle(targets_full)
+        base_error_full = get_improvement_percentage(predictions, targets_full)
+        scores_dict_full['base'].append(base_error_full)
 
-    # Repeat with the fully aligned data
-    alignment_strength = 1.0
-    dataset_full, _ = create_dataloaders(data_dir, alignment_strength, num_neighbors)
-    targets_full = dataset_full['val'].orientations
-    targets_full = angle_from_trig(targets_full[:, 0], targets_full[:, 1])[:, None]
-    targets_full = signed_to_unsigned_angle(targets_full)
+        # Permutation Experiment
+        print("Running permutation experiment...")
+        val_h_original = datasets['val'].h.copy()
 
-    torch.save(targets_full, os.path.join(analysis_dir, "targets_true.pth"))
 
-    plot_results(losses, predictions, targets_full, analysis_dir, file_name_prefix="true")
+        for i in range(num_columns):
+            # Permute the observable
+            observable = datasets['val'].h[:, i]
+            datasets['val'].h[:, i] = np.random.permutation(observable)
 
-    # Permutation Experiment
-    print("Running permutation experiment...")
-    val_h_original = datasets['val'].h.copy()
-    num_columns = val_h_original.shape[1]
+            # Rebuild val_loader to reflect changed data if needed
+            predictions_permuted, _ = get_model_predictions(model, dataloaders['val'], device)
 
-    for i in range(num_columns):
-        # Permute the observable
-        observable = datasets['val'].h[:, i]
-        datasets['val'].h[:, i] = np.random.permutation(observable)
+            # get error scores here and
+            perm_error_i_data = get_improvement_percentage(predictions_permuted, targets)
+            scores_dict_data[i].append(perm_error_i_data)
 
-        # Rebuild val_loader to reflect changed data if needed
-        predictions_permuted, _ = get_model_predictions(model, dataloaders['val'], device)
+            perm_error_i_full = get_improvement_percentage(predictions_permuted, targets_full)
+            scores_dict_data[i].append(perm_error_i_full)
 
-        # Plot results
-        plot_results(None, predictions_permuted, targets, analysis_dir,
-                     file_name_prefix=f"{analysis_name}_permuted_{i}")
-        plot_results(None, predictions_permuted, targets_full, analysis_dir,
-                     file_name_prefix=f"{analysis_name}_permuted_{i}_full")
+            datasets['val'].h = val_h_original.copy()
 
-        datasets['val'].h = val_h_original.copy()
+    plot_swarm(scores_dict_data, analysis_dir, y_label='% Error', title='Permutation Experiment - Data')
+    plot_swarm(scores_dict_full, analysis_dir, y_label='% Error', title='Permutation Experiment - Full')
 
     print("Permutation experiment complete.")
 
