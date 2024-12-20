@@ -9,6 +9,7 @@ from ..utils.plotting import plot_results, save_plot
 from torch.utils.data import DataLoader
 from ..data.dataloading import collate_fn
 import matplotlib.pyplot as plt
+from matplotlib.cm import get_cmap
 
 import torch
 import torch.nn.functional as F
