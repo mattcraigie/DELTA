@@ -127,9 +127,6 @@ def plot_swarm(scores_dict, analysis_dir, y_label='% Improvement', title='Swarm 
         jittered_x.extend(x + np.random.uniform(-0.1, 0.1, size=len(scores_dict[category])))
         y_values.extend(scores_dict[category])
 
-    print(jittered_x)
-    print(y_values)
-
     # Plot
     plt.figure(figsize=(8, 6))
     plt.scatter(jittered_x, y_values, alpha=0.7, edgecolor='k', linewidth=0.5)
@@ -174,7 +171,7 @@ def run_observables_experiment(config):
     scores_dict_data = {'base': []} | {i: [] for i in range(num_columns)}
     scores_dict_full = {'base': []} | {i: [] for i in range(num_columns)}
 
-    repeats = 3
+    repeats = 10
 
     for repeat in range(repeats):
         print(f"Repeat {repeat + 1}/{repeats}")
@@ -234,9 +231,6 @@ def run_observables_experiment(config):
             scores_dict_full[i].append(perm_error_i_full)
 
             datasets['val'].h = val_h_original.copy()
-
-    print(scores_dict_data)
-    print(scores_dict_full)
 
     plot_swarm(scores_dict_data, analysis_dir, y_label='% Error', title='Permutation Experiment - Data')
     plot_swarm(scores_dict_full, analysis_dir, y_label='% Error', title='Permutation Experiment - Full')
