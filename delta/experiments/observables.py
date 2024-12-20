@@ -107,7 +107,7 @@ def add_observables_to_datasets(datasets):
 
 def plot_swarm(scores_dict, analysis_dir, y_label='% Improvement', title='Swarm Plot'):
     """
-    Plots a swarm plot.
+    Plots a swarm plot with different colors for each category and mean/std annotations.
 
     Parameters:
     - scores_dict: dict
@@ -116,6 +116,8 @@ def plot_swarm(scores_dict, analysis_dir, y_label='% Improvement', title='Swarm 
         Label for the y-axis.
     - title: str
         Title of the plot.
+    - analysis_dir: str
+        Directory where the plot will be saved.
     """
     # Map categories to x positions
     x_positions = {category: i for i, category in enumerate(scores_dict.keys())}
@@ -123,19 +125,41 @@ def plot_swarm(scores_dict, analysis_dir, y_label='% Improvement', title='Swarm 
     # Generate jittered x values for each category
     jittered_x = []
     y_values = []
+    colors = []
+    category_colors = get_cmap('tab10')(np.linspace(0, 1, len(scores_dict)))
+    color_map = {category: category_colors[i] for i, category in enumerate(scores_dict.keys())}
+
     for category, x in x_positions.items():
         jittered_x.extend(x + np.random.uniform(-0.1, 0.1, size=len(scores_dict[category])))
         y_values.extend(scores_dict[category])
+        colors.extend([color_map[category]] * len(scores_dict[category]))
 
     # Plot
     plt.figure(figsize=(8, 6))
-    plt.scatter(jittered_x, y_values, alpha=0.7, edgecolor='k', linewidth=0.5)
+    plt.scatter(jittered_x, y_values, alpha=0.7, edgecolor='k', linewidth=0.5, c=colors)
     plt.xticks(list(x_positions.values()), list(x_positions.keys()))
     plt.xlabel('Category')
-    plt.xlim(-0.5, 2.5)
+    plt.xlim(-0.5, len(scores_dict) - 0.5)
     plt.ylabel(y_label)
     plt.title(title)
 
+    # Add annotations for mean and std deviation
+    annotation_text = ""
+    for category, scores in scores_dict.items():
+        mean_score = np.mean(scores)
+        std_score = np.std(scores)
+        annotation_text += f"{category}: {mean_score:.2f} ± {std_score:.2f}\n"
+
+    plt.gca().text(
+        0.95, 0.95, annotation_text,
+        transform=plt.gca().transAxes,
+        fontsize=10,
+        verticalalignment='top',
+        horizontalalignment='right',
+        bbox=dict(boxstyle='round,pad=0.5', facecolor='white', alpha=0.8)
+    )
+
+    # Save the plot
     save_plot(plt.gcf(), root_dir=analysis_dir, file_name='swarm_plot.png')
 
 
