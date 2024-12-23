@@ -106,59 +106,94 @@ def add_observables_to_datasets(datasets):
     datasets['val'].h = np.column_stack((informative_obs_val, uninformative_obs_val))
 
 
-def plot_swarm(scores_dict, analysis_dir, y_label='% Improvement', title='Swarm Plot', fname=None, threshold=None):
+def plot_swarm(scores_dict,
+               analysis_dir,
+               y_label='% Improvement',
+               title='Swarm Plot',
+               fname=None,
+               threshold=None):
     """
-    Plots a swarm plot with different colors for each category and mean/std annotations.
+    Plots a swarm plot based on the difference from the 'base' scores.
+    If threshold is set, only baseline scores >= threshold are used.
 
     Parameters:
     - scores_dict: dict
-        A dictionary where keys are categories (e.g., strings or integers) and values are lists of scores.
+        A dictionary where keys are categories (e.g., 'base' and other permutations)
+        and values are lists of scores.
+        Must contain the key 'base' for baseline scores.
+    - analysis_dir: str
+        Directory where the plot will be saved.
     - y_label: str
         Label for the y-axis.
     - title: str
         Title of the plot.
-    - analysis_dir: str
-        Directory where the plot will be saved.
+    - fname: str or None
+        Filename to save the plot. If None, defaults to 'observables.png'.
+    - threshold: float or None
+        If provided, baseline scores below this value are excluded from the
+        differences/plot.
     """
-
-    # todo: change this to the differences between the base and the permutations. Also, make a threshold such that if
-    # the base is less than the threshold, we exclude it from the plot and the mean/std calculations, since it indicates
-    # that the model hasn't converged on a good solution.
 
     if fname is None:
         fname = 'observables.png'
 
+    # Ensure we have a 'base' in the dictionary
+    if 'base' not in scores_dict:
+        raise ValueError("scores_dict must contain a 'base' key with baseline scores.")
+
+    base_scores = np.array(scores_dict['base'])
+
+    # Identify valid indices based on threshold
+    if threshold is not None:
+        valid_indices = [i for i, val in enumerate(base_scores) if val >= threshold]
+    else:
+        valid_indices = range(len(base_scores))
+
+    # Build a new dictionary of differences from base
+    # (exclude the 'base' key itself from plotting)
+    differences_dict = {}
+    for category, values in scores_dict.items():
+        if category == 'base':
+            continue  # Skip the base
+        # Compute difference only for valid indices
+        category_arr = np.array(values)
+        diff_vals = category_arr[valid_indices] - base_scores[valid_indices]
+        differences_dict[category] = diff_vals
+
+    # Now differences_dict holds the arrays of differences from base for each category
+    # Plot these differences in a "swarm" style
 
     # Map categories to x positions
-    x_positions = {category: i for i, category in enumerate(scores_dict.keys())}
+    x_positions = {cat: i for i, cat in enumerate(differences_dict.keys())}
 
-    # Generate jittered x values for each category
+    # Prepare for scatter plotting
     jittered_x = []
     y_values = []
     colors = []
-    category_colors = get_cmap('tab10')(np.linspace(0, 1, len(scores_dict)))
-    color_map = {category: category_colors[i] for i, category in enumerate(scores_dict.keys())}
+    category_colors = get_cmap('tab10')(np.linspace(0, 1, len(differences_dict)))
+    color_map = {cat: category_colors[i] for i, cat in enumerate(differences_dict.keys())}
 
-    for category, x in x_positions.items():
-        jittered_x.extend(x + np.random.uniform(-0.1, 0.1, size=len(scores_dict[category])))
-        y_values.extend(scores_dict[category])
-        colors.extend([color_map[category]] * len(scores_dict[category]))
+    for cat, x in x_positions.items():
+        vals = differences_dict[cat]
+        # Create jitter around the integer x
+        jittered_x.extend(x + np.random.uniform(-0.1, 0.1, size=len(vals)))
+        y_values.extend(vals)
+        colors.extend([color_map[cat]] * len(vals))
 
-    # Plot
     plt.figure(figsize=(8, 6))
     plt.scatter(jittered_x, y_values, alpha=0.7, edgecolor='k', linewidth=0.5, c=colors)
     plt.xticks(list(x_positions.values()), list(x_positions.keys()))
+    plt.xlim(-0.5, len(differences_dict) - 0.5)
     plt.xlabel('Category')
-    plt.xlim(-0.5, len(scores_dict) - 0.5)
     plt.ylabel(y_label)
     plt.title(title)
 
-    # Add annotations for mean and std deviation
+    # Add annotations for mean and std deviation (based on differences)
     annotation_text = ""
-    for category, scores in scores_dict.items():
-        mean_score = np.mean(scores)
-        std_score = np.std(scores)
-        annotation_text += f"{category}: {mean_score:.2f} ± {std_score:.2f}\n"
+    for cat, vals in differences_dict.items():
+        mean_val = np.mean(vals) if len(vals) > 0 else float('nan')
+        std_val = np.std(vals) if len(vals) > 0 else float('nan')
+        annotation_text += f"{cat}: {mean_val:.2f} ± {std_val:.2f}\n"
 
     plt.gca().text(
         0.95, 0.95, annotation_text,
@@ -169,7 +204,7 @@ def plot_swarm(scores_dict, analysis_dir, y_label='% Improvement', title='Swarm 
         bbox=dict(boxstyle='round,pad=0.5', facecolor='white', alpha=0.8)
     )
 
-    # Save the plot
+    # Save the plot (assuming save_plot is defined elsewhere)
     save_plot(plt.gcf(), root_dir=analysis_dir, file_name=fname)
 
 
