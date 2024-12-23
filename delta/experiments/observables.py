@@ -201,7 +201,7 @@ def plot_swarm(scores_dict,
         annotation_text += f"{cat}: {mean_val:.2f} ± {std_val:.2f}\n"
 
     plt.gca().text(
-        0.95, 0.95, annotation_text,
+        0.95, 0.1, annotation_text,
         transform=plt.gca().transAxes,
         fontsize=10,
         verticalalignment='top',
