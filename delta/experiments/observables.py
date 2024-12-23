@@ -322,8 +322,8 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     # load dicts and plot
-    scores_dict_data = np.load(os.path.join(args.output_dir, "scores_dict_data.npy"), allow_pickle=True)
-    scores_dict_full = np.load(os.path.join(args.output_dir, "scores_dict_full.npy"), allow_pickle=True)
+    scores_dict_data = np.load(os.path.join(args.output_dir, "scores_dict_data.npy"), allow_pickle=True)[0]
+    scores_dict_full = np.load(os.path.join(args.output_dir, "scores_dict_full.npy"), allow_pickle=True)[0]
 
     print(type(scores_dict_data))
 
