@@ -106,6 +106,10 @@ def add_observables_to_datasets(datasets):
     datasets['val'].h = np.column_stack((informative_obs_val, uninformative_obs_val))
 
 
+import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib.cm import get_cmap
+
 def plot_swarm(scores_dict,
                analysis_dir,
                y_label='% Improvement',
@@ -114,6 +118,7 @@ def plot_swarm(scores_dict,
                threshold=None):
     """
     Plots a swarm plot based on the difference from the 'base' scores.
+    Points are colored based on their corresponding base scores.
     If threshold is set, only baseline scores >= threshold are used.
 
     Parameters:
@@ -150,18 +155,13 @@ def plot_swarm(scores_dict,
         valid_indices = range(len(base_scores))
 
     # Build a new dictionary of differences from base
-    # (exclude the 'base' key itself from plotting)
     differences_dict = {}
     for category, values in scores_dict.items():
         if category == 'base':
             continue  # Skip the base
-        # Compute difference only for valid indices
         category_arr = np.array(values)
         diff_vals = category_arr[valid_indices] - base_scores[valid_indices]
         differences_dict[category] = diff_vals
-
-    # Now differences_dict holds the arrays of differences from base for each category
-    # Plot these differences in a "swarm" style
 
     # Map categories to x positions
     x_positions = {cat: i for i, cat in enumerate(differences_dict.keys())}
@@ -170,23 +170,28 @@ def plot_swarm(scores_dict,
     jittered_x = []
     y_values = []
     colors = []
-    category_colors = get_cmap('tab10')(np.linspace(0, 1, len(differences_dict)))
-    color_map = {cat: category_colors[i] for i, cat in enumerate(differences_dict.keys())}
+    cmap = get_cmap('viridis')  # Use a gradient colormap
 
     for cat, x in x_positions.items():
         vals = differences_dict[cat]
-        # Create jitter around the integer x
         jittered_x.extend(x + np.random.uniform(-0.1, 0.1, size=len(vals)))
         y_values.extend(vals)
-        colors.extend([color_map[cat]] * len(vals))
+
+        # Assign colors based on the corresponding base scores
+        base_vals = base_scores[valid_indices]
+        colors.extend(cmap((base_vals - np.min(base_vals)) / (np.max(base_vals) - np.min(base_vals))))
 
     plt.figure(figsize=(8, 6))
-    plt.scatter(jittered_x, y_values, alpha=0.7, edgecolor='k', linewidth=0.5, c=colors)
+    scatter = plt.scatter(jittered_x, y_values, alpha=0.7, edgecolor='k', linewidth=0.5, c=colors)
     plt.xticks(list(x_positions.values()), list(x_positions.keys()))
     plt.xlim(-0.5, len(differences_dict) - 0.5)
     plt.xlabel('Category')
     plt.ylabel(y_label)
     plt.title(title)
+
+    # Add colorbar for base scores
+    cbar = plt.colorbar(scatter, label='Base Score')
+    cbar.set_label('Base Score')
 
     # Add annotations for mean and std deviation (based on differences)
     annotation_text = ""
@@ -206,6 +211,7 @@ def plot_swarm(scores_dict,
 
     # Save the plot (assuming save_plot is defined elsewhere)
     save_plot(plt.gcf(), root_dir=analysis_dir, file_name=fname)
+
 
 
 def run_observables_experiment(config):
