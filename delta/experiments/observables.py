@@ -316,6 +316,8 @@ if __name__ == '__main__':
 
     # output_dir argument
     parser.add_argument('--output_dir', type=str, required=True)
+    parser.add_argument('--threshold', type=float, default=None)
+
 
     args = parser.parse_args()
 
@@ -323,5 +325,7 @@ if __name__ == '__main__':
     scores_dict_data = np.load(os.path.join(args['output_dir'], "scores_dict_data.npy"))
     scores_dict_full = np.load(os.path.join(args['output_dir'], "scores_dict_full.npy"))
 
-    plot_swarm(scores_dict_data, args['output_dir'], y_label='% Error', title='Permutation Experiment - Data', fname='observables_data.png')
-    plot_swarm(scores_dict_full, args['output_dir'], y_label='% Error', title='Permutation Experiment - Full', fname='observables_full.png')
+    plot_swarm(scores_dict_data, args['output_dir'], y_label='% Error', title='Permutation Experiment - Data',
+               fname='observables_data.png', threshold=args['threshold'])
+    plot_swarm(scores_dict_full, args['output_dir'], y_label='% Error', title='Permutation Experiment - Full',
+               fname='observables_full.png', threshold=args['threshold'])
