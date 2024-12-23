@@ -240,7 +240,7 @@ def run_observables_experiment(config):
     scores_dict_data = {'base': []} | {i: [] for i in range(num_columns)}
     scores_dict_full = {'base': []} | {i: [] for i in range(num_columns)}
 
-    repeats = 5
+    repeats = 20
 
     for repeat in range(repeats):
         print(f"Repeat {repeat + 1}/{repeats}")
