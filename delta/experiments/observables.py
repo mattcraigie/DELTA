@@ -106,7 +106,7 @@ def add_observables_to_datasets(datasets):
     datasets['val'].h = np.column_stack((informative_obs_val, uninformative_obs_val))
 
 
-def plot_swarm(scores_dict, analysis_dir, y_label='% Improvement', title='Swarm Plot'):
+def plot_swarm(scores_dict, analysis_dir, y_label='% Improvement', title='Swarm Plot', fname=None, threshold=None):
     """
     Plots a swarm plot with different colors for each category and mean/std annotations.
 
@@ -120,6 +120,15 @@ def plot_swarm(scores_dict, analysis_dir, y_label='% Improvement', title='Swarm 
     - analysis_dir: str
         Directory where the plot will be saved.
     """
+
+    # todo: change this to the differences between the base and the permutations. Also, make a threshold such that if
+    # the base is less than the threshold, we exclude it from the plot and the mean/std calculations, since it indicates
+    # that the model hasn't converged on a good solution.
+
+    if fname is None:
+        fname = 'observables.png'
+
+
     # Map categories to x positions
     x_positions = {category: i for i, category in enumerate(scores_dict.keys())}
 
@@ -161,7 +170,7 @@ def plot_swarm(scores_dict, analysis_dir, y_label='% Improvement', title='Swarm 
     )
 
     # Save the plot
-    save_plot(plt.gcf(), root_dir=analysis_dir, file_name='swarm_plot.png')
+    save_plot(plt.gcf(), root_dir=analysis_dir, file_name=fname)
 
 
 def run_observables_experiment(config):
@@ -257,50 +266,27 @@ def run_observables_experiment(config):
 
             datasets['val'].h = val_h_original.copy()
 
-    plot_swarm(scores_dict_data, analysis_dir, y_label='% Error', title='Permutation Experiment - Data')
-    plot_swarm(scores_dict_full, analysis_dir, y_label='% Error', title='Permutation Experiment - Full')
+    # save the scores_dict_data and scores_dict_full
+    np.save(os.path.join(analysis_dir, "scores_dict_data.npy"), scores_dict_data)
+    np.save(os.path.join(analysis_dir, "scores_dict_full.npy"), scores_dict_full)
+
+    plot_swarm(scores_dict_data, analysis_dir, y_label='% Error', title='Permutation Experiment - Data', fname='observables_data.png')
+    plot_swarm(scores_dict_full, analysis_dir, y_label='% Error', title='Permutation Experiment - Full', fname='observables_full.png')
 
     print("Permutation experiment complete.")
 
-    # Ablation Experiment
+if __name__ == '__main__':
+    import argparse
+    parser = argparse.ArgumentParser(description='Run observables experiment')
 
-    # print("Running ablation experiment...")
-    # original_train_h = datasets['train'].h.copy()
-    # original_val_h = datasets['val'].h.copy()
-    #
-    # for i in range(num_columns):
-    #     # Remove the observable column i
-    #     datasets['train'].h = np.delete(datasets['train'].h, i, axis=1)
-    #     datasets['val'].h = np.delete(datasets['val'].h, i, axis=1)
-    #
-    #     # Retrain the model with one less property
-    #     if "num_properties" in config["model"]:
-    #         config["model"]["num_properties"] = datasets['train'].h.shape[1]
-    #
-    #     model_ablated = init_vmdn(config["model"])
-    #     model_ablated.to(device)
-    #
-    #     # If pretrain is still desired for each ablation (you may decide otherwise):
-    #     if config["training"].get("pretrain", False):
-    #         train_model(model_ablated.compression_network.egnn, dataloaders['train'], dataloaders['val'],
-    #                     pretrain_epochs, pretrain_lr, device)
-    #
-    #     model_ablated, losses_ablated = train_model(model_ablated, dataloaders['train'], dataloaders['val'],
-    #                                                 train_epochs, train_lr, device)
-    #
-    #     # Get predictions
-    #     predictions_ablated, _ = get_model_predictions(model_ablated, dataloaders['val'], device)
-    #
-    #     # Plot the results
-    #     plot_results(losses_ablated, predictions_ablated, targets, analysis_dir,
-    #                  file_name_prefix=f"{analysis_name}_ablated_{i}")
-    #     plot_results(losses_ablated, predictions_ablated, targets_full, analysis_dir,
-    #                  file_name_prefix=f"{analysis_name}_ablated_{i}_full")
-    #
-    #     # Reset the dataset to the original state for the next iteration
-    #     datasets['train'].h = original_train_h.copy()
-    #     datasets['val'].h = original_val_h.copy()
-    #
-    # print("Ablation experiment complete.")
-    # print("Observables experiment finished.")
+    # output_dir argument
+    parser.add_argument('--output_dir', type=str, required=True)
 
+    args = parser.parse_args()
+
+    # load dicts and plot
+    scores_dict_data = np.load(os.path.join(args['output_dir'], "scores_dict_data.npy"))
+    scores_dict_full = np.load(os.path.join(args['output_dir'], "scores_dict_full.npy"))
+
+    plot_swarm(scores_dict_data, args['output_dir'], y_label='% Error', title='Permutation Experiment - Data', fname='observables_data.png')
+    plot_swarm(scores_dict_full, args['output_dir'], y_label='% Error', title='Permutation Experiment - Full', fname='observables_full.png')
