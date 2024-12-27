@@ -10,6 +10,7 @@ from torch.utils.data import DataLoader
 from ..data.dataloading import collate_fn
 import matplotlib.pyplot as plt
 from matplotlib.cm import get_cmap
+import time
 
 import torch
 import torch.nn.functional as F
@@ -105,10 +106,6 @@ def add_observables_to_datasets(datasets):
     uninformative_obs_val = make_uninformative_observable(original_properties_val)
     datasets['val'].h = np.column_stack((informative_obs_val, uninformative_obs_val))
 
-
-import numpy as np
-import matplotlib.pyplot as plt
-from matplotlib.cm import get_cmap
 
 def plot_swarm(scores_dict,
                analysis_dir,
@@ -246,7 +243,9 @@ def run_observables_experiment(config):
     scores_dict_data = {'base': []} | {i: [] for i in range(num_columns)}
     scores_dict_full = {'base': []} | {i: [] for i in range(num_columns)}
 
-    repeats = 10
+    start_time = time.time()
+
+    repeats = 15
 
     for repeat in range(repeats):
         print(f"Repeat {repeat + 1}/{repeats}")
@@ -315,6 +314,15 @@ def run_observables_experiment(config):
     plot_swarm(scores_dict_full, analysis_dir, y_label='% Error', title='Permutation Experiment - Full', fname='observables_full.png')
 
     print("Permutation experiment complete.")
+
+    end_time = time.time()
+
+    print(f"Time taken: {end_time - start_time:.2f} seconds.")
+
+    # save time to txt file
+    with open(os.path.join(analysis_dir, "time.txt"), 'w') as file:
+        file.write(f"Time taken: {end_time - start_time:.2f} seconds.")
+
 
 if __name__ == '__main__':
     import argparse
