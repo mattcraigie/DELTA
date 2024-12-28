@@ -245,7 +245,7 @@ def run_observables_experiment(config):
 
     start_time = time.time()
 
-    repeats = 15
+    repeats = 10
 
     for repeat in range(repeats):
         print(f"Repeat {repeat + 1}/{repeats}")
