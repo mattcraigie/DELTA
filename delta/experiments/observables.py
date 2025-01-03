@@ -216,6 +216,10 @@ def run_observables_experiment(config):
     Run an observables test of the model using the updated workflows.
     """
 
+    # hardcoded in for now
+    repeats = 10
+    num_permutations = 50  # Number of sub-repeats per permutation
+
     # Set the device
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -245,7 +249,7 @@ def run_observables_experiment(config):
 
     start_time = time.time()
 
-    repeats = 10
+
 
     for repeat in range(repeats):
         print(f"Repeat {repeat + 1}/{repeats}")
@@ -288,23 +292,35 @@ def run_observables_experiment(config):
         # Permutation Experiment
         val_h_original = datasets['val'].h.copy()
 
-
         for i in range(num_columns):
-            # Permute the observable
-            observable = datasets['val'].h[:, i]
-            datasets['val'].h[:, i] = np.random.permutation(observable)
+            perm_error_data_list = []
+            perm_error_full_list = []
 
-            # Rebuild val_loader to reflect changed data if needed
-            predictions_permuted, _ = get_model_predictions(model, dataloaders['val'], device)
+            for _ in range(num_permutations):
+                # Permute the observable
+                observable = datasets['val'].h[:, i]
+                datasets['val'].h[:, i] = np.random.permutation(observable)
 
-            # get error scores here and
-            perm_error_i_data = get_improvement_percentage(predictions_permuted, targets)
-            scores_dict_data[i].append(perm_error_i_data)
+                # Rebuild val_loader to reflect changed data if needed
+                predictions_permuted, _ = get_model_predictions(model, dataloaders['val'], device)
 
-            perm_error_i_full = get_improvement_percentage(predictions_permuted, targets_full)
-            scores_dict_full[i].append(perm_error_i_full)
+                # Get error scores for the current permutation
+                perm_error_i_data = get_improvement_percentage(predictions_permuted, targets)
+                perm_error_data_list.append(perm_error_i_data)
 
-            datasets['val'].h = val_h_original.copy()
+                perm_error_i_full = get_improvement_percentage(predictions_permuted, targets_full)
+                perm_error_full_list.append(perm_error_i_full)
+
+                # Reset the dataset to its original state
+                datasets['val'].h = val_h_original.copy()
+
+            # Compute the median error scores over all sub-repeats
+            median_perm_error_data = np.median(perm_error_data_list)
+            median_perm_error_full = np.median(perm_error_full_list)
+
+            # Store the median scores in the respective dictionaries
+            scores_dict_data[i].append(median_perm_error_data)
+            scores_dict_full[i].append(median_perm_error_full)
 
     # save the scores_dict_data and scores_dict_full
     np.save(os.path.join(analysis_dir, "scores_dict_data.npy"), scores_dict_data)
