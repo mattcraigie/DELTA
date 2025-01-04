@@ -218,7 +218,7 @@ def run_observables_experiment(config):
 
     # hardcoded in for now
     repeats = 10
-    num_permutations = 50  # Number of sub-repeats per permutation
+    num_permutations = 10  # Number of sub-repeats per permutation
 
     # Set the device
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -248,8 +248,6 @@ def run_observables_experiment(config):
     scores_dict_full = {'base': []} | {i: [] for i in range(num_columns)}
 
     start_time = time.time()
-
-
 
     for repeat in range(repeats):
         print(f"Repeat {repeat + 1}/{repeats}")
@@ -314,16 +312,9 @@ def run_observables_experiment(config):
                 # Reset the dataset to its original state
                 datasets['val'].h = val_h_original.copy()
 
-
-            print(perm_error_data_list)
-            print(perm_error_full_list)
-
             # Compute the median error scores over all sub-repeats
             median_perm_error_data = np.median(perm_error_data_list)
             median_perm_error_full = np.median(perm_error_full_list)
-
-            print(median_perm_error_data)
-            print(median_perm_error_full)
 
             # Store the median scores in the respective dictionaries
             scores_dict_data[i].append(median_perm_error_data)
