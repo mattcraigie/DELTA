@@ -218,7 +218,7 @@ def run_observables_experiment(config):
 
     # hardcoded in for now
     repeats = 10
-    num_permutations = 10  # Number of sub-repeats per permutation
+    num_permutations = 1  # Number of sub-repeats per permutation
 
     # Set the device
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
