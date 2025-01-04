@@ -314,9 +314,16 @@ def run_observables_experiment(config):
                 # Reset the dataset to its original state
                 datasets['val'].h = val_h_original.copy()
 
+
+            print(perm_error_data_list)
+            print(perm_error_full_list)
+
             # Compute the median error scores over all sub-repeats
             median_perm_error_data = np.median(perm_error_data_list)
             median_perm_error_full = np.median(perm_error_full_list)
+
+            print(median_perm_error_data)
+            print(median_perm_error_full)
 
             # Store the median scores in the respective dictionaries
             scores_dict_data[i].append(median_perm_error_data)
