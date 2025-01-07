@@ -33,7 +33,7 @@ def analyze_shap_vs_distance(explainer, data, max_distance, num_samples, num_exp
 
     # Define distance bins
     min_dist = 0
-    num_bins = 50
+    num_bins = 20
     distance_bins = np.linspace(min_dist, max_distance, num_bins + 1)
 
     # Initialize arrays for storing results
@@ -165,6 +165,9 @@ def run_distance_experiment(model, positions, orientations, properties, k, max_d
     bin_centers, mean_bin_values = analyze_shap_vs_distance(explainer, data, max_distance, num_samples,
                                                             num_explained_galaxies)
 
+    np.save(os.path.join(analysis_dir, 'bin_centers.npy'), bin_centers)
+    np.save(os.path.join(analysis_dir, 'mean_bin_values.npy'), mean_bin_values)
+
     fig = make_plot(bin_centers, mean_bin_values)
 
     save_plot(fig, root_dir=analysis_dir, file_name=file_name_prefix + "_distance_analysis.png")
@@ -180,7 +183,7 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description='Run distance analysis')
     parser.add_argument('--output_dir', type=str, required=True)
-    parser.add_argument('--max_distance', type=float, default=50)
+    parser.add_argument('--max_distance', type=float, default=30)
     parser.add_argument('--num_samples', type=int, default=1000)
     parser.add_argument('--num_galaxies', type=int, default=10000)
 
