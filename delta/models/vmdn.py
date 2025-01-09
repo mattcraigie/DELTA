@@ -58,10 +58,14 @@ class VMDN(nn.Module):
         log_prob = dist_vonmises.log_prob(target)
 
         # Apply a random mask to introduce stochasticity
-        node_mask = torch.rand(log_prob.size(0)) > self.dropout  # 20% dropout rate
+        if self.training:
+            node_mask = torch.rand(log_prob.size(0)) > self.dropout  # 20% dropout rate
+        else:
+            node_mask = torch.ones(log_prob.size(0))
         masked_log_prob = log_prob[node_mask]
         masked_target = target[node_mask]  # Optionally mask the target too, for consistency
         masked_mu = mu[node_mask]
+
 
         # Negative log-likelihood (NLL) loss on the masked subset
         nll = -masked_log_prob.mean()
