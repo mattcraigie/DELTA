@@ -61,7 +61,7 @@ class VMDN(nn.Module):
         if self.training:
             node_mask = torch.rand(log_prob.size(0)) > self.dropout  # 20% dropout rate
         else:
-            node_mask = torch.ones(log_prob.size(0))
+            node_mask = torch.ones(log_prob.size(0), dtype=torch.bool)
         masked_log_prob = log_prob[node_mask]
         masked_target = target[node_mask]  # Optionally mask the target too, for consistency
         masked_mu = mu[node_mask]
