@@ -89,7 +89,7 @@ class VMDN(nn.Module):
             sin_sum = sin_vals.mean(dim=0)
             isotropy_loss = (cos_sum ** 2 + sin_sum ** 2).mean()
 
-            total_loss += 0.01 * isotropy_loss
+            total_loss += isotropy_loss
 
         return total_loss
 
