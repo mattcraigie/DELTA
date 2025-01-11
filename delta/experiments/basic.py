@@ -40,11 +40,15 @@ def run_basic_experiment(config):
     model = init_vmdn(config["model"])
     model.to(device)
 
-    if config["training"]["load_pretrained"]:
-        pretrain_path = os.path.join(analysis_dir, "pretrained_model.pth")
-        model.compression_network.egnn.load_state_dict(torch.load(pretrain_path))
 
-    if config["training"]["pretrain"]:
+    if config["training"]["load_pretrained_compression"]:
+        pretrain_path = os.path.join(analysis_dir, "compression_model.pth")
+        try:
+            model.compression_network.egnn.load_state_dict(torch.load(pretrain_path))
+        except FileNotFoundError:
+            print(f"Pretrained model not found at {pretrain_path}. Training from scratch.")
+
+    elif config["training"]["pretrain"]:
         # Pre-Train the EGNN model
         pretrain_epochs = config["training"]["pretrain_epochs"]
         pretrain_learning_rate = config["training"]["pretrain_learning_rate"]
@@ -52,7 +56,14 @@ def run_basic_experiment(config):
                     pretrain_learning_rate, device)
 
         # save pre-trained model
-        torch.save(model.compression_network.egnn.state_dict(), os.path.join(analysis_dir, "pretrained_model.pth"))
+        torch.save(model.compression_network.egnn.state_dict(), os.path.join(analysis_dir, "compression_model.pth"))
+
+    elif config["training"]["load_pretrained_full"]:
+        pretrain_path = os.path.join(analysis_dir, "model.pth")
+        try:
+            model.load_state_dict(torch.load(pretrain_path))
+        except FileNotFoundError:
+            print(f"Pretrained model not found at {pretrain_path}. Training from scratch.")
 
     # Train the model
     train_epochs = config["training"]["train_epochs"]
@@ -60,6 +71,7 @@ def run_basic_experiment(config):
 
     model, losses = train_model(model, dataloaders['train'], dataloaders['val'], train_epochs,
                                 train_learning_rate, device)
+
 
     predictions, targets = get_model_predictions(model, dataloaders['val'], device)
 

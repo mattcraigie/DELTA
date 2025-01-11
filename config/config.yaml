@@ -15,8 +15,9 @@ model:
 training:
   pretrain: true
   pretrain_epochs: 10
-  load_pretrained: false
   pretrain_learning_rate: 0.001
+  load_pretrained_compression: false
+  load_pretrained_full: false
   train_epochs: 10
   train_learning_rate: 0.001
 
