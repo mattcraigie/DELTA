@@ -5,7 +5,7 @@ import numpy as np
 
 def egnn_loss(model, model_input, targets):
     _, _, predictions = model(*model_input)
-    return F.mse_loss(predictions, targets) + isotropy_loss
+    return F.mse_loss(predictions, targets)
 
 
 def vmdn_loss(model, model_inputs, targets):
