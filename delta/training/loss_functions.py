@@ -5,15 +5,6 @@ import numpy as np
 
 def egnn_loss(model, model_input, targets):
     _, _, predictions = model(*model_input)
-
-    # isotropy penalty
-    cos_vals = torch.cos(predictions)
-    sin_vals = torch.sin(predictions)
-
-    cos_sum = cos_vals.mean(dim=0)
-    sin_sum = sin_vals.mean(dim=0)
-    isotropy_loss = (cos_sum ** 2 + sin_sum ** 2).mean()
-
     return F.mse_loss(predictions, targets) + isotropy_loss
 
 
