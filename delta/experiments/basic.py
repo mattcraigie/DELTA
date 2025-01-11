@@ -20,6 +20,12 @@ def run_basic_experiment(config):
     # Set the device
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
+    # Create the analysis directory
+    analysis_name = config["analysis"]["name"]
+    output_dir = config["analysis"]["output_dir"]
+    analysis_dir = os.path.join(output_dir, analysis_name)
+    os.makedirs(analysis_dir, exist_ok=True)
+
     # Load the data
     data_dir = config["data"]["data_root"]
     alignment_strength = config["data"]["alignment_strength"]
@@ -34,12 +40,19 @@ def run_basic_experiment(config):
     model = init_vmdn(config["model"])
     model.to(device)
 
+    if config["training"]["load_pretrained"]:
+        pretrain_path = os.path.join(analysis_dir, "pretrained_model.pth")
+        model.compression_network.egnn.load_state_dict(torch.load(pretrain_path))
+
     if config["training"]["pretrain"]:
         # Pre-Train the EGNN model
         pretrain_epochs = config["training"]["pretrain_epochs"]
         pretrain_learning_rate = config["training"]["pretrain_learning_rate"]
         train_model(model.compression_network.egnn, dataloaders['train'], dataloaders['val'], pretrain_epochs,
                     pretrain_learning_rate, device)
+
+        # save pre-trained model
+        torch.save(model.compression_network.egnn.state_dict(), os.path.join(analysis_dir, "pretrained_model.pth"))
 
     # Train the model
     train_epochs = config["training"]["train_epochs"]
@@ -55,12 +68,7 @@ def run_basic_experiment(config):
     # positions
     positions = datasets['val'].positions
 
-    analysis_name = config["analysis"]["name"]
-    output_dir = config["analysis"]["output_dir"]
 
-    # create folder for the analysis
-    analysis_dir = os.path.join(output_dir, analysis_name)
-    os.makedirs(analysis_dir, exist_ok=True)
 
 
     # todo: don't save everything as torch tensors
