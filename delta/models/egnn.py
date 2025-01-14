@@ -47,7 +47,7 @@ class EGNN(nn.Module):
         rel_pos = rel_dist * torch.stack([torch.cos(2 * rel_theta), torch.sin(2 * rel_theta), rel_phi], dim=1)
 
         v = v + scatter(rel_pos * self.coord_mlp(m_ij), row, dim=0,
-                        dim_size=x.size(0), reduce='mean')
+                        dim_size=x.size(0), reduce='mean')[:, :2]
 
         # Constrain predictions to lie on the unit circle
         v = F.normalize(v, p=2, dim=-1)
