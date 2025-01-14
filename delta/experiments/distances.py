@@ -213,9 +213,8 @@ def shap_influence_scatter(explainer, data, galaxy_idx, num_samples, batch_size=
 
     # save positions and weights in an array together
     source_positions = np.concatenate([source_positions, weights[:, None]], axis=1)
-    np.save(f"shapmap_galaxy_{galaxy_idx}.npy", source_positions)
 
-    return None
+    return source_positions
 
 def run_shapmap_experiment(model, positions, orientations, properties, k, num_samples, device, analysis_dir, file_name_prefix=None):
     """
@@ -260,12 +259,11 @@ def run_shapmap_experiment(model, positions, orientations, properties, k, num_sa
     galaxy_idx = 1137474  # hardcoding in a nice one to visualise because it sits in a subhalo
 
 
-    fig = shap_influence_scatter(explainer, data, galaxy_idx=galaxy_idx, num_samples=num_samples)
+    positions = shap_influence_scatter(explainer, data, galaxy_idx=galaxy_idx, num_samples=num_samples)
 
-    if fig is not None:
-        file_name = f"{file_name_prefix}_galaxy_{galaxy_idx}_shapmap.png" if file_name_prefix else f"galaxy_{galaxy_idx}_shapmap.png"
-        fig.savefig(os.path.join(analysis_dir, file_name))
-        plt.close(fig)
+    # save positions
+    np.save(os.path.join(analysis_dir, 'shap_influence.npy'), positions)
+
 
 if __name__ == '__main__':
 
