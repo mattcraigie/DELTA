@@ -256,13 +256,15 @@ def run_shapmap_experiment(model, positions, orientations, properties, k, num_sa
         progress_hide=True
     )
 
-    galaxy_idx = 1137474  # hardcoding in a nice one to visualise because it sits in a subhalo
+    # hardcoding in a nice one to visualise because it sits in a subhalo
+    point_loc = (947, 972)  # The target point
+    distances = np.sum((positions[:, :2] - np.array(point_loc)) ** 2, axis=1)
+    galaxy_idx = np.argmin(distances)
 
-
-    positions = shap_influence_scatter(explainer, data, galaxy_idx=galaxy_idx, num_samples=num_samples)
+    shap_influence = shap_influence_scatter(explainer, data, galaxy_idx=galaxy_idx, num_samples=num_samples)
 
     # save positions
-    np.save(os.path.join(analysis_dir, 'shap_influence.npy'), positions)
+    np.save(os.path.join(analysis_dir, 'shap_influence.npy'), shap_influence)
 
 
 if __name__ == '__main__':
