@@ -21,6 +21,8 @@ def load_dataset(root_dir, alignment_strength):
 
         data[component] = np.load(path)
 
+    data['positions'] = data['positions'][:, :2]  # Only use the x and y coordinates
+
     return data
 
 
