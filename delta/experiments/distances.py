@@ -26,7 +26,7 @@ def analyze_shap_vs_distance(explainer, data, max_distance, num_samples, num_exp
     - mean_bin_values: Mean SHAP values in each distance bin
     - std_bin_values: Standard deviation of SHAP values in each distance bin
     """
-    positions = data.x[:, -2:].cpu().numpy()
+    positions = data.x[:, 1:3].cpu().numpy()
 
     # Extract the number of galaxies
     num_galaxies = positions.shape[0]
@@ -260,7 +260,7 @@ def run_shapmap_experiment(model, positions, orientations, properties, k, num_sa
     )
 
     # hardcoding in a nice one to visualise because it sits in a subhalo
-    point_loc = (947, 972)  # The target point
+    point_loc = (944, 976)  # The target point
     distances = np.sum((positions[:, :2] - np.array(point_loc)) ** 2, axis=1)
     galaxy_idx = np.argmin(distances)
     print(positions[galaxy_idx])
