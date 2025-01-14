@@ -173,6 +173,111 @@ def run_distance_experiment(model, positions, orientations, properties, k, max_d
     save_plot(fig, root_dir=analysis_dir, file_name=file_name_prefix + "_distance_analysis.png")
 
 
+def shap_influence_scatter(explainer, data, galaxy_idx, num_samples, batch_size=128):
+    """
+    Measures SHAP values of galaxies near a given galaxy and maps their influence.
+
+    Parameters:
+    - explainer: Explainer object for the GNN model
+    - data: Dataset containing node features and edge indices
+    - galaxy_idx: Index of the galaxy for which neighbors are analyzed
+    - num_samples: Number of samples for SHAP explanation
+    - batch_size: Batch size for SHAP explanation
+
+    Returns:
+    - scatter_fig: Matplotlib figure object with the scatter plot
+    """
+    positions = data.x[:, -2:].cpu().numpy()
+
+    # Get SHAP explanation for the given galaxy
+    try:
+        explanation = explainer.explain(
+            int(galaxy_idx),
+            nsamples=num_samples,
+            sampler_name='GNNShapSampler',
+            batch_size=batch_size
+        )
+    except AssertionError as e:
+        print(f"Failed to compute SHAP explanation for galaxy {galaxy_idx}: {e}")
+        return None
+
+    # Extract linked nodes and SHAP values
+    linked_nodes = explanation.sub_edge_index
+    source_positions = positions[linked_nodes[0]]
+    weights = np.abs(explanation.shap_values)
+
+    # Filter out outliers
+    valid_mask = weights < 1e3
+    weights = weights[valid_mask]
+    source_positions = source_positions[valid_mask]
+
+    # Create scatter plot
+    scatter_fig, ax = plt.subplots(figsize=(8, 6))
+    scatter = ax.scatter(
+        source_positions[:, 0], source_positions[:, 1], c=weights, cmap='viridis', s=20, edgecolor='k', alpha=0.8
+    )
+
+    ax.set_title(f"SHAP Influence for Galaxy {galaxy_idx}")
+    ax.set_xlabel("X Position")
+    ax.set_ylabel("Y Position")
+
+    # Add color bar to indicate SHAP values
+    cbar = plt.colorbar(scatter, ax=ax)
+    cbar.set_label("SHAP Value", rotation=270, labelpad=15)
+
+    plt.tight_layout()
+    return scatter_fig
+
+def run_shapmap_experiment(model, positions, orientations, properties, k, num_samples, device, analysis_dir, file_name_prefix=None):
+    """
+    Runs an experiment to analyze SHAP values and generate scatter plots for multiple galaxies.
+
+    Parameters:
+    - model: The GNN model to analyze
+    - positions: Positions of the galaxies
+    - orientations: Orientations of the galaxies
+    - properties: Properties of the galaxies
+    - k: Number of neighbors in the graph
+    - num_samples: Number of samples for SHAP explanation
+    - num_explained_galaxies: Number of galaxies to analyze
+    - device: Torch device for computations
+    - analysis_dir: Directory to save results
+    - file_name_prefix: Prefix for saved file names
+    """
+    from gnnshap.explainer import GNNShapExplainer
+    from ..data.dataloading import GraphDataset
+    from ..utils.shap_analysis import DirectionClassificationWrapper, collate_fn
+    import os
+
+    num_classes = 8
+    wrapped_model = DirectionClassificationWrapper(model, num_classes=num_classes)
+
+    # Prepare the data
+    dataset = GraphDataset(positions, orientations, properties, k)
+    loader = torch.utils.data.DataLoader(dataset, batch_size=1,
+                                         collate_fn=lambda b: collate_fn(b, num_classes=num_classes))
+    data = next(iter(loader))
+
+    # Create GNNShap explainer
+    explainer = GNNShapExplainer(
+        wrapped_model,
+        data,
+        nhops=3,  # Adjust based on your model's architecture
+        verbose=0,
+        device=device,
+        progress_hide=True
+    )
+
+    galaxy_idx = 1137474  # hardcoding in a nice one to visualise because it sits in a subhalo
+
+
+    fig = shap_influence_scatter(explainer, data, galaxy_idx=galaxy_idx, num_samples=num_samples)
+
+    if fig is not None:
+        file_name = f"{file_name_prefix}_galaxy_{galaxy_idx}_shapmap.png" if file_name_prefix else f"galaxy_{galaxy_idx}_shapmap.png"
+        fig.savefig(os.path.join(analysis_dir, file_name))
+        plt.close(fig)
+
 if __name__ == '__main__':
 
     import argparse
@@ -186,6 +291,8 @@ if __name__ == '__main__':
     parser.add_argument('--max_distance', type=float, default=30)
     parser.add_argument('--num_samples', type=int, default=1000)
     parser.add_argument('--num_galaxies', type=int, default=10000)
+    parser.add_argument('--run_mapping', type=bool, default=False)
+    parser.add_argument('--run_distance', type=bool, default=True)
 
     args = parser.parse_args()
 
@@ -209,6 +316,12 @@ if __name__ == '__main__':
     analysis_dir = os.path.join(args.output_dir, 'distance_analysis')
     os.makedirs(analysis_dir, exist_ok=True)
 
-    run_distance_experiment(model, positions, orientations, properties, k=k, max_distance=args.max_distance, device=device,
-                            num_samples=args.num_samples, num_explained_galaxies=args.num_galaxies,
-                            analysis_dir=analysis_dir, file_name_prefix='distances')
+    if args.run_mapping:
+        run_shapmap_experiment(model, positions, orientations, properties, k=k, num_samples=args.num_samples,
+                               device=device, analysis_dir=analysis_dir, file_name_prefix='shapmap')
+
+    if args.run_distance:
+        run_distance_experiment(model, positions, orientations, properties, k=k, max_distance=args.max_distance, device=device,
+                                num_samples=args.num_samples, num_explained_galaxies=args.num_galaxies,
+                                analysis_dir=analysis_dir, file_name_prefix='distances')
+
