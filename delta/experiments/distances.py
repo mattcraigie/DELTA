@@ -211,22 +211,11 @@ def shap_influence_scatter(explainer, data, galaxy_idx, num_samples, batch_size=
     weights = weights[valid_mask]
     source_positions = source_positions[valid_mask]
 
-    # Create scatter plot
-    scatter_fig, ax = plt.subplots(figsize=(8, 6))
-    scatter = ax.scatter(
-        source_positions[:, 0], source_positions[:, 1], c=weights, cmap='viridis', s=20, edgecolor='k', alpha=0.8
-    )
+    # save positions and weights in an array together
+    source_positions = np.concatenate([source_positions, weights[:, None]], axis=1)
+    np.save(f"shapmap_galaxy_{galaxy_idx}.npy", source_positions)
 
-    ax.set_title(f"SHAP Influence for Galaxy {galaxy_idx}")
-    ax.set_xlabel("X Position")
-    ax.set_ylabel("Y Position")
-
-    # Add color bar to indicate SHAP values
-    cbar = plt.colorbar(scatter, ax=ax)
-    cbar.set_label("SHAP Value", rotation=270, labelpad=15)
-
-    plt.tight_layout()
-    return scatter_fig
+    return None
 
 def run_shapmap_experiment(model, positions, orientations, properties, k, num_samples, device, analysis_dir, file_name_prefix=None):
     """
