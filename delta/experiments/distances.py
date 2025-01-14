@@ -260,6 +260,7 @@ def run_shapmap_experiment(model, positions, orientations, properties, k, num_sa
     point_loc = (947, 972)  # The target point
     distances = np.sum((positions[:, :2] - np.array(point_loc)) ** 2, axis=1)
     galaxy_idx = np.argmin(distances)
+    print(positions[galaxy_idx])
 
     shap_influence = shap_influence_scatter(explainer, data, galaxy_idx=galaxy_idx, num_samples=num_samples)
 
