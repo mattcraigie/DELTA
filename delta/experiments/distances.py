@@ -187,7 +187,7 @@ def shap_influence_scatter(explainer, data, galaxy_idx, num_samples, batch_size=
     Returns:
     - scatter_fig: Matplotlib figure object with the scatter plot
     """
-    positions = data.x[:, :2].cpu().numpy()
+    positions = data.x[:, 1:3].cpu().numpy()
 
     print(data.x.shape)
     print(data.x)
