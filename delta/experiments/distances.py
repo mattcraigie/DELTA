@@ -256,7 +256,7 @@ def run_shapmap_experiment(model, positions, orientations, properties, k, num_sa
         wrapped_model,
         data,
         nhops=3,  # Adjust based on your model's architecture
-        verbose=0,
+        verbose=1,
         device=device,
         progress_hide=True
     )
