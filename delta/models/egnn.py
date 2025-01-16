@@ -42,6 +42,7 @@ class EGNN(nn.Module):
         v = self.vector_mlp(h)
 
         # Update positions based on relative positions
+        print(rel_pos.shape)
         rel_theta = torch.arctan2(rel_pos[:, 1], rel_pos[:, 0])
         rel_phi = torch.arctan2(rel_pos[:, 2], torch.sqrt(rel_pos[:, 0] ** 2 + rel_pos[:, 1] ** 2))
         rel_pos = rel_dist * torch.stack([torch.cos(2 * rel_theta), torch.sin(2 * rel_theta), rel_phi], dim=1)
