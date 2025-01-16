@@ -23,15 +23,15 @@ class EGNN(nn.Module):
         self.coord_mlp = MLP(hidden_dim, 1, hidden_layers=[hidden_dim,])
 
     def forward(self, h, x, edge_index):
-        print(x.shape)
+        print('x shape', x.shape)
         row, col = edge_index
-        print(row.shape, col.shape)
+        print('rowcol shapes', row.shape, col.shape)
 
         h = self.node_embedding(h)
 
         for _ in range(self.num_layers):
             rel_pos = x[row] - x[col]  # 3D relative position
-            print(rel_pos.shape)
+            print('rel_pos shape', rel_pos.shape)
             rel_dist = (rel_pos ** 2).sum(dim=-1, keepdim=True)
             edge_feat = torch.cat([h[row], h[col], rel_dist], dim=-1)
             m_ij = self.edge_mlp(edge_feat)
