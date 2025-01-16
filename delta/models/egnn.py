@@ -25,11 +25,13 @@ class EGNN(nn.Module):
     def forward(self, h, x, edge_index):
         print(x.shape)
         row, col = edge_index
+        print(row.shape, col.shape)
 
         h = self.node_embedding(h)
 
         for _ in range(self.num_layers):
             rel_pos = x[row] - x[col]  # 3D relative position
+            print(rel_pos.shape)
             rel_dist = (rel_pos ** 2).sum(dim=-1, keepdim=True)
             edge_feat = torch.cat([h[row], h[col], rel_dist], dim=-1)
             m_ij = self.edge_mlp(edge_feat)
@@ -43,7 +45,6 @@ class EGNN(nn.Module):
         v = self.vector_mlp(h)
 
         # Update positions based on relative positions
-        print(rel_pos.shape)
         rel_theta = torch.arctan2(rel_pos[:, 1], rel_pos[:, 0])
         rel_phi = torch.arctan2(rel_pos[:, 2], torch.sqrt(rel_pos[:, 0] ** 2 + rel_pos[:, 1] ** 2))
         rel_pos = rel_dist * torch.stack([torch.cos(2 * rel_theta), torch.sin(2 * rel_theta), rel_phi], dim=1)
