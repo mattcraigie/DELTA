@@ -216,7 +216,8 @@ def shap_influence_scatter(explainer, data, galaxy_idx, num_samples, batch_size=
 
     return source_positions
 
-def run_shapmap_experiment(model, positions, orientations, properties, k, num_samples, device, analysis_dir, file_name_prefix=None):
+def run_shapmap_experiment(model, positions, orientations, properties, k, num_samples, device, analysis_dir, file_name_prefix=None,
+                           central_coordinates='944,976'):
     """
     Runs an experiment to analyze SHAP values and generate scatter plots for multiple galaxies.
 
@@ -257,7 +258,7 @@ def run_shapmap_experiment(model, positions, orientations, properties, k, num_sa
     )
 
     # hardcoding in a nice one to visualise because it sits in a subhalo
-    point_loc = (944, 976)  # The target point
+    point_loc = [int(x) for x in central_coordinates.split(',')]
     distances = np.sum((positions[:, :2] - np.array(point_loc)) ** 2, axis=1)
     galaxy_idx = np.argmin(distances)
 
@@ -282,6 +283,7 @@ if __name__ == '__main__':
     parser.add_argument('--num_galaxies', type=int, default=10000)
     parser.add_argument('--run_mapping', type=bool, default=False)
     parser.add_argument('--run_distance', type=bool, default=True)
+    parser.add_argument('--central_coordinates', type=str, default='947,972')
 
     args = parser.parse_args()
 
@@ -307,7 +309,8 @@ if __name__ == '__main__':
 
     if args.run_mapping:
         run_shapmap_experiment(model, positions, orientations, properties, k=k, num_samples=args.num_samples,
-                               device=device, analysis_dir=analysis_dir, file_name_prefix='shapmap')
+                               device=device, analysis_dir=analysis_dir, file_name_prefix='shapmap',
+                               central_coordinates=args.central_coordinates)
 
     if args.run_distance:
         run_distance_experiment(model, positions, orientations, properties, k=k, max_distance=args.max_distance, device=device,
