@@ -189,9 +189,6 @@ def shap_influence_scatter(explainer, data, galaxy_idx, num_samples, batch_size=
     """
     positions = data.x[:, 1:].cpu().numpy()
 
-    print(data.x.shape)
-    print(data.x)
-
     # Get SHAP explanation for the given galaxy
     try:
         explanation = explainer.explain(
@@ -249,8 +246,6 @@ def run_shapmap_experiment(model, positions, orientations, properties, k, num_sa
                                          collate_fn=lambda b: collate_fn(b, num_classes=num_classes))
     data = next(iter(loader))
 
-    print(data.x.shape)
-
     # Create GNNShap explainer
     explainer = GNNShapExplainer(
         wrapped_model,
@@ -265,7 +260,6 @@ def run_shapmap_experiment(model, positions, orientations, properties, k, num_sa
     point_loc = (944, 976)  # The target point
     distances = np.sum((positions[:, :2] - np.array(point_loc)) ** 2, axis=1)
     galaxy_idx = np.argmin(distances)
-    print(positions[galaxy_idx])
 
     shap_influence = shap_influence_scatter(explainer, data, galaxy_idx=galaxy_idx, num_samples=num_samples)
 
