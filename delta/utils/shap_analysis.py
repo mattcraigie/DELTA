@@ -16,13 +16,13 @@ class DirectionClassificationWrapper(nn.Module):
 
     def forward(self, node_features, edge_index, edge_weight=None):
         # Assume node_features = [h, x]
-         # x has dimension 2 (positions)
+         # x has dimension 3 (positions)
         node_features = node_features.to(self.model.device)
         edge_index = edge_index.to(self.model.device)
 
 
         h = node_features[:, :self.num_properties]
-        x = node_features[:, self.num_properties:self.num_properties+2]
+        x = node_features[:, self.num_properties:self.num_properties+3]
 
         # Run the original EGNN model
         mu, kappa = self.model(h, x, edge_index)
