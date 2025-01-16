@@ -23,6 +23,7 @@ class EGNN(nn.Module):
         self.coord_mlp = MLP(hidden_dim, 1, hidden_layers=[hidden_dim,])
 
     def forward(self, h, x, edge_index):
+        print(x.shape)
         row, col = edge_index
 
         h = self.node_embedding(h)
