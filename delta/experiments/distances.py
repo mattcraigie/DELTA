@@ -249,6 +249,8 @@ def run_shapmap_experiment(model, positions, orientations, properties, k, num_sa
                                          collate_fn=lambda b: collate_fn(b, num_classes=num_classes))
     data = next(iter(loader))
 
+    print(data.x.shape)
+
     # Create GNNShap explainer
     explainer = GNNShapExplainer(
         wrapped_model,
