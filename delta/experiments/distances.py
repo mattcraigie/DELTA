@@ -204,7 +204,7 @@ def shap_influence_scatter(explainer, data, galaxy_idx, num_samples, batch_size=
     # Extract linked nodes and SHAP values
     linked_nodes = explanation.sub_edge_index
     source_positions = positions[linked_nodes[0]]
-    weights = np.abs(explanation.shap_values)
+    weights = explanation.shap_values
 
     # Filter out outliers
     valid_mask = weights < 1e3
@@ -283,7 +283,7 @@ if __name__ == '__main__':
     parser.add_argument('--num_galaxies', type=int, default=10000)
     parser.add_argument('--run_mapping', type=bool, default=False)
     parser.add_argument('--run_distance', type=bool, default=True)
-    parser.add_argument('--central_coordinates', type=str, default='947,972')
+    parser.add_argument('--central_coordinates', type=str, default='946,972')
 
     args = parser.parse_args()
 
