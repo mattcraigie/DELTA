@@ -258,7 +258,7 @@ def run_shapmap_experiment(model, positions, orientations, properties, k, num_sa
     )
 
     # hardcoding in a nice one to visualise because it sits in a subhalo
-    point_loc = [int(x) for x in central_coordinates.split(',')]
+    point_loc = [float(x) for x in central_coordinates.split(',')]
     distances = np.sum((positions[:, :2] - np.array(point_loc)) ** 2, axis=1)
     galaxy_idx = np.argmin(distances)
 
