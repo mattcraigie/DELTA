@@ -26,7 +26,7 @@ def analyze_shap_vs_distance(explainer, data, max_distance, num_samples, num_exp
     - mean_bin_values: Mean SHAP values in each distance bin
     - std_bin_values: Standard deviation of SHAP values in each distance bin
     """
-    positions = data.x[:, 1:3].cpu().numpy()
+    positions = data.x[:, 1:].cpu().numpy()
 
     # Extract the number of galaxies
     num_galaxies = positions.shape[0]
@@ -187,7 +187,7 @@ def shap_influence_scatter(explainer, data, galaxy_idx, num_samples, batch_size=
     Returns:
     - scatter_fig: Matplotlib figure object with the scatter plot
     """
-    positions = data.x[:, 1:3].cpu().numpy()
+    positions = data.x[:, 1:].cpu().numpy()
 
     print(data.x.shape)
     print(data.x)
