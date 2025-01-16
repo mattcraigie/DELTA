@@ -28,7 +28,6 @@ class EGNN(nn.Module):
 
         for _ in range(self.num_layers):
             rel_pos = x[row] - x[col]  # 3D relative position
-            print('rel_pos shape', rel_pos.shape)
             rel_dist = (rel_pos ** 2).sum(dim=-1, keepdim=True)
             edge_feat = torch.cat([h[row], h[col], rel_dist], dim=-1)
             m_ij = self.edge_mlp(edge_feat)
