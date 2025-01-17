@@ -82,9 +82,6 @@ def run_basic_experiment(config):
                 pretrain_learning_rate,
                 device
             )
-            # Save pre-trained model
-            torch.save(model.compression_network.egnn.state_dict(),
-                       os.path.join(analysis_dir, "compression_model.pth"))
 
         elif config["training"]["load_pretrained_full"]:
             pretrain_path = os.path.join(analysis_dir, "model.pth")
@@ -119,7 +116,12 @@ def run_basic_experiment(config):
     if best_model_state is not None:
         model.load_state_dict(best_model_state)
 
+    # Save pre-trained model
+    torch.save(model.compression_network.egnn.state_dict(),
+               os.path.join(analysis_dir, "compression_model.pth"))
+
     # Save the final best model and losses
+
     torch.save(model.state_dict(), os.path.join(analysis_dir, "model.pth"))
     np.save(os.path.join(analysis_dir, "losses.npy"), best_losses)
 
@@ -153,4 +155,4 @@ def run_basic_experiment(config):
     # Generate plots and maps
     plot_results(best_losses, predictions, targets, analysis_dir, file_name_prefix='data')
     plot_results(best_losses, predictions, targets_full, analysis_dir, file_name_prefix="true")
-    create_maps(positions, targets, targets_full, predictions_mu, predictions_kappa)
+    create_maps(positions, targets, targets_full, predictions_mu, predictions_kappa, root_dir=analysis_dir)
