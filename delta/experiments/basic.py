@@ -45,9 +45,7 @@ def run_basic_experiment(config):
     datasets['train'].h = np.ones((datasets['train'].h.shape[0], 1), dtype=np.float32)
     datasets['val'].h   = np.ones((datasets['val'].h.shape[0],   1), dtype=np.float32)
 
-    # Initialize model
-    model = init_vmdn(config["model"])
-    model.to(device)
+
 
 
     # ----------------------
@@ -62,6 +60,10 @@ def run_basic_experiment(config):
 
     for i in range(num_repeats):
         print(f"\n=== Repeat {i+1}/{num_repeats} ===")
+
+        # Initialize model
+        model = init_vmdn(config["model"])
+        model.to(device)
 
         if config["training"]["load_pretrained_compression"]:
             pretrain_path = os.path.join(analysis_dir, "compression_model.pth")
