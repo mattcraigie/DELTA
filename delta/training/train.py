@@ -54,7 +54,8 @@ def train_model(model,
                 num_epochs,
                 learning_rate,
                 device,
-                print_every=10):
+                print_every=10,
+                return_best_loss=False):
     """
     The main training loop.
     """
@@ -98,5 +99,9 @@ def train_model(model,
     if best_model_weights is not None:
         model.load_state_dict(best_model_weights)
         print(f'Loaded best model weights with validation loss: {best_val_loss:.6f}')
+
+
+    if return_best_loss:
+        return model, {'train': train_losses, 'val': val_losses}, best_val_loss
 
     return model, {'train': train_losses, 'val': val_losses}
