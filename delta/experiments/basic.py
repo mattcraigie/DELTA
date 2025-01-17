@@ -117,8 +117,9 @@ def run_basic_experiment(config):
         model.load_state_dict(best_model_state)
 
     # Save pre-trained model
-    torch.save(model.compression_network.egnn.state_dict(),
-               os.path.join(analysis_dir, "compression_model.pth"))
+    if config["training"]["pretrain"]:
+        torch.save(model.compression_network.egnn.state_dict(),
+                   os.path.join(analysis_dir, "compression_model.pth"))
 
     # Save the final best model and losses
 
