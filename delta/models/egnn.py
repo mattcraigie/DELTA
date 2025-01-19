@@ -56,7 +56,7 @@ class EGNN(nn.Module):
         # calculate the vectors based on the edge features weighted by the relative positions.
         print(rel_pos_spin2.shape)  # shape (E, 3)
         print(edge_features_ij.shape)  # shape (E, hidden_dim)
-        print(self.weighting_mlp(edge_features_ij))
+        print(self.weighting_mlp(edge_features_ij).shape)
 
         rel_pos_scaled = rel_pos_spin2.unsqueeze(1) * self.weighting_mlp(edge_features_ij)  # shape (E, hidden_dim, 3)
         v = scatter(rel_pos_scaled, row, dim=0,
