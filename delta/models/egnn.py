@@ -20,7 +20,7 @@ class EGNN(nn.Module):
         self.edge_mlp = MLP(hidden_dim * 2 + 1, hidden_dim, hidden_layers=[hidden_dim, ])
         self.node_mlp = MLP(hidden_dim * 2, hidden_dim, hidden_layers=[hidden_dim,])
         # self.vector_mlp = MLP(hidden_dim, 2, hidden_layers=[hidden_dim,])
-        self.first_weighting = MLP(hidden_dim, 1, hidden_layers=[hidden_dim,])
+        self.weighting_mlp = MLP(hidden_dim, hidden_dim, hidden_layers=[hidden_dim,])
 
     def forward(self, h, x, edge_index):
         row, col = edge_index
@@ -54,11 +54,11 @@ class EGNN(nn.Module):
 
 
         # calculate the vectors based on the edge features weighted by the relative positions.
-        print(rel_pos_spin2.shape)
-        print(edge_features_ij.shape)
+        print(rel_pos_spin2.shape)  # shape (E, 3)
+        print(edge_features_ij.shape)  # shape (E, hidden_dim)
         print(self.weighting_mlp(edge_features_ij))
 
-        rel_pos_scaled = rel_pos_spin2.unsqueeze(1) * self.weighting_mlp(edge_features_ij)
+        rel_pos_scaled = rel_pos_spin2.unsqueeze(1) * self.weighting_mlp(edge_features_ij)  # shape (E, hidden_dim, 3)
         v = scatter(rel_pos_scaled, row, dim=0,
                     dim_size=x.size(0), reduce='mean') # shape (N, hidden_dim, 3)
 
