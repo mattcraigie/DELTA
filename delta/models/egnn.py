@@ -20,8 +20,7 @@ class EGNN(nn.Module):
         self.edge_mlp = MLP(hidden_dim * 2 + 1, hidden_dim, hidden_layers=[hidden_dim, ])
         self.node_mlp = MLP(hidden_dim * 2, hidden_dim, hidden_layers=[hidden_dim,])
         # self.vector_mlp = MLP(hidden_dim, 2, hidden_layers=[hidden_dim,])
-        self.first_weighting_mlp = MLP(hidden_dim, hidden_dim, hidden_layers=[hidden_dim,])
-        self.subsequent_weighting_mlp = MLP(hidden_dim + 3 * hidden_dim, hidden_dim, hidden_layers=[hidden_dim,])
+        self.first_weighting = MLP(hidden_dim, 1, hidden_layers=[hidden_dim,])
 
     def forward(self, h, x, edge_index):
         row, col = edge_index
@@ -46,32 +45,26 @@ class EGNN(nn.Module):
             node_inputs = torch.cat([h, agg_edge_features_i], dim=-1)
             h = h + self.node_mlp(node_inputs)  # add to existing features rather than overwriting for stability
 
-            '''
-            # Compute latent-size features for relative positions
-            rel_pos_scaled = self.coord_mlp(m_ij).unsqueeze(-1) * rel_pos.unsqueeze(1)  # [num_edges, latent_size, 3]
-
-            # Scatter operation to aggregate the scaled positions
-            v = scatter(rel_pos_scaled, row, dim=0, dim_size=x.size(0), reduce='mean')  # [batch_size, latent_size, 3]
-
-            # Extract the 2D components (x, y) of the vector field
-            v = v[..., :2]  # [batch_size, latent_size, 2]
-            '''
-
-            # calculate the equivariant vectors
-            if layer_num == 0:
-                weighting_inputs = edge_features_ij
-                rel_pos_scaled = rel_pos_spin2.unsqueeze(1) * self.first_weighting_mlp(weighting_inputs).unsqueeze(-1)
-            else:
-                print(v.shape)
-                print(rel_pos_spin2.shape)
-                print(edge_features_ij.shape)
-                weighting_inputs = torch.cat([edge_features_ij, v.reshape(-1, 3 * self.hidden_dim)], dim=-1)
-                rel_pos_scaled = rel_pos_spin2.unsqueeze(1) * self.subsequent_weighting_mlp(weighting_inputs).unsqueeze(1)
-
-            v = scatter(rel_pos_scaled, row, dim=0,
-                        dim_size=x.size(0), reduce='mean')  # shape (N, hidden_dim, 3)
 
 
+
+            # I won't do this yet. I will add this later after I get hidden equivariant vectors working.
+            # we need an equivariant vector set of shape (N, hidden_dim) to add to the vectors
+            # v_additional = self.vector_mlp(v) # (N, hidden_dim, 3) -> (N, hidden_dim, 3)
+
+
+        # calculate the vectors based on the edge features weighted by the relative positions.
+        print(rel_pos_spin2.shape)
+        print(edge_features_ij.shape)
+        print(self.weighting_mlp(edge_features_ij))
+
+        rel_pos_scaled = rel_pos_spin2.unsqueeze(1) * self.weighting_mlp(edge_features_ij)
+        v = scatter(rel_pos_scaled, row, dim=0,
+                    dim_size=x.size(0), reduce='mean') # shape (N, hidden_dim, 3)
+
+
+        # Update the node features
+        v = v[:, 0, :2]  # Only use the x and y components of the first vector
 
         # Constrain predictions to lie on the unit circle
         v = F.normalize(v[:, :2], p=2, dim=-1)
