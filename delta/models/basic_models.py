@@ -24,7 +24,7 @@ class CompressionNetwork(nn.Module):
     def __init__(self, egnn):
         super(CompressionNetwork, self).__init__()
         self.egnn = egnn
-        self.out_size = egnn.hidden_dim + 1
+        self.out_size = egnn.hidden_dim
 
     def forward(self, *args):
         v_latent, _, _ = self.egnn(*args)  # v_latent shape: (N, hidden_dim, 3)
