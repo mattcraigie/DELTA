@@ -45,30 +45,16 @@ class EGNN(nn.Module):
             node_inputs = torch.cat([h, agg_edge_features_i], dim=-1)
             h = h + self.node_mlp(node_inputs)  # add to existing features rather than overwriting for stability
 
-
-
-
-            # I won't do this yet. I will add this later after I get hidden equivariant vectors working.
-            # we need an equivariant vector set of shape (N, hidden_dim) to add to the vectors
-            # v_additional = self.vector_mlp(v) # (N, hidden_dim, 3) -> (N, hidden_dim, 3)
-
-
         # calculate the vectors based on the edge features weighted by the relative positions.
-        print(rel_pos_spin2.shape)  # shape (E, 3)
-        print(edge_features_ij.shape)  # shape (E, hidden_dim)
-        print(self.weighting_mlp(edge_features_ij).shape)
+        rel_pos_scaled = rel_pos_spin2.unsqueeze(-2) * self.weighting_mlp(edge_features_ij).unsqueeze(-1)  # shape (N * K, hidden_dim, 3)
+        v_latent = scatter(rel_pos_scaled, row, dim=0,
+                    dim_size=x.size(0), reduce='mean') # shape (N, hidden_dim, 3)  |  This does scatter over first dim
 
-        rel_pos_scaled = rel_pos_spin2.unsqueeze(1) * self.weighting_mlp(edge_features_ij)  # shape (E, hidden_dim, 3)
-        v = scatter(rel_pos_scaled, row, dim=0,
-                    dim_size=x.size(0), reduce='mean') # shape (N, hidden_dim, 3)
-
-
-        # Update the node features
-        v = v[:, 0, :2]  # Only use the x and y components of the first vector
+        # use the first hidden_dim values to represent the output vector
+        v = v_latent[:, 0, :2]
 
         # Constrain predictions to lie on the unit circle
-        v = F.normalize(v[:, :2], p=2, dim=-1)
+        v = F.normalize(v, p=2, dim=-1)
 
-        return h, x, v  # todo: output only v
-
+        return v_latent, x, v
 
