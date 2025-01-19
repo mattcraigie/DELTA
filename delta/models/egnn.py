@@ -19,7 +19,7 @@ class EGNN(nn.Module):
         self.node_embedding = nn.Linear(num_properties, hidden_dim)
         self.edge_mlp = MLP(hidden_dim * 2 + 1, hidden_dim, hidden_layers=[hidden_dim, ])
         self.node_mlp = MLP(hidden_dim * 2, hidden_dim, hidden_layers=[hidden_dim,])
-        self.vector_mlp = MLP(hidden_dim, 2, hidden_layers=[hidden_dim,])
+        # self.vector_mlp = MLP(hidden_dim, 2, hidden_layers=[hidden_dim,])
         self.coord_mlp = MLP(hidden_dim, 1, hidden_layers=[hidden_dim,])
 
     def forward(self, h, x, edge_index):
@@ -38,14 +38,16 @@ class EGNN(nn.Module):
             h = h + self.node_mlp(node_inp)
 
         # Predicted vector field (2D)
-        v = self.vector_mlp(h)
+        # v = self.vector_mlp(h)
 
         # Update positions based on relative positions
         rel_theta = torch.arctan2(rel_pos[:, 1], rel_pos[:, 0])
         rel_phi = torch.arctan2(rel_pos[:, 2], torch.sqrt(rel_pos[:, 0] ** 2 + rel_pos[:, 1] ** 2))
         rel_pos = rel_dist * torch.stack([torch.cos(2 * rel_theta), torch.sin(2 * rel_theta), rel_phi], dim=1)
 
-        v = v + scatter(rel_pos * self.coord_mlp(m_ij), row, dim=0,
+        # v = v + scatter(rel_pos * self.coord_mlp(m_ij), row, dim=0,
+        #                 dim_size=x.size(0), reduce='mean')[:, :2]
+        v = scatter(rel_pos * self.coord_mlp(m_ij), row, dim=0,
                         dim_size=x.size(0), reduce='mean')[:, :2]
 
         # Constrain predictions to lie on the unit circle
