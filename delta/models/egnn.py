@@ -62,11 +62,15 @@ class EGNN(nn.Module):
                 weighting_inputs = edge_features_ij
                 rel_pos_scaled = rel_pos_spin2.unsqueeze(1) * self.first_weighting_mlp(weighting_inputs).unsqueeze(-1)
             else:
+                print(v.shape)
+                print(rel_pos_spin2.shape)
+                print(edge_features_ij.shape)
                 weighting_inputs = torch.cat([edge_features_ij, v.reshape(-1, 3 * self.hidden_dim)], dim=-1)
                 rel_pos_scaled = rel_pos_spin2.unsqueeze(1) * self.subsequent_weighting_mlp(weighting_inputs).unsqueeze(1)
 
             v = scatter(rel_pos_scaled, row, dim=0,
                         dim_size=x.size(0), reduce='mean')  # shape (N, hidden_dim, 3)
+
 
 
         # Constrain predictions to lie on the unit circle
