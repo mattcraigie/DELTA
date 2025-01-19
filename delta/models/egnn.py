@@ -20,8 +20,8 @@ class EGNN(nn.Module):
         self.edge_mlp = MLP(hidden_dim * 2 + 1, hidden_dim, hidden_layers=[hidden_dim, ])
         self.node_mlp = MLP(hidden_dim * 2, hidden_dim, hidden_layers=[hidden_dim,])
         # self.vector_mlp = MLP(hidden_dim, 2, hidden_layers=[hidden_dim,])
-        self.first_weighting_mlp = MLP(hidden_dim, 1, hidden_layers=[hidden_dim,])
-        self.subsequent_weighting_mlp = MLP(hidden_dim + 3 * hidden_dim, 1, hidden_layers=[hidden_dim,])
+        self.first_weighting_mlp = MLP(hidden_dim, hidden_dim, hidden_layers=[hidden_dim,])
+        self.subsequent_weighting_mlp = MLP(hidden_dim + 3 * hidden_dim, hidden_dim, hidden_layers=[hidden_dim,])
 
     def forward(self, h, x, edge_index):
         row, col = edge_index
