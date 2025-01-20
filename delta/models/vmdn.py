@@ -82,16 +82,16 @@ class VMDN(nn.Module):
             total_loss += self.lambda_kappa * kappa_penalty
 
             # isotropy penalty
-            cos_vals = torch.cos(mu[node_mask])
-            sin_vals = torch.sin(mu[node_mask])
-
-            cos_sum = cos_vals.mean(dim=0)
-            sin_sum = sin_vals.mean(dim=0)
-            isotropy_loss = (cos_sum ** 2 + sin_sum ** 2).mean()
-
-            print(isotropy_loss)
-
-            total_loss += 1.0 * isotropy_loss
+            # cos_vals = torch.cos(mu[node_mask])
+            # sin_vals = torch.sin(mu[node_mask])
+            #
+            # cos_sum = cos_vals.mean(dim=0)
+            # sin_sum = sin_vals.mean(dim=0)
+            # isotropy_loss = (cos_sum ** 2 + sin_sum ** 2).mean()
+            #
+            # print(isotropy_loss)
+            #
+            # total_loss += 1.0 * isotropy_loss
 
         return total_loss
 
