@@ -73,13 +73,13 @@ class VMDN(nn.Module):
         total_loss = nll
 
         # Penalize tight kappa if mu is far from target, and loose kappa if mu is close to target
-        if self.training:
-            mu_error = torch.abs(masked_target - masked_mu) % (2 * np.pi)  # Circular distance
-            tight_penalty = mu_error * kappa[node_mask]  # Penalize tightness when error is high
-            loose_penalty = (2 * np.pi - mu_error) / (kappa[node_mask] + 1e-6)  # Penalize looseness when error is low
-
-            kappa_penalty = torch.mean(tight_penalty + loose_penalty)
-            total_loss += self.lambda_kappa * kappa_penalty
+        # if self.training:
+        #     mu_error = torch.abs(masked_target - masked_mu) % (2 * np.pi)  # Circular distance
+        #     tight_penalty = mu_error * kappa[node_mask]  # Penalize tightness when error is high
+        #     loose_penalty = (2 * np.pi - mu_error) / (kappa[node_mask] + 1e-6)  # Penalize looseness when error is low
+        #
+        #     kappa_penalty = torch.mean(tight_penalty + loose_penalty)
+        #     total_loss += self.lambda_kappa * kappa_penalty
 
             # isotropy penalty
             # cos_vals = torch.cos(mu[node_mask])
