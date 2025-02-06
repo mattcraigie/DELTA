@@ -1,6 +1,5 @@
 import argparse
 import yaml
-
 from .data.preprocessing import preprocess_data
 
 
@@ -11,6 +10,10 @@ def load_config(config_path):
 
 
 def main(config):
+    """
+    Main logic for running the experiments as required.
+    Note the distances experiment is run by calling python -m delta.experiments.distances --output_dir XXX directly.
+    """
     # Data Preprocessing
     preprocess_data(config)
 

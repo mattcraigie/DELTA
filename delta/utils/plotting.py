@@ -8,15 +8,6 @@ import numpy as np
 def save_plot(fig, root_dir=None, file_name=None, subdir="plots"):
     """
     Save a matplotlib figure to the specified directory and file name.
-
-    Parameters:
-        fig (matplotlib.figure.Figure): The figure to save.
-        root_dir (str): Directory where the plot should be saved. Defaults to the current directory.
-        file_name (str): Name of the file to save. Defaults to 'plot.png'.
-        subdir (str): Subdirectory to save the file within the root directory. Defaults to 'plots'.
-
-    Returns:
-        file_path (str): Path to the saved plot.
     """
     if root_dir is None:
         root_dir = "."
@@ -37,7 +28,7 @@ def save_plot(fig, root_dir=None, file_name=None, subdir="plots"):
 
 def plot_losses(train_losses, val_losses, logy=True, root_dir=None, file_name=None):
     """
-    Plot the training and validation losses, save the figure, and return the file path.
+    Plot the training and validation losses and save the figure.
     """
 
     plt.figure()
@@ -61,7 +52,7 @@ def plot_losses(train_losses, val_losses, logy=True, root_dir=None, file_name=No
 def plot_predictions_heatmap(predictions, targets, x_variable='Predictions', y_variable='Targets', bins=50,
                              hist_range=None, pmax=None, cmap='Blues', root_dir=None, file_name=None):
     """
-    Plot a heatmap of the model predictions and targets.
+    Plot a heatmap of the model predictions and targets. The heatmap shows the conditional distribution P(y|x).
     """
 
     # Compute joint histogram
@@ -102,17 +93,6 @@ def plot_angular_means(prediction, target, n_bins=20, n_bootstrap=100, root_dir=
     """
     Plot angular means of target binned by prediction with bootstrap error bars,
     wrapping error bars within the range [-π, π].
-
-    Parameters:
-        prediction (np.ndarray): Array of predicted angular values.
-        target (np.ndarray): Array of target angular values.
-        n_bins (int): Number of bins for prediction.
-        n_bootstrap (int): Number of bootstrap resamples for error estimation.
-        root_dir (str): Directory to save the plot.
-        file_name (str): Name of the file to save the plot.
-
-    Returns:
-        file_path (str): Path to the saved plot.
     """
 
     def wrap_angle(angle):

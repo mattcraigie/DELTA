@@ -8,8 +8,13 @@ import os
 import yaml
 from ..data.dataloading import create_dataloaders
 
+# todo: update these functions with the new ones from my jupyter notebook
 
 def make_prediction_maps(positions, predictions, targets, targets_full, cmap):
+    """
+    Create a figure with the prediction maps for training targets, model predictions, and true targets.
+    """
+
     fig, axes = plt.subplots(1, 3, figsize=(15, 5))
 
     # training targets
@@ -29,6 +34,9 @@ def make_prediction_maps(positions, predictions, targets, targets_full, cmap):
 
 def error_heatmap(ax, prediction_error, kappa, x_variable='Prediction Error', y_variable='Model Kappa', bins=50,
                              hist_range=None, pmax=None, cmap='Blues'):
+    """
+    Create a heatmap of the conditional distribution P(y|x) of model kappa given prediction error.
+    """
 
     # Compute joint histogram
     joint_histogram, xedges, yedges = np.histogram2d(prediction_error.squeeze(1), kappa.squeeze(1), bins=bins, range=hist_range, density=True)
@@ -54,6 +62,12 @@ def error_heatmap(ax, prediction_error, kappa, x_variable='Prediction Error', y_
 
 
 def error_means(ax, prediction, target, n_bins=20, n_bootstrap=100, root_dir=None, file_name=None):
+    """
+    Plot angular means of target binned by prediction with bootstrap error bars, wrapping error bars within the range
+    [-π, π].
+    """
+
+
     # Compute angular means and bootstrap error bars
     bin_centers, angular_means, angular_errors = angular_mean_with_error(prediction, target, n_bins, n_bootstrap)
 
@@ -74,10 +88,11 @@ def error_means(ax, prediction, target, n_bins=20, n_bootstrap=100, root_dir=Non
     return
 
 
-
-
-
 def make_error_plots(positions, abs_error, true_abs_error, kappa, mask):
+    """
+    Create a figure with the prediction error vs true prediction error, model kappa values, and mean kappa for
+    prediction error bins.
+    """
     fig, axes = plt.subplots(1, 4, figsize=(20, 5))
 
     positions = positions[mask]
@@ -102,6 +117,9 @@ def make_error_plots(positions, abs_error, true_abs_error, kappa, mask):
 
 def create_maps(positions, targets, targets_full, mu, kappa, root_dir, file_name_prefix=None, map_type=None,
                           mask_edges=None):
+    """
+    Create prediction and error maps for a masked subset of the galaxy distribution.
+    """
 
     if mask_edges is None:
         mask_edges = (940, 960, 960, 980)
@@ -159,6 +177,8 @@ def create_maps(positions, targets, targets_full, mu, kappa, root_dir, file_name
 
 if __name__ == '__main__':
 
+    # Run this script to create prediction maps from a saved model output directory
+
     # argparse for model path
     parser = argparse.ArgumentParser(description='Create prediction map')
     parser.add_argument('--output_dir', type=str, required=True)
@@ -176,7 +196,6 @@ if __name__ == '__main__':
     targets = np.load(os.path.join(args.output_dir, 'targets.npy'))
     targets_full = np.load(os.path.join(args.output_dir, 'targets_full.npy'))
     positions = np.load(os.path.join(args.output_dir, 'positions.npy'))
-
 
     # create prediction map
 

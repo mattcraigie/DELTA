@@ -4,11 +4,10 @@ from scipy.spatial import cKDTree
 import torch
 from torch.utils.data import Dataset, DataLoader
 
-# todo: make this use batches instead of the entire dataset
 
 def load_dataset(root_dir, alignment_strength):
     """
-    Load the dataset from the given root directory.
+    Load the preprocessed dataset.
     """
 
     data_components = ['positions', 'orientations', 'properties']
@@ -20,8 +19,6 @@ def load_dataset(root_dir, alignment_strength):
             raise FileNotFoundError("The file {} does not exist.".format(path))
 
         data[component] = np.load(path)
-
-    # data['positions'] = data['positions'][:, :2]  # Only use the x and y coordinates
 
     return data
 

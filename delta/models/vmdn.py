@@ -6,7 +6,9 @@ from .egnn import EGNN
 from .basic_models import MLP, CompressionNetwork
 
 def init_vmdn(model_config):
-
+    """
+    Initialize a full EGNN compression + Von Mises Density Network (VMDN) model.
+    """
     num_properties = model_config["num_properties"]
     egnn_num_layers = model_config["egnn_num_layers"]
     egnn_hidden_dim = model_config["egnn_hidden_dim"]
@@ -23,9 +25,8 @@ def init_vmdn(model_config):
 
 class VMDN(nn.Module):
     """
-    Von Mises Density Network (VMDN) model.
-    Custom distribution network to model a Von Mises distribution.
-    The model predicts the mean (mu) and concentration (kappa).
+    Von Mises Density Network (VMDN) model. Custom distribution network to model a Von Mises distribution. The model
+    predicts the mean (mu) and concentration (kappa) of a Von Mises distribution based on a compressed input.
     """
 
     def __init__(self, compression_network, hidden_layers=None, lambda_kappa=0.0, dropout=0.0):
@@ -63,33 +64,34 @@ class VMDN(nn.Module):
         else:
             node_mask = torch.ones(log_prob.size(0), dtype=torch.bool)
         masked_log_prob = log_prob[node_mask]
-        masked_target = target[node_mask]  # Optionally mask the target too, for consistency
-        masked_mu = mu[node_mask]
-
 
         # Negative log-likelihood (NLL) loss on the masked subset
         nll = -masked_log_prob.mean()
-
         total_loss = nll
 
-        # Penalize tight kappa if mu is far from target, and loose kappa if mu is close to target
+        # Regularization - disabled currently.
+
+        # masked_target = target[node_mask]
+        # masked_mu = mu[node_mask]
+
         # if self.training:
+        #     # Penalize tight kappa if mu is far from target, and loose kappa if mu is close to target
         #     mu_error = torch.abs(masked_target - masked_mu) % (2 * np.pi)  # Circular distance
         #     tight_penalty = mu_error * kappa[node_mask]  # Penalize tightness when error is high
         #     loose_penalty = (2 * np.pi - mu_error) / (kappa[node_mask] + 1e-6)  # Penalize looseness when error is low
         #
         #     kappa_penalty = torch.mean(tight_penalty + loose_penalty)
         #     total_loss += self.lambda_kappa * kappa_penalty
-
-            # isotropy penalty
-            # cos_vals = torch.cos(mu[node_mask])
-            # sin_vals = torch.sin(mu[node_mask])
-            #
-            # cos_sum = cos_vals.mean(dim=0)
-            # sin_sum = sin_vals.mean(dim=0)
-            # isotropy_loss = (cos_sum ** 2 + sin_sum ** 2).mean()
-            #
-            # total_loss += 0.1 * isotropy_loss
+        #
+        #     # Penalize a lack of isotropy in the mu values
+        #     cos_vals = torch.cos(mu[node_mask])
+        #     sin_vals = torch.sin(mu[node_mask])
+        #
+        #     cos_sum = cos_vals.mean(dim=0)
+        #     sin_sum = sin_vals.mean(dim=0)
+        #     isotropy_loss = (cos_sum ** 2 + sin_sum ** 2).mean()
+        #
+        #     total_loss += 0.1 * isotropy_loss
 
         return total_loss
 

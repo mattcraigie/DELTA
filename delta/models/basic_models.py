@@ -3,6 +3,9 @@ import torch.nn as nn
 
 
 class MLP(nn.Module):
+    """
+    Basic multi-layer perceptron (MLP) model
+    """
     def __init__(self, input_dim, output_dim, hidden_layers=(), activation=nn.ReLU):
         super(MLP, self).__init__()
 
@@ -21,6 +24,9 @@ class MLP(nn.Module):
 
 
 class CompressionNetwork(nn.Module):
+    """
+    Compression network for the VMDN model. This is a wrapper around the EGNN model that outputs the latent vector as
+    an angle."""
     def __init__(self, egnn):
         super(CompressionNetwork, self).__init__()
         self.egnn = egnn

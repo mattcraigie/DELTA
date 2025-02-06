@@ -3,23 +3,35 @@ import numpy as np
 
 
 def angle_from_trig(costheta, sintheta):
+    """
+    Compute angle from x/y components.
+    """
     theta = np.arctan2(sintheta, costheta)
     return theta
 
 
 def circular_std(angles):
+    """
+    Compute circular standard deviation.
+    """
     sin_mean = np.mean(np.sin(angles))
     cos_mean = np.mean(np.cos(angles))
     return np.sqrt(-2 * np.log(np.sqrt(sin_mean ** 2 + cos_mean ** 2)))
 
 
 def circular_mean(angles):
+    """
+    Compute circular mean.
+    """
     sin_sum = np.sum(np.sin(angles))
     cos_sum = np.sum(np.cos(angles))
     return angle_from_trig(cos_sum, sin_sum)
 
 
 def angular_differences(angles_1, angles_2):
+    """
+    Compute shortest angular differences between two sets of angles.
+    """
     diff_abs = np.abs(angles_1 - angles_2)
     diff_complement = 2 * np.pi - diff_abs
     return np.minimum(diff_abs % (2 * np.pi), diff_complement % (2 * np.pi))
@@ -34,17 +46,6 @@ def signed_to_unsigned_angle(angles):
 def angular_mean_with_error(theta_1, theta_2, n_bins=20, n_bootstrap=100):
     """
     Calculate angular means and bootstrap error bars of theta_2 binned by theta_1.
-
-    Parameters:
-        theta_1 (array-like): Array of angular values for theta_1 (independent variable).
-        theta_2 (array-like): Array of angular values for theta_2 (dependent variable).
-        n_bins (int): Number of bins for theta_1.
-        n_bootstrap (int): Number of bootstrap resamples for error estimation.
-
-    Returns:
-        bin_centers (np.ndarray): Centers of the theta_1 bins.
-        angular_means (np.ndarray): Angular means of theta_2 for each bin.
-        angular_errors (np.ndarray): Bootstrap error bars for the angular means.
     """
     # Ensure theta_1 and theta_2 are wrapped between -pi and pi
     theta_1 = (theta_1 + np.pi) % (2 * np.pi) - np.pi
@@ -160,14 +161,7 @@ def get_vmdn_outputs(model, dataloader, device):
 
 def get_improvement_percentage(prediction, target):
     """
-    Calculate the improvement percentage in angular differences compared to a baseline.
-
-    Parameters:
-        prediction (np.ndarray): Array of predicted angular values.
-        target (np.ndarray): Array of target angular values.
-
-    Returns:
-        float: Improvement percentage.
+    Calculate the improvement percentage in angular differences compared to the random guess baseline.
     """
     # Compute angular differences
     angular_diff = angular_differences(prediction, target)

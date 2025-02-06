@@ -8,6 +8,11 @@ import torch.nn.functional as F
 
 
 class EGNN(nn.Module):
+    """
+    Equivariant Graph Neural Network (EGNN) model. This model is designed to predict output vectors of a system
+    based on the input node properties and relative positions of the nodes. The output vectors are equivariant to the
+    input positions, meaning that the output vectors will rotate with the input positions.
+    """
     def __init__(self, num_properties, num_layers, hidden_dim):
         super().__init__()
 
@@ -19,7 +24,6 @@ class EGNN(nn.Module):
         self.node_embedding = nn.Linear(num_properties, hidden_dim)
         self.edge_mlp = MLP(hidden_dim * 2 + 1, hidden_dim, hidden_layers=[hidden_dim, ])
         self.node_mlp = MLP(hidden_dim * 2, hidden_dim, hidden_layers=[hidden_dim,])
-        # self.vector_mlp = MLP(hidden_dim, 2, hidden_layers=[hidden_dim,])
         self.weighting_mlp = MLP(hidden_dim, hidden_dim, hidden_layers=[hidden_dim,])
 
     def forward(self, h, x, edge_index):

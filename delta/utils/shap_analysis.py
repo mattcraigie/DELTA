@@ -8,6 +8,11 @@ from ..data.dataloading import compute_edges_knn
 
 
 class DirectionClassificationWrapper(nn.Module):
+    """
+    Wrapper for a model that performs direction classification. This is a way to use a regression model for
+    classification by converting the output into classes based on the direction. This model will work with GNNSHAP by
+    default.
+    """
     def __init__(self, model, num_classes=8, num_properties=1):
         super(DirectionClassificationWrapper, self).__init__()
         self.model = model
@@ -45,6 +50,9 @@ class DirectionClassificationWrapper(nn.Module):
 
 
 def compute_direction_classes(target, num_classes=8):
+    """
+    Compute direction classes for a set of target directions.
+    """
     # target shape: (N, 2), a unit vector direction
     vx, vy = target[:, 0], target[:, 1]
     angles = np.arctan2(vy, vx)
@@ -76,5 +84,3 @@ def collate_fn(batch, num_classes=8):
     # If using GNNShapExplainer, it expects .x, .edge_index, .y fields in a torch_geometric.data.Data
     data = Data(x=node_features, edge_index=edge_index, y=target_classes)
     return data
-
-#todo: restructure code so that the model runs, saves, and then the experiments run post-training.

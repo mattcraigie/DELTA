@@ -67,7 +67,6 @@ def train_model(model,
     else:
         raise ValueError(f'Unknown model type: {type(model).__name__}')
 
-
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 
     train_losses = []
