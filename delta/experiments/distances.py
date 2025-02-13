@@ -291,9 +291,9 @@ if __name__ == '__main__':
     parser.add_argument('--max_distance', type=float, default=30)
     parser.add_argument('--num_samples', type=int, default=1000)
     parser.add_argument('--num_galaxies', type=int, default=10000)
-    parser.add_argument('--run_mapping', type=int, choices=[0, 1], default=0,
+    parser.add_argument('--run_mapping', type=int, choices=[0, 1], default=1,
                         help="Set to 1 to run mapping, 0 to disable")
-    parser.add_argument('--run_distance', type=int, choices=[0, 1], default=1,
+    parser.add_argument('--run_distance', type=int, choices=[0, 1], default=0,
                         help="Set to 1 to run distance analysis, 0 to disable")
     parser.add_argument('--central_coordinates', type=str, default='946,972')
 
