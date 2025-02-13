@@ -8,6 +8,7 @@ from ..utils.shap_analysis import DirectionClassificationWrapper, collate_fn
 from ..utils.plotting import save_plot
 import yaml
 
+
 def analyze_shap_vs_distance(explainer, data, max_distance, num_samples, num_explained_galaxies, batch_size=128):
     """
     Analyzes the relationship between SHAP importance values and distances between data points.
@@ -214,14 +215,6 @@ def shap_influence_scatter(explainer, data, galaxy_idx, num_samples, batch_size=
     source_positions = np.concatenate([source_positions, weights[:, None]], axis=1)
 
     return source_positions
-
-
-import os
-import numpy as np
-import torch
-from gnnshap.explainer import GNNShapExplainer
-from ..data.dataloading import GraphDataset
-from ..utils.shap_analysis import DirectionClassificationWrapper, collate_fn, shap_influence_scatter
 
 
 def run_shapmap_experiment(model, positions, orientations, properties, k, num_samples, device, analysis_dir,
