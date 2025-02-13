@@ -12,6 +12,8 @@ class EGNN(nn.Module):
     Equivariant Graph Neural Network (EGNN) model. This model is designed to predict output vectors of a system
     based on the input node properties and relative positions of the nodes. The output vectors are equivariant to the
     input positions, meaning that the output vectors will rotate with the input positions.
+
+    Inspired by and developed by following the methodology outlined in https://arxiv.org/pdf/2102.09844
     """
     def __init__(self, num_properties, num_layers, hidden_dim):
         super().__init__()

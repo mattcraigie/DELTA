@@ -215,8 +215,18 @@ def shap_influence_scatter(explainer, data, galaxy_idx, num_samples, batch_size=
 
     return source_positions
 
-def run_shapmap_experiment(model, positions, orientations, properties, k, num_samples, device, analysis_dir, file_name_prefix=None,
-                           central_coordinates='944,976'):
+
+import os
+import numpy as np
+import torch
+from gnnshap.explainer import GNNShapExplainer
+from ..data.dataloading import GraphDataset
+from ..utils.shap_analysis import DirectionClassificationWrapper, collate_fn, shap_influence_scatter
+
+
+def run_shapmap_experiment(model, positions, orientations, properties, k, num_samples, device, analysis_dir,
+                           file_name_prefix=None,
+                           central_coordinates='944,976', num_neighbors=5):
     """
     Runs an experiment to analyze SHAP values and generate scatter plots for multiple galaxies.
 
@@ -227,15 +237,14 @@ def run_shapmap_experiment(model, positions, orientations, properties, k, num_sa
     - properties: Properties of the galaxies
     - k: Number of neighbors in the graph
     - num_samples: Number of samples for SHAP explanation
-    - num_explained_galaxies: Number of galaxies to analyze
     - device: Torch device for computations
     - analysis_dir: Directory to save results
     - file_name_prefix: Prefix for saved file names
+    - central_coordinates: Coordinates used to find nearest galaxies
+    - num_neighbors: Number of nearest neighbors to process
     """
-    from gnnshap.explainer import GNNShapExplainer
-    from ..data.dataloading import GraphDataset
-    from ..utils.shap_analysis import DirectionClassificationWrapper, collate_fn
-    import os
+    # Ensure output directory exists
+    os.makedirs(analysis_dir, exist_ok=True)
 
     num_classes = 8
     wrapped_model = DirectionClassificationWrapper(model, num_classes=num_classes)
@@ -256,15 +265,24 @@ def run_shapmap_experiment(model, positions, orientations, properties, k, num_sa
         progress_hide=True
     )
 
-    # hardcoding in a nice one to visualise because it sits in a subhalo
-    point_loc = [float(x) for x in central_coordinates.split(',')]
-    distances = np.sum((positions[:, :2] - np.array(point_loc)) ** 2, axis=1)
-    galaxy_idx = np.argmin(distances)
+    # Convert central coordinates to a numpy array
+    point_loc = np.array([float(x) for x in central_coordinates.split(',')])
 
-    shap_influence = shap_influence_scatter(explainer, data, galaxy_idx=galaxy_idx, num_samples=num_samples)
+    # Compute distances and find the indices of the N nearest galaxies
+    distances = np.sum((positions[:, :2] - point_loc) ** 2, axis=1)
+    nearest_indices = np.argsort(distances)[:num_neighbors]
 
-    # save positions
-    np.save(os.path.join(analysis_dir, 'shap_influence.npy'), shap_influence)
+    # Iterate over nearest galaxies and generate SHAP maps
+    for i, galaxy_idx in enumerate(nearest_indices):
+        print(f"Processing galaxy {i + 1}/{num_neighbors} at index {galaxy_idx}")
+
+        shap_influence = shap_influence_scatter(explainer, data, galaxy_idx=galaxy_idx, num_samples=num_samples)
+
+        # Save positions
+        file_suffix = f"{file_name_prefix}_{i}" if file_name_prefix else f"galaxy_{i}"
+        np.save(os.path.join(analysis_dir, f'shap_influence_{file_suffix}.npy'), shap_influence)
+
+    print("SHAP map generation complete.")
 
 
 if __name__ == '__main__':
