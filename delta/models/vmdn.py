@@ -104,7 +104,7 @@ class VMDN(nn.Module):
             diff = torch.where(diff > torch.pi, 2 * torch.pi - diff, diff)
             penalty = torch.exp(- (diff ** 2) / (2 * 0.5 ** 2))
             pairwise_penalty = penalty.mean()
-            total_loss += 1 * pairwise_penalty
+            total_loss += 0.1 * pairwise_penalty
 
 
         return total_loss
