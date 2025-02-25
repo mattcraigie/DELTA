@@ -39,8 +39,8 @@ def run_basic_experiment(config):
     datasets, dataloaders = create_dataloaders(data_dir, alignment_strength, num_neighbors)
 
     # Disable properties for train/val so all are set to 1.0
-    datasets['train'].h = np.ones((datasets['train'].h.shape[0], 1), dtype=np.float32)
-    datasets['val'].h = np.ones((datasets['val'].h.shape[0], 1), dtype=np.float32)
+    # datasets['train'].h = np.ones((datasets['train'].h.shape[0], 1), dtype=np.float32)
+    # datasets['val'].h = np.ones((datasets['val'].h.shape[0], 1), dtype=np.float32)
 
     # ----------------------
     # 3. Training loop with full repeats
@@ -139,7 +139,7 @@ def run_basic_experiment(config):
     # ----------------------
     alignment_strength = 1.0
     dataset_full, dataloaders_full = create_dataloaders(data_dir, alignment_strength, num_neighbors)
-    dataset_full['val'].h = np.ones((dataset_full['val'].h.shape[0], 1), dtype=np.float32)
+    # dataset_full['val'].h = np.ones((dataset_full['val'].h.shape[0], 1), dtype=np.float32)
     _, targets_full = get_model_predictions(model, dataloaders_full['val'], device)
     np.save(os.path.join(analysis_dir, "targets_full.npy"), targets_full)
 
