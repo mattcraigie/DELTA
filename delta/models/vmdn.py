@@ -74,24 +74,24 @@ class VMDN(nn.Module):
         # masked_target = target[node_mask]
         # masked_mu = mu[node_mask]
 
-        # if self.training:
-        #     # Penalize tight kappa if mu is far from target, and loose kappa if mu is close to target
-        #     mu_error = torch.abs(masked_target - masked_mu) % (2 * np.pi)  # Circular distance
-        #     tight_penalty = mu_error * kappa[node_mask]  # Penalize tightness when error is high
-        #     loose_penalty = (2 * np.pi - mu_error) / (kappa[node_mask] + 1e-6)  # Penalize looseness when error is low
-        #
-        #     kappa_penalty = torch.mean(tight_penalty + loose_penalty)
-        #     total_loss += self.lambda_kappa * kappa_penalty
-        #
-        #     # Penalize a lack of isotropy in the mu values
-        #     cos_vals = torch.cos(mu[node_mask])
-        #     sin_vals = torch.sin(mu[node_mask])
-        #
-        #     cos_sum = cos_vals.mean(dim=0)
-        #     sin_sum = sin_vals.mean(dim=0)
-        #     isotropy_loss = (cos_sum ** 2 + sin_sum ** 2).mean()
-        #
-        #     total_loss += 0.1 * isotropy_loss
+        if self.training:
+            # Penalize tight kappa if mu is far from target, and loose kappa if mu is close to target
+            # mu_error = torch.abs(masked_target - masked_mu) % (2 * np.pi)  # Circular distance
+            # tight_penalty = mu_error * kappa[node_mask]  # Penalize tightness when error is high
+            # loose_penalty = (2 * np.pi - mu_error) / (kappa[node_mask] + 1e-6)  # Penalize looseness when error is low
+            #
+            # kappa_penalty = torch.mean(tight_penalty + loose_penalty)
+            # total_loss += self.lambda_kappa * kappa_penalty
+
+            # Penalize a lack of isotropy in the mu values
+            cos_vals = torch.cos(mu[node_mask])
+            sin_vals = torch.sin(mu[node_mask])
+
+            cos_sum = cos_vals.mean(dim=0)
+            sin_sum = sin_vals.mean(dim=0)
+            isotropy_loss = (cos_sum ** 2 + sin_sum ** 2).mean()
+
+            total_loss += 1 * isotropy_loss
 
         return total_loss
 
