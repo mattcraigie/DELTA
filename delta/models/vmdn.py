@@ -94,17 +94,17 @@ class VMDN(nn.Module):
             # total_loss += 1 * isotropy_loss
 
             num_pairs = 1000
-            N = angles.shape[0]
+            N = mu.shape[0]
             idx = torch.randint(0, N, (num_pairs, 2))
             mask = idx[:, 0] != idx[:, 1]
             idx = idx[mask]
-            a1 = angles[idx[:, 0]]
-            a2 = angles[idx[:, 1]]
+            a1 = mu[idx[:, 0]]
+            a2 = mu[idx[:, 1]]
             diff = torch.remainder(a1 - a2, 2 * torch.pi)
             diff = torch.where(diff > torch.pi, 2 * torch.pi - diff, diff)
-            penalty = torch.exp(- (diff ** 2) / (2 * sigma ** 2))
+            penalty = torch.exp(- (diff ** 2) / (2 * 0.5 ** 2))
             pairwise_penalty = penalty.mean()
-            loss += 1 * pairwise_penalty
+            total_loss += 1 * pairwise_penalty
 
 
         return total_loss
