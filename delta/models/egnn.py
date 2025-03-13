@@ -32,7 +32,7 @@ class EGNN(nn.Module):
         row, col = edge_index
         h = self.node_embedding(h)
         rel_pos = x[row] - x[col]  # 3D relative position
-        rel_dist = (rel_pos ** 2).sum(dim=-1, keepdim=True)
+        rel_dist = (rel_pos ** 2).sum(dim=-1, keepdim=True) ** 0.5
 
         # Update positions based on relative positions
         rel_theta = torch.arctan2(rel_pos[:, 1], rel_pos[:, 0])
@@ -52,6 +52,8 @@ class EGNN(nn.Module):
             h = h + self.node_mlp(node_inputs)  # add to existing features rather than overwriting for stability
 
         # calculate the vectors based on the edge features weighted by the relative positions.
+        # why am I not also using node features? could also include h[row] and h[col] as well as edge_features_ij
+        # I suppose edge features use those as inputs already so might be redundant
         rel_pos_scaled = rel_pos_spin2.unsqueeze(-2) * self.weighting_mlp(edge_features_ij).unsqueeze(-1)  # shape (N * K, hidden_dim, 3)
         v_latent = scatter(rel_pos_scaled, row, dim=0,
                     dim_size=x.size(0), reduce='mean') # shape (N, hidden_dim, 3)  |  This does scatter over first dim
