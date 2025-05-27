@@ -75,4 +75,15 @@ def preprocess_data(config):
         np.save(os.path.join(preprocessed_dir, f'orientations_{alignment_scenario}.npy'), orientations)
         np.save(os.path.join(preprocessed_dir, f'properties_{alignment_scenario}.npy'), properties)
 
+    # Check if the files already exist, if so, skip
+    alignment_scenario = 'full'  # needed for validation
+    if not os.path.exists(os.path.join(preprocessed_dir, f'positions_{alignment_scenario}.npy')):
+        positions, orientations, properties = load_raw_data(root_dir, alignment_scenario)
+        positions, orientations, properties = preprocessing(positions, orientations, properties)
+
+        # Write to files
+        np.save(os.path.join(preprocessed_dir, f'positions_{alignment_scenario}.npy'), positions)
+        np.save(os.path.join(preprocessed_dir, f'orientations_{alignment_scenario}.npy'), orientations)
+        np.save(os.path.join(preprocessed_dir, f'properties_{alignment_scenario}.npy'), properties)
+
     return
