@@ -139,7 +139,7 @@ def run_basic_experiment(config):
     # ----------------------
     # 5. Repeat for fully aligned data as a reference
     # ----------------------
-    alignment_strength = 1.0
+    alignment_strength = 'full'
     dataset_full, dataloaders_full = create_dataloaders(data_dir, alignment_strength, num_neighbors)
     dataset_full['val'].h = np.ones((dataset_full['val'].h.shape[0], 1), dtype=np.float32)
     _, targets_full = get_model_predictions(model, dataloaders_full['val'], device)
