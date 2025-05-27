@@ -57,7 +57,7 @@ class VMDN(nn.Module):
         mu, kappa = self.forward(*args)
         dist_vonmises = VonMises(mu, kappa)
         log_prob = dist_vonmises.log_prob(target)
-
+    
         # Apply a random mask to introduce stochasticity
         if self.training:
             node_mask = torch.rand(log_prob.size(0)) > self.dropout  # 20% dropout rate

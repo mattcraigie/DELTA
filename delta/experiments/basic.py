@@ -5,7 +5,7 @@ from ..models.vmdn import VMDN, init_vmdn
 from ..models.basic_models import CompressionNetwork
 from ..utils.plotting import plot_results
 from ..training.train import train_model
-from ..utils.utils import get_model_predictions, get_vmdn_outputs
+from ..utils.utils import get_model_predictions, get_vmdn_outputs, get_egnn_latent_outputs
 from ..utils.mapping import create_maps
 import os
 import numpy as np
@@ -39,8 +39,8 @@ def run_basic_experiment(config):
     datasets, dataloaders = create_dataloaders(data_dir, alignment_strength, num_neighbors)
 
     # Disable properties for train/val so all are set to 1.0
-    # datasets['train'].h = np.ones((datasets['train'].h.shape[0], 1), dtype=np.float32)
-    # datasets['val'].h = np.ones((datasets['val'].h.shape[0], 1), dtype=np.float32)
+    datasets['train'].h = np.ones((datasets['train'].h.shape[0], 1), dtype=np.float32)
+    datasets['val'].h = np.ones((datasets['val'].h.shape[0], 1), dtype=np.float32)
 
     # ----------------------
     # 3. Training loop with full repeats
@@ -123,6 +123,7 @@ def run_basic_experiment(config):
     # Do validation predictions with the best model and save
     predictions, targets = get_model_predictions(model, dataloaders['val'], device)
     predictions_mu, predictions_kappa = get_vmdn_outputs(model, dataloaders['val'], device)
+    latent_space = get_egnn_latent_outputs(model.compression_network.egnn, dataloaders['val'], device)
     positions = datasets['val'].positions
 
     np.save(os.path.join(analysis_dir, "predictions.npy"), predictions)
@@ -131,6 +132,7 @@ def run_basic_experiment(config):
     np.save(os.path.join(analysis_dir, "targets.npy"), targets)
     np.save(os.path.join(analysis_dir, "positions.npy"), positions)
     np.save(os.path.join(analysis_dir, "properties.npy"), datasets['val'].h)
+    np.save(os.path.join(analysis_dir, "latent_space.npy"), latent_space)
     with open(os.path.join(analysis_dir, "config.yaml"), 'w') as file:
         yaml.dump(config, file)
 
@@ -139,7 +141,7 @@ def run_basic_experiment(config):
     # ----------------------
     alignment_strength = 1.0
     dataset_full, dataloaders_full = create_dataloaders(data_dir, alignment_strength, num_neighbors)
-    # dataset_full['val'].h = np.ones((dataset_full['val'].h.shape[0], 1), dtype=np.float32)
+    dataset_full['val'].h = np.ones((dataset_full['val'].h.shape[0], 1), dtype=np.float32)
     _, targets_full = get_model_predictions(model, dataloaders_full['val'], device)
     np.save(os.path.join(analysis_dir, "targets_full.npy"), targets_full)
 

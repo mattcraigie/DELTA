@@ -1,7 +1,7 @@
 data:
   data_root: "./data"                # Root directory for data
-  alignment_strength: 0.5            # Initial alignment strength
-  num_neighbors: 10                  # Number of neighbors in data preprocessing
+  alignment_strength: high            # low/med/high
+  num_neighbors: 10                  # Number of neighbors
   batch_size: 1024                     # Batch size for training
 
 model:

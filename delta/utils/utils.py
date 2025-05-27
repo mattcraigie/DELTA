@@ -132,6 +132,26 @@ def get_model_predictions(model, dataloader, device, egnn=False, output_angle=Tr
     return predictions, targets
 
 
+def get_egnn_latent_outputs(model, dataloader, device):
+    """
+    Get the model predictions for a dataset.
+    """
+    model.eval()
+    all_latents = []
+
+    with torch.no_grad():
+        for h, x, edge_index, v_target in dataloader:
+            h = h.to(device)
+            x = x.to(device)
+            edge_index = edge_index.to(device)
+            latents, _, _ = model(h, x, edge_index)  # egnn returns h, x, and v_pred, where v_pred is the samples
+            all_latents.append(latents.cpu().numpy())
+
+    all_latents = np.concatenate(all_latents, axis=0)
+
+    return all_latents
+
+
 def get_vmdn_outputs(model, dataloader, device):
     """
     Get the output mu and kappa of a VMDN model for a dataset.
