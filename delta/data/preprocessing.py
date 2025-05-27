@@ -63,7 +63,7 @@ def preprocess_data(config):
     preprocessed_dir = os.path.join(root_dir, 'preprocessed')
     os.makedirs(preprocessed_dir, exist_ok=True)  # Ensure the preprocessed directory exists
 
-    alignment_scenario = config["data"]["alignment_scenario"]  # Now expects "low", "medium", or "high"
+    alignment_scenario = config["data"]["alignment_strength"]  # Now expects "low", "medium", or "high"
 
     # Check if the files already exist, if so, skip
     if not os.path.exists(os.path.join(preprocessed_dir, f'positions_{alignment_scenario}.npy')):
