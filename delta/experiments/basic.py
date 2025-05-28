@@ -144,6 +144,7 @@ def run_basic_experiment(config):
     # ----------------------
     alignment_strength = 'full'
     dataset_full, dataloaders_full = create_dataloaders(data_dir, alignment_strength, num_neighbors)
+    galaxy_types = dataset_full['val'].h[:, 4]
     dataset_full['val'].h = np.ones((dataset_full['val'].h.shape[0], 1), dtype=np.float32)
     _, targets_full = get_model_predictions(model, dataloaders_full['val'], device)
     np.save(os.path.join(analysis_dir, "targets_full.npy"), targets_full)
@@ -151,7 +152,7 @@ def run_basic_experiment(config):
     # ----------------------
     # 6. Generate plots and maps
     # ----------------------
-    galaxy_types = dataset_full['val'].h[:, 4]
+
     plot_results(best_losses, predictions, targets, galaxy_type=galaxy_types, analysis_dir=analysis_dir, file_name_prefix='data')
     plot_results(best_losses, predictions, targets_full, galaxy_type=galaxy_types, analysis_dir=analysis_dir, file_name_prefix="true")
     create_maps(positions, targets, targets_full, predictions_mu, predictions_kappa, root_dir=analysis_dir)
