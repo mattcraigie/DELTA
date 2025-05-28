@@ -217,7 +217,7 @@ def run_observables_experiment(config):
     """
 
     # hardcoded in for now
-    repeats = 3
+    repeats = 10
     num_permutations = 1  # Number of sub-repeats per permutation
 
     # Set the device
