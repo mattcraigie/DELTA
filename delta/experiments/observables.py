@@ -217,7 +217,7 @@ def run_observables_experiment(config):
     """
 
     # hardcoded in for now
-    repeats = 10
+    repeats = 3
     num_permutations = 1  # Number of sub-repeats per permutation
 
     # Set the device
@@ -237,10 +237,10 @@ def run_observables_experiment(config):
     datasets, dataloaders = create_dataloaders(data_dir, alignment_strength, num_neighbors)
 
     # Add observables to datasets
-    add_observables_to_datasets(datasets)
-    train_loader = DataLoader(datasets['train'], batch_size=1, shuffle=False, collate_fn=collate_fn)
-    val_loader = DataLoader(datasets['val'], batch_size=1, shuffle=False, collate_fn=collate_fn)
-    dataloaders = {'train': train_loader, 'val': val_loader}
+    # add_observables_to_datasets(datasets)
+    # train_loader = DataLoader(datasets['train'], batch_size=1, shuffle=False, collate_fn=collate_fn)
+    # val_loader = DataLoader(datasets['val'], batch_size=1, shuffle=False, collate_fn=collate_fn)
+    # dataloaders = {'train': train_loader, 'val': val_loader}
 
     num_columns = datasets['train'].h.shape[1]
 
