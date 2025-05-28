@@ -279,7 +279,7 @@ def run_observables_experiment(config):
 
 
         # Repeat with the fully aligned data
-        alignment_strength = 1.0
+        alignment_strength = 'full'
         dataset_full, _ = create_dataloaders(data_dir, alignment_strength, num_neighbors)
         targets_full = dataset_full['val'].orientations
         targets_full = angle_from_trig(targets_full[:, 0], targets_full[:, 1])[:, None]
