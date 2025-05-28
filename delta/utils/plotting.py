@@ -185,30 +185,71 @@ def plot_angular_differences(prediction, target, root_dir=None, file_name=None):
     return save_plot(fig, root_dir=root_dir, file_name=file_name)
 
 
-def plot_results(losses, predictions, targets, analysis_dir, file_name_prefix=None, egnn=False):
+def plot_results(losses, predictions, targets, galaxy_type=None, analysis_dir=None, file_name_prefix=None):
+    """
+    Plot training/validation losses and prediction metrics for all galaxies,
+    and separately for central and satellite galaxies if galaxy_type is provided.
 
-    # file names
-    if file_name_prefix is not None:
-        file_name_prefix = file_name_prefix + '_'
+    Args:
+        losses (dict): {'train': [...], 'val': [...]} time series of losses
+        predictions (array-like): shape (N,1) predictions
+        targets (array-like): shape (N,1) true values
+        galaxy_type (array-like or None): length-N binary array (0=central, 1=satellite)
+        analysis_dir (str): root directory for saving plots
+        file_name_prefix (str): optional prefix for files
+        egnn (bool): flag passed to downstream plotting funcs
+    """
+    # prepare filename prefix
+    if file_name_prefix:
+        prefix_base = file_name_prefix.rstrip('_') + '_'
     else:
-        file_name_prefix = ''
+        prefix_base = ''
 
-    # Plot losses
+    # ensure numpy arrays and squeeze
+    preds = np.squeeze(np.array(predictions))
+    targs = np.squeeze(np.array(targets))
+    # broadcast galaxy_type
+    if galaxy_type is not None:
+        gtype = np.squeeze(np.array(galaxy_type))
+        assert gtype.shape[0] == preds.shape[0], \
+            "galaxy_type must have same length as predictions/targets"
+    else:
+        gtype = None
+
+    # 1. Plot losses if available (only total)
     if losses is not None:
-        file_name_losses = file_name_prefix + 'losses.png'
-        plot_losses(losses['train'], losses['val'], root_dir=analysis_dir, file_name=file_name_losses)
+        losses_fname = prefix_base + 'losses.png'
+        plot_losses(losses['train'], losses['val'], root_dir=analysis_dir, file_name=losses_fname)
 
-    predictions, targets = predictions.squeeze(1), targets.squeeze(1)
+    # internal helper to plot for a subset
+    def _plot_subset(mask, label):
+        # subset data
+        sub_preds = preds[mask]
+        sub_targs = targs[mask]
+        # heatmap
+        f_heat = f"{prefix_base}{label}_heatmap.png"
+        plot_predictions_heatmap(sub_preds, sub_targs,
+                                 x_variable='Predicted Angle', y_variable='Target Angle',
+                                 root_dir=analysis_dir, file_name=f_heat)
+        # means
+        f_means = f"{prefix_base}{label}_means.png"
+        plot_angular_means(sub_preds, sub_targs,
+                           root_dir=analysis_dir, file_name=f_means)
+        # differences histogram
+        f_diff = f"{prefix_base}{label}_differences.png"
+        plot_angular_differences(sub_preds, sub_targs,
+                                 root_dir=analysis_dir, file_name=f_diff)
 
-    # Plot heatmap of angular predictions and targets
-    file_name_heatmap = file_name_prefix + 'heatmap.png'
-    plot_predictions_heatmap(predictions, targets, x_variable='Predicted Angle', y_variable='Target Angle',
-                             root_dir=analysis_dir, file_name=file_name_heatmap)
+    # 2. Plot for total (all)
+    _plot_subset(np.ones_like(preds, dtype=bool), 'total')
 
-    # Plot averaged angular predictions and targets
-    file_name_means = file_name_prefix + 'means.png'
-    plot_angular_means(predictions, targets, root_dir=analysis_dir, file_name=file_name_means)
-
-    # Plot histogram of angular predictions and targets
-    file_name_histogram = file_name_prefix + 'differences.png'
-    plot_angular_differences(predictions, targets, root_dir=analysis_dir, file_name=file_name_histogram)
+    # 3. If galaxy_type given, plot central and satellite
+    if gtype is not None:
+        # central = 0, satellite = 1
+        central_mask = (gtype == 0)
+        sat_mask = (gtype == 1)
+        # only plot if any data
+        if central_mask.any():
+            _plot_subset(central_mask, 'central')
+        if sat_mask.any():
+            _plot_subset(sat_mask, 'satellite')

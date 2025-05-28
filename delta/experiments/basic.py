@@ -151,6 +151,7 @@ def run_basic_experiment(config):
     # ----------------------
     # 6. Generate plots and maps
     # ----------------------
-    plot_results(best_losses, predictions, targets, analysis_dir, file_name_prefix='data')
-    plot_results(best_losses, predictions, targets_full, analysis_dir, file_name_prefix="true")
+    galaxy_types = dataset_full['val'].h[:, 4]
+    plot_results(best_losses, predictions, targets, galaxy_type=galaxy_types, analysis_dir=analysis_dir, file_name_prefix='data')
+    plot_results(best_losses, predictions, targets_full, galaxy_type=galaxy_types, analysis_dir=analysis_dir, file_name_prefix="true")
     create_maps(positions, targets, targets_full, predictions_mu, predictions_kappa, root_dir=analysis_dir)
