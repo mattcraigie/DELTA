@@ -49,9 +49,16 @@ def preprocessing(positions, orientations, properties):
     # Orientations are converted to spin-2 representation.
     orientations_processed = orientation_to_spin2(orientations)
 
-    # Properties are already preprocessed from galaxy_properties_array.npy
-    properties_processed = properties
+    # Reorder columns with is_satellite first
+    properties_reordered = properties[:, [4, 1, 2, 5, 7]]
 
+    # Take log of local density (last column, index 4 in reordered array)
+    properties_reordered[:, 4] = np.log10(properties_reordered[:, 4] + 1)
+
+    # Standardize only columns 1-4 (not the is_satellite column at index 0)
+    properties_processed = properties_reordered.copy()
+    properties_processed[:, 1:] = (properties_reordered[:, 1:] - np.mean(properties_reordered[:, 1:], axis=0)) / np.std(
+        properties_reordered[:, 1:], axis=0)
     return positions_processed, orientations_processed, properties_processed
 
 
