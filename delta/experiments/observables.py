@@ -89,22 +89,17 @@ def add_observables_to_datasets(datasets):
     Add observables to the datasets in-place. This assumes that datasets['train']
     and datasets['val'] have a 'h' attribute representing the properties.
     """
-    positions_train = datasets['train'].positions
-    positions_val = datasets['val'].positions
-
     # Extract the original properties from the train set (we assume train and val have same shape properties)
     original_properties_train = datasets['train'].h
     original_properties_val = datasets['val'].h
 
     # Create informative and uninformative observables for train
-    informative_obs_train = make_informative_observable(positions_train)
     uninformative_obs_train = make_uninformative_observable(original_properties_train)
-    datasets['train'].h = np.column_stack((informative_obs_train, uninformative_obs_train))
+    datasets['train'].h = np.column_stack((original_properties_train, uninformative_obs_train))
 
     # Create informative and uninformative observables for val
-    informative_obs_val = make_informative_observable(positions_val)
     uninformative_obs_val = make_uninformative_observable(original_properties_val)
-    datasets['val'].h = np.column_stack((informative_obs_val, uninformative_obs_val))
+    datasets['val'].h = np.column_stack((original_properties_val, uninformative_obs_val))
 
 
 def plot_swarm(scores_dict,
@@ -237,10 +232,10 @@ def run_observables_experiment(config):
     datasets, dataloaders = create_dataloaders(data_dir, alignment_strength, num_neighbors)
 
     # Add observables to datasets
-    # add_observables_to_datasets(datasets)
-    # train_loader = DataLoader(datasets['train'], batch_size=1, shuffle=False, collate_fn=collate_fn)
-    # val_loader = DataLoader(datasets['val'], batch_size=1, shuffle=False, collate_fn=collate_fn)
-    # dataloaders = {'train': train_loader, 'val': val_loader}
+    add_observables_to_datasets(datasets)
+    train_loader = DataLoader(datasets['train'], batch_size=1, shuffle=False, collate_fn=collate_fn)
+    val_loader = DataLoader(datasets['val'], batch_size=1, shuffle=False, collate_fn=collate_fn)
+    dataloaders = {'train': train_loader, 'val': val_loader}
 
     num_columns = datasets['train'].h.shape[1]
 
